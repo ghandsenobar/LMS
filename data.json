@@ -1,6 +1,6 @@
 {
-  "version": 7,
-  "updatedAt": "2026-10-12T22:12:52.565Z",
+  "version": 8,
+  "updatedAt": "2026-10-12T23:03:40.353Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -107,9 +107,9 @@
           "waste": "35.51"
         }
       ],
-      "updatedAt": 1791842997342,
+      "updatedAt": 1791846055929,
       "deleted": false,
-      "effInput": "200",
+      "effInput": "1000",
       "effStages": {
         "g_regen": {
           "groupName": "خیس بر",
@@ -135,7 +135,7 @@
           }
         }
       },
-      "effOutput": "128.972",
+      "effOutput": "644.86",
       "effPercent": "64.486",
       "wastePercent": "35.513999999999996"
     },
@@ -384,9 +384,9 @@
           "waste": "11.6"
         }
       ],
-      "updatedAt": 1791842987008,
+      "updatedAt": 1791846040494,
       "deleted": false,
-      "effInput": "200",
+      "effInput": "1000",
       "effStages": {
         "g_regen": {
           "groupName": "خیس بر",
@@ -412,7 +412,7 @@
           }
         }
       },
-      "effOutput": "147.55525",
+      "effOutput": "737.77625",
       "effPercent": "73.777625",
       "wastePercent": "26.222375"
     },
