@@ -1,6 +1,6 @@
 {
   "version": 7,
-  "updatedAt": "2026-10-12T22:00:40.589Z",
+  "updatedAt": "2026-10-12T22:06:22.076Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -107,8 +107,37 @@
           "waste": "35.51"
         }
       ],
-      "updatedAt": 1791529631387,
-      "deleted": false
+      "updatedAt": 1791842570863,
+      "deleted": false,
+      "effInput": "200",
+      "effStages": {
+        "g_regen": {
+          "groupName": "خیس بر",
+          "avgWaste": 15.149999999999999,
+          "values": {
+            "d_1791841982071_un3o": "16.4",
+            "d_1791841986304_wvgv": "13.9"
+          }
+        },
+        "g_kiln": {
+          "groupName": "گرمخانه",
+          "avgWaste": 0,
+          "values": {
+            "g_kiln_single": "0"
+          }
+        },
+        "g_crusher": {
+          "groupName": "قند شکن",
+          "avgWaste": 24,
+          "values": {
+            "d_1791842101415_rvom": "23",
+            "d_1791842110098_nlgo": "25"
+          }
+        }
+      },
+      "effOutput": "128.972",
+      "effPercent": "64.486",
+      "wastePercent": "35.513999999999996"
     },
     {
       "id": 1791444380425,
@@ -370,8 +399,37 @@
           "waste": "11.6"
         }
       ],
-      "updatedAt": 1791837058215,
-      "deleted": false
+      "updatedAt": 1791842746234,
+      "deleted": false,
+      "effInput": "200",
+      "effStages": {
+        "g_regen": {
+          "groupName": "خیس بر",
+          "avgWaste": 12.3,
+          "values": {
+            "d_1791841982071_un3o": "13",
+            "d_1791841986304_wvgv": "11.6"
+          }
+        },
+        "g_kiln": {
+          "groupName": "گرمخانه",
+          "avgWaste": 0,
+          "values": {
+            "g_kiln_single": "0"
+          }
+        },
+        "g_crusher": {
+          "groupName": "قند شکن",
+          "avgWaste": 15.875,
+          "values": {
+            "d_1791842101415_rvom": "15.55",
+            "d_1791842110098_nlgo": "16.2"
+          }
+        }
+      },
+      "effOutput": "147.55525",
+      "effPercent": "73.777625",
+      "wastePercent": "26.222375"
     },
     {
       "id": 1791836709839,
