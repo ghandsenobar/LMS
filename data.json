@@ -1,6 +1,6 @@
 {
   "version": 7,
-  "updatedAt": "2026-10-12T22:07:22.510Z",
+  "updatedAt": "2026-10-12T22:07:47.033Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -294,21 +294,6 @@
       "sh_ph": "",
       "updatedAt": 1791531051926,
       "deleted": false
-    },
-    {
-      "id": 1791606544850,
-      "type": "ab",
-      "date": "۱۴۰۵/۰۷/۱۸",
-      "time": "۰۷:۵۸",
-      "notes": "",
-      "product": "RO",
-      "hardness": "1",
-      "ec": "1",
-      "tds": "1",
-      "ph": "",
-      "sugar": "",
-      "updatedAt": 1791606707802,
-      "deleted": true
     },
     {
       "id": 1791780981285,
