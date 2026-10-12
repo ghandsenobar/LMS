@@ -1,6 +1,6 @@
 {
   "version": 7,
-  "updatedAt": "2026-10-12T22:07:47.033Z",
+  "updatedAt": "2026-10-12T22:10:09.966Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -107,7 +107,7 @@
           "waste": "35.51"
         }
       ],
-      "updatedAt": 1791842570863,
+      "updatedAt": 1791842997342,
       "deleted": false,
       "effInput": "200",
       "effStages": {
@@ -119,11 +119,11 @@
             "d_1791841986304_wvgv": "13.9"
           }
         },
-        "g_kiln": {
+        "g_1791842897046_uf2d": {
           "groupName": "گرمخانه",
           "avgWaste": 0,
           "values": {
-            "g_kiln_single": "0"
+            "d_1791842932924_vsm9": "0"
           }
         },
         "g_crusher": {
@@ -384,7 +384,7 @@
           "waste": "11.6"
         }
       ],
-      "updatedAt": 1791842746234,
+      "updatedAt": 1791842987008,
       "deleted": false,
       "effInput": "200",
       "effStages": {
@@ -396,11 +396,11 @@
             "d_1791841986304_wvgv": "11.6"
           }
         },
-        "g_kiln": {
+        "g_1791842897046_uf2d": {
           "groupName": "گرمخانه",
           "avgWaste": 0,
           "values": {
-            "g_kiln_single": "0"
+            "d_1791842932924_vsm9": "0"
           }
         },
         "g_crusher": {
@@ -481,9 +481,9 @@
       "type": "multi"
     },
     {
-      "id": "g_kiln",
+      "id": "g_1791842897046_uf2d",
       "name": "گرمخانه",
-      "type": "single"
+      "type": "multi"
     },
     {
       "id": "g_crusher",
@@ -511,6 +511,11 @@
       "id": "d_1791842110098_nlgo",
       "name": "وسط سالن",
       "groupId": "g_crusher"
+    },
+    {
+      "id": "d_1791842932924_vsm9",
+      "name": "شماره ۱",
+      "groupId": "g_1791842897046_uf2d"
     }
   ]
 }
