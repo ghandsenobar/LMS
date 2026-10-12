@@ -1,6 +1,6 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-12T23:03:40.353Z",
+  "updatedAt": "2026-10-12T23:04:31.427Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -494,22 +494,22 @@
   "effDevices": [
     {
       "id": "d_1791841982071_un3o",
-      "name": "نبات",
+      "name": "۱",
       "groupId": "g_regen"
     },
     {
       "id": "d_1791841986304_wvgv",
-      "name": "وسط",
+      "name": "۲",
       "groupId": "g_regen"
     },
     {
       "id": "d_1791842101415_rvom",
-      "name": "کنار دیوار",
+      "name": "۱",
       "groupId": "g_crusher"
     },
     {
       "id": "d_1791842110098_nlgo",
-      "name": "وسط سالن",
+      "name": "۲",
       "groupId": "g_crusher"
     },
     {
