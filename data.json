@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-09T07:30:55.963Z",
-  "updatedBy": "علی صنوبری",
+  "updatedAt": "2026-10-12T04:23:37.150Z",
+  "updatedBy": "unknown",
   "records": [
     {
       "id": 1791525799103,
@@ -265,6 +265,21 @@
       "sh_ph": "",
       "updatedAt": 1791531051926,
       "deleted": false
+    },
+    {
+      "id": 1791606544850,
+      "type": "ab",
+      "date": "۱۴۰۵/۰۷/۱۸",
+      "time": "۰۷:۵۸",
+      "notes": "",
+      "product": "RO",
+      "hardness": "1",
+      "ec": "1",
+      "tds": "1",
+      "ph": "",
+      "sugar": "",
+      "updatedAt": 1791606707802,
+      "deleted": true
     }
   ],
   "products": {
