@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-12T04:56:24.601Z",
+  "updatedAt": "2026-10-12T04:58:00.322Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -309,6 +309,22 @@
       "ph": "6.72",
       "sugar": "",
       "updatedAt": 1791780931437,
+      "deleted": false
+    },
+    {
+      "id": 1791781077191,
+      "type": "sharbat",
+      "date": "۱۴۰۵/۰۷/۲۰",
+      "time": "۰۸:۲۷",
+      "notes": "",
+      "product": "قند محصول",
+      "color": "۱.۹۵",
+      "ash": "۲۰",
+      "turbidity": "",
+      "so2": "۸.۵۶",
+      "sh_ec": "",
+      "sh_ph": "",
+      "updatedAt": 1791781077191,
       "deleted": false
     }
   ],
