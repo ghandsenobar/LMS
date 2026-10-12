@@ -1,6 +1,6 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-12T23:04:31.427Z",
+  "updatedAt": "2026-10-12T23:08:26.443Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -494,22 +494,22 @@
   "effDevices": [
     {
       "id": "d_1791841982071_un3o",
-      "name": "۱",
+      "name": "شماره ۱ دیوار نبات",
       "groupId": "g_regen"
     },
     {
       "id": "d_1791841986304_wvgv",
-      "name": "۲",
+      "name": "شماره ۲ وسط سالن",
       "groupId": "g_regen"
     },
     {
       "id": "d_1791842101415_rvom",
-      "name": "۱",
+      "name": "شماره ۱ کنار دیوار",
       "groupId": "g_crusher"
     },
     {
       "id": "d_1791842110098_nlgo",
-      "name": "۲",
+      "name": "شماره ۲ وسط سالن",
       "groupId": "g_crusher"
     },
     {
