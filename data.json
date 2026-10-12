@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "updatedAt": "2026-10-12T07:36:10.682Z",
+  "version": 5,
+  "updatedAt": "2026-10-12T10:41:43.852Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -293,8 +293,11 @@
       "tds": "1760",
       "ph": "7.7",
       "sugar": "",
-      "updatedAt": 1791780981285,
-      "deleted": false
+      "updatedAt": 1791801216904,
+      "deleted": false,
+      "dateValues": {
+        "regen": "۱۴۰۵/۰۷/۱۹"
+      }
     },
     {
       "id": 1791780931437,
@@ -342,14 +345,67 @@
       "sh_ph": "",
       "updatedAt": 1791790311824,
       "deleted": false
+    },
+    {
+      "id": 1791801138681,
+      "type": "eff",
+      "date": "۱۴۰۵/۰۷/۲۰",
+      "time": "۱۴:۰۲",
+      "notes": "",
+      "devices": [
+        {
+          "device": "خیس بر شماره ۱ نبات",
+          "waste": "16.4"
+        },
+        {
+          "device": "خیس بر شماره ۲ وسط",
+          "waste": "13.9"
+        },
+        {
+          "device": "قند شکن شماره ۱ دیوار",
+          "waste": "23"
+        },
+        {
+          "device": "قند شکن شماره ۲ وسط",
+          "waste": "25"
+        },
+        {
+          "device": "راندمان کل",
+          "waste": "35.51"
+        }
+      ],
+      "updatedAt": 1791801138680,
+      "deleted": false
     }
   ],
   "products": {
     "ab": [
-      "RO",
-      "سختی گیر",
-      "تغذیه کوره",
-      "دیگ بخار"
+      {
+        "name": "RO",
+        "dateFields": [
+          {
+            "key": "cip",
+            "label": "تاریخ CIP"
+          }
+        ]
+      },
+      {
+        "name": "سختی گیر",
+        "dateFields": [
+          {
+            "key": "regen",
+            "label": "تاریخ احیا"
+          }
+        ]
+      },
+      {
+        "name": "تغذیه کوره",
+        "dateFields": []
+      },
+      {
+        "name": "دیگ بخار",
+        "dateFields": []
+      }
     ],
     "sharbat": [
       "شکر نیشابور",
