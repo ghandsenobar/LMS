@@ -1,6 +1,6 @@
 {
-  "version": 6,
-  "updatedAt": "2026-10-12T20:49:44.447Z",
+  "version": 7,
+  "updatedAt": "2026-10-12T21:58:46.272Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -431,12 +431,43 @@
       "شکر کوهرنگ"
     ]
   },
-  "devices": [
-    "خیس بر شماره ۱ نبات",
-    "خیس بر شماره ۲ وسط",
-    "قند شکن شماره ۱ دیوار",
-    "قند شکن شماره ۲ وسط",
-    "راندمان کل",
-    "خیس بر شماره ۱ مجاور نبات"
+  "effGroups": [
+    {
+      "id": "g_regen",
+      "name": "خیس بر",
+      "type": "multi"
+    },
+    {
+      "id": "g_kiln",
+      "name": "گرمخانه",
+      "type": "single"
+    },
+    {
+      "id": "g_crusher",
+      "name": "قند شکن",
+      "type": "multi"
+    }
+  ],
+  "effDevices": [
+    {
+      "id": "d_1791841982071_un3o",
+      "name": "نبات",
+      "groupId": "g_regen"
+    },
+    {
+      "id": "d_1791841986304_wvgv",
+      "name": "وسط",
+      "groupId": "g_regen"
+    },
+    {
+      "id": "d_1791842101415_rvom",
+      "name": "کنار دیوار",
+      "groupId": "g_crusher"
+    },
+    {
+      "id": "d_1791842110098_nlgo",
+      "name": "وسط سالن",
+      "groupId": "g_crusher"
+    }
   ]
 }
