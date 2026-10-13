@@ -1,6 +1,6 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-12T23:08:26.443Z",
+  "updatedAt": "2026-10-13T03:14:41.851Z",
   "updatedBy": "unknown",
   "records": [
     {
@@ -435,8 +435,8 @@
       "date": "۱۴۰۵/۰۷/۰۱",
       "time": "۲۳:۴۰",
       "notes": "",
-      "updatedAt": 1791837955969,
-      "deleted": false
+      "updatedAt": 1791861277559,
+      "deleted": true
     }
   ],
   "products": {
