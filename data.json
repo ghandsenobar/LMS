@@ -1,8 +1,26 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-13T05:31:12.141Z",
+  "updatedAt": "2026-10-13T05:35:10.173Z",
   "updatedBy": "unknown",
   "records": [
+    {
+      "id": 1791869664806,
+      "type": "ab",
+      "date": "۱۴۰۵/۰۷/۲۱",
+      "time": "۰۹:۰۳",
+      "notes": "",
+      "product": "سختی گیر",
+      "hardness": "5.3",
+      "ec": "3252",
+      "tds": "1626",
+      "ph": "",
+      "sugar": "",
+      "dateValues": {
+        "regen": "۱۴۰۵/۰۷/۱۹"
+      },
+      "updatedAt": 1791869664805,
+      "deleted": false
+    },
     {
       "id": 1791869466676,
       "type": "ab",
