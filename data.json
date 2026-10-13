@@ -1,7 +1,7 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-13T05:35:10.173Z",
-  "updatedBy": "unknown",
+  "updatedAt": "2026-10-13T05:41:46.388Z",
+  "updatedBy": "lab-app",
   "records": [
     {
       "id": 1791869664806,
@@ -459,17 +459,6 @@
       "notes": "",
       "updatedAt": 1791843137028,
       "deleted": false
-    },
-    {
-      "id": 1791836682042,
-      "type": "maint",
-      "maintType": "cip",
-      "device": "RO",
-      "date": "۱۴۰۵/۰۷/۰۱",
-      "time": "۲۳:۴۰",
-      "notes": "",
-      "updatedAt": 1791861277559,
-      "deleted": true
     }
   ],
   "products": {
