@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ماشین‌حساب تصحیح هدایت الکتریکی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #0d6e8c;
+    --primary-dark: #084c62;
+    --primary-light: #e6f4f9;
+    --accent: #ff8a3d;
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-500: #6b7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+  }
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 40%, #fdf4ff 100%);
+    color: var(--gray-900);
+    min-height: 100vh;
+    padding: 24px 16px;
+    line-height: 1.7;
+    direction: rtl;
+  }
+  .container { max-width: 880px; margin: 0 auto; }
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  header h1 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+  }
+  header p {
+    color: var(--gray-500);
+    font-size: 0.95rem;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 8px 24px rgba(13, 110, 140, 0.08);
+    border: 1px solid rgba(13, 110, 140, 0.08);
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .num {
+    background: var(--primary);
+    color: #fff;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .field label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .field .hint {
+    font-size: 0.78rem;
+    color: var(--gray-500);
+    margin-top: 4px;
+  }
+  .field input[type="number"], .field select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color .15s, box-shadow .15s;
+    background: var(--gray-50);
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(13, 110, 140, 0.10);
+  }
+
+  .unit-toggle {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .unit-toggle button {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1.5px solid var(--gray-200);
+    background: var(--gray-50);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    color: var(--gray-700);
+    transition: all .15s;
+  }
+  .unit-toggle button.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  .mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    background: var(--gray-100);
+    padding: 5px;
+    border-radius: 12px;
+  }
+  .mode-tabs button {
+    flex: 1;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .mode-tabs button.active {
+    background: #fff;
+    color: var(--primary-dark);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    font-weight: 700;
+  }
+
+  .result-card {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: #fff;
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 12px 32px rgba(13, 110, 140, 0.25);
+  }
+  .result-card .label {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    margin-bottom: 6px;
+  }
+  .result-card .main-value {
+    font-size: 2.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    direction: ltr;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .result-card .main-value .unit {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 400;
+  }
+  .result-card .sub {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    margin-top: 8px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+  }
+  .stat .stat-label {
+    font-size: 0.78rem;
+    opacity: 0.75;
+    margin-bottom: 2px;
+  }
+  .stat .stat-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    direction: ltr;
+    text-align: right;
+  }
+  .stat .stat-value small { font-size: 0.75rem; font-weight: 400; opacity: 0.8; }
+
+  .formula-box {
+    background: var(--primary-light);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    direction: ltr;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    color: var(--primary-dark);
+    border-right: 4px solid var(--primary);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge.water { background: #dbeafe; color: #1e40af; }
+  .badge.syrup { background: #fef3c7; color: #92400e; }
+  .badge.mix   { background: #e0e7ff; color: #3730a3; }
+
+  .note {
+    background: #fff8ec;
+    border-right: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.87rem;
+    color: #7a4a12;
+    margin-top: 14px;
+  }
+
+  .btn-print {
+    display: block;
+    margin: 0 auto;
+    padding: 12px 32px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-print:hover { background: var(--primary-dark); }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .btn-print { display: none; }
+    .card, .result-card { box-shadow: none; page-break-inside: avoid; }
+  }
+
+  @media (max-width: 520px) {
+    .result-card .main-value { font-size: 2rem; }
+    header h1 { font-size: 1.4rem; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🔬 ماشین‌حساب تصحیح هدایت الکتریکی</h1>
+    <p>محاسبه EC معادل در دمای مرجع ۲۵ درجه سلسیوس</p>
+  </header>
+
+  <!-- ورودی‌ها -->
+  <div class="card">
+    <h2><span class="num">۱</span> مقادیر ورودی</h2>
+
+    <div class="mode-tabs" id="modeTabs">
+      <button data-mode="auto" class="active">تشخیص خودکار</button>
+      <button data-mode="water">آب</button>
+      <button data-mode="syrup">شربت قند</button>
+    </div>
+
+    <div class="inputs-grid">
+      <div class="field">
+        <label for="ec">هدایت الکتریکی اندازه‌گیری‌شده (EC)</label>
+        <input type="number" id="ec" value="1500" step="any" min="0">
+        <div class="unit-toggle" id="unitToggle">
+          <button data-unit="uS" class="active">µS/cm</button>
+          <button data-unit="mS">mS/cm</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="temp">دمای نمونه (°C)</label>
+        <input type="number" id="temp" value="18" step="0.1" min="0" max="100">
+        <div class="hint">دمای واقعی نمونه در لحظه اندازه‌گیری</div>
+      </div>
+
+      <div class="field">
+        <label for="brix">بریکس شربت (Brix %)</label>
+        <input type="number" id="brix" value="0" step="0.1" min="0" max="100">
+        <div class="hint">برای آب خالص مقدار ۰ وارد کنید</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- خروجی اصلی -->
+  <div class="result-card">
+    <div class="label">هدایت الکتریکی تصحیح‌شده در ۲۵°C</div>
+    <div class="main-value" id="ec25">
+      0.00 <span class="unit">µS/cm</span>
+    </div>
+    <div class="sub" id="classification">
+      <span class="badge water">آب</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">ضریب دمایی (K)</div>
+        <div class="stat-value" id="kValue">0.020 <small>(۲٪/°C)</small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">ضریب تصحیح</div>
+        <div class="stat-value" id="corrFactor">1.000</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">TDS تقریبی</div>
+        <div class="stat-value" id="tdsValue">0 <small>mg/L</small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">اختلاف با مقدار خام</div>
+        <div class="stat-value" id="diffValue">0.0%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- جزئیات محاسبه -->
+  <div class="card">
+    <h2><span class="num">۲</span> جزئیات محاسبه</h2>
+    <div class="formula-box" id="formulaBox">
+      EC₂₅ = EC_t / [1 + K × (t − 25)]
+    </div>
+    <div class="note" id="noteBox">
+      ضریب K بر اساس بریکس شما تخمین زده می‌شود. برای دقت بالاتر، ضریب تجربی نمونه خود را در محاسبات وارد کنید.
+    </div>
+  </div>
+
+  <button class="btn-print" onclick="window.print()">🖨️ چاپ / ذخیره PDF</button>
+
+</div>
+
+<script>
+  // ---------- State ----------
+  let currentMode = 'auto';
+  let currentUnit = 'uS';
+
+  // ---------- DOM ----------
+  const ecInput   = document.getElementById('ec');
+  const tempInput = document.getElementById('temp');
+  const brixInput = document.getElementById('brix');
+  const unitBtns  = document.querySelectorAll('#unitToggle button');
+  const modeBtns  = document.querySelectorAll('#modeTabs button');
+
+  const ec25El       = document.getElementById('ec25');
+  const classEl      = document.getElementById('classification');
+  const kEl          = document.getElementById('kValue');
+  const corrEl       = document.getElementById('corrFactor');
+  const tdsEl        = document.getElementById('tdsValue');
+  const diffEl       = document.getElementById('diffValue');
+  const formulaEl    = document.getElementById('formulaBox');
+  const noteEl       = document.getElementById('noteBox');
+
+  // ---------- ضریب K بر اساس بریکس و حالت ----------
+  function estimateK(brix, mode) {
+    if (mode === 'water') return 0.020;
+    if (mode === 'syrup') {
+      // بازه شربت قند: 0.045 تا 0.056
+      const b = Math.max(0, Math.min(brix, 80));
+      return 0.045 + 0.011 * (b / 80);
+    }
+    // حالت auto: بر اساس بریکس تعیین کن
+    if (brix < 2)  return 0.020;                       // آب خالص
+    if (brix < 10) {                                    // ناحیه گذار
+      return 0.020 + (0.045 - 0.020) * (brix - 2) / 8;
+    }
+    // شربت
+    const b = Math.min(brix, 80);
+    return 0.045 + 0.011 * (b - 10) / 70;
+  }
+
+  // ---------- طبقه‌بندی نمونه ----------
+  function classify(brix, mode) {
+    if (mode === 'water')  return { text: 'آب', cls: 'water' };
+    if (mode === 'syrup')  return { text: 'شربت قند', cls: 'syrup' };
+    if (brix < 2)  return { text: 'آب (تشخیص خودکار)', cls: 'water' };
+    if (brix < 10) return { text: 'محلول رقیق قندی', cls: 'mix' };
+    return { text: 'شربت قند (تشخیص خودکار)', cls: 'syrup' };
+  }
+
+  // ---------- فرمت اعداد ----------
+  function fmt(num, digits = 2) {
+    return Number(num).toLocaleString('fa-IR', {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits
+    });
+  }
+
+  // ---------- محاسبه اصلی ----------
+  function calculate() {
+    const ecRaw = parseFloat(ecInput.value);
+    const t     = parseFloat(tempInput.value);
+    const brix  = parseFloat(brixInput.value);
+
+    // اعتبارسنجی
+    if (isNaN(ecRaw) || isNaN(t) || isNaN(brix) || ecRaw < 0) {
+      ec25El.innerHTML = '— <span class="unit">ورودی نامعتبر</span>';
+      return;
+    }
+
+    // تبدیل واحد ورودی به µS/cm برای محاسبات داخلی
+    let ec_uS = ecRaw;
+    if (currentUnit === 'mS') ec_uS = ecRaw * 1000;
+
+    // ضریب K
+    const K = estimateK(brix, currentMode);
+
+    // ضریب تصحیح
+    const factor = 1 + K * (t - 25);
+    const ec25_uS = ec_uS / factor;
+
+    // تبدیل خروجی به واحد انتخابی
+    let displayValue, displayUnit;
+    if (currentUnit === 'mS') {
+      displayValue = ec25_uS / 1000;
+      displayUnit = 'mS/cm';
+    } else {
+      displayValue = ec25_uS;
+      displayUnit = 'µS/cm';
+    }
+
+    // TDS تقریبی (فقط برای آب معنا دارد؛ برای شربت هم به‌عنوان تخمین)
+    const tds = ec25_uS * 0.64;
+
+    // درصد اختلاف
+    const diff = ((ec25_uS - ec_uS) / ec_uS) * 100;
+
+    // نمایش خروجی اصلی
+    ec25El.innerHTML = `${fmt(displayValue, 2)} <span class="unit">${displayUnit}</span>`;
+
+    // طبقه‌بندی
+    const c = classify(brix, currentMode);
+    classEl.innerHTML = `<span class="badge ${c.cls}">${c.text}</span>`;
+
+    // آمار
+    kEl.innerHTML = `${K.toFixed(4)} <small>(${fmt(K * 100, 2)}٪/°C)</small>`;
+    corrEl.textContent = factor.toFixed(4);
+    tdsEl.innerHTML = `${fmt(tds, 0)} <small>mg/L</small>`;
+    diffEl.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1) + '٪';
+
+    // فرمول جایگزین‌شده
+    formulaEl.textContent =
+      `EC₂₅ = ${ecRaw.toFixed(2)} / [1 + ${K.toFixed(4)} × (${t} − 25)] = ${displayValue.toFixed(2)} ${displayUnit}`;
+
+    // نکته پویا
+    if (currentMode === 'auto' && brix >= 2 && brix < 10) {
+      noteEl.innerHTML = '⚠️ نمونه شما در ناحیه گذار بین آب و شربت است. دقت تخمین ضریب K کمتر است. اگر ممکن است، حالت را دستی انتخاب کنید.';
+    } else if (brix > 80) {
+      noteEl.innerHTML = '⚠️ بریکس بالای ۸۰٪ است. ضریب K در حداکثر مقدار خود ثابت شده است. برای دقت بالاتر، K تجربی نمونه خود را اندازه‌گیری کنید.';
+    } else if (currentMode === 'syrup' || brix >= 10) {
+      noteEl.innerHTML = 'ضریب K برای شربت قند معمولاً بین ۴.۵٪ تا ۵.۶٪ است. این مقدار تنها یک تخمین است و برای کارهای دقیق باید تجربی سنجیده شود.';
+    } else {
+      noteEl.innerHTML = 'ضریب K بر اساس بریکس شما تخمین زده می‌شود. برای دقت بالاتر، ضریب تجربی نمونه خود را در محاسبات وارد کنید.';
+    }
+  }
+
+  // ---------- رویدادها ----------
+  [ecInput, tempInput, brixInput].forEach(el => el.addEventListener('input', calculate));
+
+  unitBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      unitBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentUnit = btn.dataset.unit;
+      calculate();
+    });
+  });
+
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      modeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentMode = btn.dataset.mode;
+      calculate();
+    });
+  });
+
+  // اجرای اولیه
+  calculate();
+</script>
+
+</body>
+</html>
