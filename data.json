@@ -1,6 +1,6 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-14T08:32:20.265Z",
+  "updatedAt": "2026-10-14T09:03:41.804Z",
   "updatedBy": "lab-app",
   "records": [
     {
@@ -10,13 +10,13 @@
       "time": "۱۲:۰۱",
       "notes": "",
       "product": "شکر تربت حیدریه",
-      "color": "",
+      "color": "13.9",
       "ash": "29",
-      "turbidity": "",
-      "so2": "",
+      "turbidity": "55.3",
+      "so2": "4.7",
       "sh_ec": "",
       "sh_ph": "",
-      "updatedAt": 1791966737865,
+      "updatedAt": 1791968619668,
       "deleted": false
     },
     {
