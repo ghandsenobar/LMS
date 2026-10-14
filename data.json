@@ -1,8 +1,24 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-14T09:31:03.912Z",
+  "updatedAt": "2026-10-14T09:32:52.976Z",
   "updatedBy": "lab-app",
   "records": [
+    {
+      "id": 1791970370791,
+      "type": "sharbat",
+      "date": "۱۴۰۵/۰۷/۲۱",
+      "time": "۱۲:۰۰",
+      "notes": "",
+      "product": "قند محصول",
+      "color": "1.75",
+      "ash": "14",
+      "turbidity": "",
+      "so2": "7.5",
+      "sh_ec": "",
+      "sh_ph": "",
+      "updatedAt": 1791970370790,
+      "deleted": false
+    },
     {
       "id": 1791970143473,
       "type": "ab",
