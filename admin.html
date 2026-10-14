@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>پنل مدیریت — کارخانه قند صنوبر</title>
+<link rel="icon" href="./icon-192.png">
+<style>
+:root{--primary:#dc2626;--primary-dark:#991b1b;--bg:#f1f5f9;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;--subtle:#f8fafc;--success:#16a34a;--warning:#f59e0b;--info:#0ea5e9;--purple:#8b5cf6;--overlay:rgba(15,23,42,.65)}
+body.dark{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--subtle:#0f172a;--overlay:rgba(0,0,0,.75)}
+*{box-sizing:border-box;font-family:Tahoma,'Segoe UI',sans-serif}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+/* Login Screen */
+#loginScreen{position:fixed;inset:0;z-index:9000;background:linear-gradient(160deg,#7f1d1d,#450a0a);display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:#fff;color:#1e293b;border-radius:16px;padding:32px 28px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center}
+body.dark .login-box{background:#1e293b;color:#e2e8f0}
+.login-box .lg-icon{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#dc2626,#991b1b);display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 18px;color:#fff;box-shadow:0 8px 20px rgba(220,38,38,.4)}
+.login-box h1{font-size:20px;font-weight:900;margin:0 0 6px;color:#991b1b}
+body.dark .login-box h1{color:#fca5a5}
+.login-box .sub{font-size:12.5px;color:#64748b;margin-bottom:24px;line-height:1.7}
+.login-box input{width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:18px;text-align:center;letter-spacing:4px;font-family:'Courier New',monospace;direction:ltr;background:#f8fafc;color:#1e293b;margin-bottom:16px}
+body.dark .login-box input{background:#0f172a;border-color:#334155;color:#e2e8f0}
+.login-box input:focus{outline:none;border-color:#dc2626;background:#fff}
+.login-box button{width:100%;padding:13px;border:none;border-radius:10px;background:#dc2626;color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .15s}
+.login-box button:hover:not(:disabled){background:#991b1b;transform:translateY(-1px)}
+.login-box button:disabled{opacity:.5;cursor:not-allowed}
+.login-box .err{background:rgba(220,38,38,.1);border:1px solid #dc2626;color:#991b1b;padding:10px;border-radius:8px;font-size:12.5px;font-weight:bold;margin-bottom:14px}
+.login-box .hint{font-size:11px;color:#94a3b8;margin-top:16px;line-height:1.7}
+
+/* App */
+.app{max-width:1200px;margin:0 auto;padding:14px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border-radius:12px;padding:12px 16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);border-bottom:3px solid var(--primary)}
+.topbar .tb-left{display:flex;align-items:center;gap:10px}
+.topbar .tb-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff}
+.topbar .tb-info h1{font-size:15px;font-weight:900;margin:0;color:var(--primary-dark)}
+.topbar .tb-info .tb-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.topbar .tb-actions{display:flex;gap:6px}
+.tb-btn{padding:8px 12px;border:none;border-radius:8px;background:var(--subtle);border:1px solid var(--border);font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;color:var(--text);transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+.tb-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tb-btn.danger:hover{background:#dc2626;border-color:#dc2626}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;background:var(--card);padding:8px;border-radius:12px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tab{padding:9px 14px;border:none;border-radius:9px;background:transparent;font-family:inherit;font-size:12.5px;font-weight:900;color:var(--muted);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.tab:hover{background:var(--subtle);color:var(--text)}
+.tab.active{background:var(--primary);color:#fff;box-shadow:0 3px 10px rgba(220,38,38,.3)}
+.tab .badge{background:rgba(255,255,255,.3);color:inherit;font-size:10px;font-weight:900;padding:1px 6px;border-radius:8px;min-width:18px;text-align:center}
+.tab:not(.active) .badge{background:var(--subtle);color:var(--muted)}
+
+/* Panels */
+.panel{display:none;animation:fadeIn .25s}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid var(--border)}
+.card-title{font-size:14px;font-weight:900;color:var(--primary-dark);margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--primary);display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.card-title .ct-info{display:flex;align-items:center;gap:8px;flex:1}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}
+.stat-box{background:var(--card);border-radius:12px;padding:14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.stat-box::before{content:'';position:absolute;top:0;bottom:0;right:0;width:4px;background:var(--accent,var(--primary))}
+.stat-box .sb-icon{width:44px;height:44px;border-radius:11px;background:var(--accent,var(--primary));color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.stat-box .sb-body{flex:1;min-width:0}
+.stat-box .sb-label{font-size:10.5px;font-weight:900;color:var(--muted);margin-bottom:2px;letter-spacing:.2px}
+.stat-box .sb-value{font-size:22px;font-weight:900;color:var(--accent,var(--primary));font-family:'Courier New',monospace;direction:ltr;text-align:left;line-height:1.1}
+.stat-box .sb-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.stat-box.sb-ab{--accent:#0ea5e9}
+.stat-box.sb-sh{--accent:#f59e0b}
+.stat-box.sb-eff{--accent:#8b5cf6}
+.stat-box.sb-maint{--accent:#8b5cf6}
+.stat-box.sb-users{--accent:#10b981}
+.stat-box.sb-deleted{--accent:#ef4444}
+
+/* Buttons */
+.btn{padding:10px 14px;border:none;border-radius:9px;font-size:12.5px;font-weight:900;font-family:inherit;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#15803d}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-warning:hover{background:#d97706}
+.btn-info{background:var(--info);color:#fff}
+.btn-info:hover{background:#0284c7}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-purple:hover{background:#7c3aed}
+.btn-secondary{background:var(--subtle);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border)}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-danger:hover{background:#991b1b}
+.btn-sm{padding:6px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)}
+th{background:var(--subtle);color:var(--muted);font-weight:900;font-size:11.5px;text-align:right;white-space:nowrap}
+tr:hover td{background:var(--subtle)}
+.table-scroll{max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;margin-top:10px}
+.table-scroll table{margin:0}
+.table-scroll thead th{position:sticky;top:0;z-index:2;box-shadow:inset 0 -1px 0 var(--border)}
+
+/* User row */
+.user-row td{vertical-align:middle}
+.role-badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:900;color:#fff}
+.role-admin{background:#dc2626}
+.role-editor{background:#2563eb}
+.role-viewer{background:#64748b}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px}
+.status-dot.active{background:#16a34a}
+.status-dot.inactive{background:#dc2626;opacity:.5}
+
+/* Deleted items */
+.del-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(220,38,38,.04);border:1px solid rgba(220,38,38,.2);margin-bottom:8px}
+.del-item .di-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0}
+.del-item .di-icon.ab{background:linear-gradient(135deg,#0ea5e9,#0284c7)}
+.del-item .di-icon.sh{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.del-item .di-icon.eff{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+.del-item .di-icon.maint{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+.del-item .di-body{flex:1;min-width:0}
+.del-item .di-title{font-size:12.5px;font-weight:900;color:var(--text)}
+.del-item .di-meta{font-size:10.5px;color:var(--muted);font-family:'Courier New',monospace;direction:ltr;text-align:right;margin-top:2px}
+.del-item .di-actions{display:flex;gap:4px;flex-shrink:0}
+.del-item .di-actions button{width:34px;height:34px;border:none;border-radius:8px;font-size:14px;cursor:pointer;transition:all .15s}
+.del-item .di-restore{background:rgba(22,163,74,.15);color:var(--success)}
+.del-item .di-restore:hover{background:var(--success);color:#fff}
+.del-item .di-delete{background:rgba(220,38,38,.15);color:var(--danger)}
+.del-item .di-delete:hover{background:var(--danger);color:#fff}
+
+/* Tombstone chips */
+.tomb-section{margin-bottom:16px}
+.tomb-section h3{font-size:12px;font-weight:900;color:var(--muted);margin:0 0 8px;display:flex;align-items:center;gap:6px}
+.tomb-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}
+.tomb-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);color:#92400e;border-radius:14px;font-size:11px;font-weight:900;font-family:'Courier New',monospace;direction:ltr}
+.tomb-chip .tc-x{background:transparent;border:none;color:#92400e;font-size:13px;cursor:pointer;padding:0 0 0 4px;font-weight:900;font-family:inherit}
+.tomb-chip .tc-x:hover{color:#dc2626}
+.tomb-empty{color:var(--muted);font-size:11.5px;font-style:italic;padding:8px}
+
+/* Epoch card */
+.epoch-card{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border-radius:14px;padding:20px;text-align:center;margin-bottom:14px;box-shadow:0 8px 24px rgba(220,38,38,.3)}
+.epoch-card .ec-label{font-size:12px;font-weight:900;opacity:.85;margin-bottom:6px}
+.epoch-card .ec-value{font-size:48px;font-weight:900;font-family:'Courier New',monospace;line-height:1;direction:ltr}
+.epoch-card .ec-sub{font-size:11.5px;opacity:.8;margin-top:8px}
+
+/* Alert */
+.alert{padding:12px 14px;border-radius:10px;font-size:12.5px;line-height:1.8;margin-bottom:14px;border:1.5px solid;display:flex;gap:8px;align-items:flex-start}
+.alert.alert-info{background:rgba(14,165,233,.08);border-color:#0ea5e9;color:#075985}
+.alert.alert-warning{background:rgba(245,158,11,.08);border-color:#f59e0b;color:#92400e}
+.alert.alert-danger{background:rgba(220,38,38,.08);border-color:#dc2626;color:#991b1b}
+.alert.alert-success{background:rgba(22,163,74,.08);border-color:#16a34a;color:#166534}
+.alert .al-icon{font-size:16px;flex-shrink:0}
+body.dark .alert.alert-info{color:#7dd3fc}
+body.dark .alert.alert-warning{color:#fcd34d}
+body.dark .alert.alert-danger{color:#fca5a5}
+body.dark .alert.alert-success{color:#86efac}
+
+/* Form */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11.5px;font-weight:900;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:inherit;background:var(--card);color:var(--text)}
+.field input:focus,.field select:focus{outline:none;border-color:var(--primary)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.field-row{grid-template-columns:1fr}}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:var(--overlay);display:none;align-items:center;justify-content:center;z-index:9000;padding:16px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--card);border-radius:14px;padding:22px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-msg{font-size:14px;text-align:center;margin-bottom:16px;line-height:1.9;white-space:pre-line}
+.modal-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;margin-bottom:14px;background:var(--subtle);color:var(--text)}
+.modal-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.modal-btn{flex:1;min-width:100px;padding:11px 16px;border:none;border-radius:9px;font-size:13px;font-weight:900;font-family:inherit;cursor:pointer}
+.modal-ok{background:var(--primary);color:#fff}
+.modal-ok.danger{background:#dc2626}
+.modal-cancel{background:var(--subtle);color:var(--text);border:1px solid var(--border)}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;max-width:92vw}
+.toast{background:var(--card);color:var(--text);padding:11px 16px;border-radius:12px;font-size:13px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.25);border-right:4px solid var(--primary);pointer-events:auto;min-width:200px;max-width:92vw;display:flex;align-items:center;gap:8px;animation:tIn .3s ease-out}
+.toast.success{border-right-color:var(--success)}
+.toast.error{border-right-color:#dc2626}
+.toast.warning{border-right-color:var(--warning)}
+@keyframes tIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tOut{to{opacity:0;transform:translateY(20px)}}
+.toast.out{animation:tOut .3s ease-in forwards}
+
+/* Loading */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;gap:10px;color:var(--muted);font-size:13px;font-weight:900}
+.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.empty-msg{text-align:center;padding:30px 20px;color:var(--muted);font-size:13px;line-height:2}
+.empty-msg .em-icon{font-size:42px;display:block;margin-bottom:10px;opacity:.4}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="lg-icon">🔐</div>
+    <h1>پنل مدیریت</h1>
+    <div class="sub">سیستم مدیریت آزمایشگاه — کارخانه قند صنوبر</div>
+    <div class="err" id="loginErr" hidden></div>
+    <input id="passInput" type="password" inputmode="numeric" placeholder="••••" maxlength="8" autocomplete="off">
+    <button onclick="tryLogin()" id="loginBtn">ورود به پنل</button>
+    <div class="hint">💡 پسورد master را از توسعه‌دهنده دریافت کنید.<br>بعد از ۳ بار اشتباه، ۱ دقیقه قفل می‌شود.</div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div class="app" id="app" hidden>
+
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-icon">⚙️</div>
+      <div class="tb-info">
+        <h1>پنل مدیریت</h1>
+        <div class="tb-sub" id="tbStatus">در حال بارگذاری...</div>
+      </div>
+    </div>
+    <div class="tb-actions">
+      <button class="tb-btn" onclick="reloadData()" title="بروزرسانی">🔄</button>
+      <button class="tb-btn" onclick="toggleDark()" id="darkBtn">🌙</button>
+      <a class="tb-btn" href="./index.html" style="text-decoration:none">‹ بازگشت</a>
+      <button class="tb-btn danger" onclick="logout()" title="خروج">🚪</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="dashboard">📊 داشبورد</button>
+    <button class="tab" data-tab="users">👥 کاربران <span class="badge" id="usersBadge">0</span></button>
+    <button class="tab" data-tab="deleted">🗑️ حذف‌شده‌ها <span class="badge" id="delBadge">0</span></button>
+    <button class="tab" data-tab="tomb">🪦 Tombstone <span class="badge" id="tombBadge">0</span></button>
+    <button class="tab" data-tab="epoch">🔢 Epoch</button>
+    <button class="tab" data-tab="repair">🔧 تعمیر</button>
+    <button class="tab" data-tab="backup">📥 پشتیبان</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="card">
+      <div class="card-title"><span class="ct-info">📈 آمار به تفکیک نوع</span></div>
+      <div id="typeStats"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ct-info">👥 رکورد هر کاربر</span></div>
+      <div id="userStats"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ct-info">📅 ماهانه (۶ ماه اخیر)</span></div>
+      <div id="monthlyStats"></div>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div class="panel" id="panel-users">
+    <div class="card">
+      <div class="card-title">
+        <span class="ct-info">👥 مدیریت کاربران</span>
+        <button class="btn btn-primary btn-sm" onclick="addUser()">➕ کاربر جدید</button>
+      </div>
+      <div id="usersList"></div>
+    </div>
+  </div>
+
+  <!-- Deleted -->
+  <div class="panel" id="panel-deleted">
+    <div class="card">
+      <div class="card-title">
+        <span class="ct-info">🗑️ رکوردهای حذف‌شده</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-success btn-sm" onclick="restoreAllDeleted()">🔄 بازگردانی همه</button>
+          <button class="btn btn-danger btn-sm" onclick="clearAllDeletedPermanent()">🗑️ حذف کامل همه</button>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <span class="al-icon">ℹ️</span>
+        <span>رکوردهای Soft-delete شده (x=1). «بازگردانی» آن‌ها را به حالت عادی برمی‌گرداند. «حذف کامل» آن‌ها را برای همیشه پاک می‌کند و ID در لیست <code>del</code> ثبت می‌شود.</span>
+      </div>
+      <div id="deletedList"></div>
+    </div>
+  </div>
+
+  <!-- Tombstone -->
+  <div class="panel" id="panel-tomb">
+    <div class="card">
+      <div class="card-title">
+        <span class="ct-info">🪦 لیست‌های Tombstone</span>
+        <button class="btn btn-danger btn-sm" onclick="clearAllTombstones()">🧹 پاک کردن همه</button>
+      </div>
+      <div class="alert alert-warning">
+        <span class="al-icon">⚠️</span>
+        <span>Tombstone برای جلوگیری از برگشت آیتم‌های حذف‌شده در Merge استفاده می‌شود. پاک کردن آن‌ها ممکن است باعث برگشت آیتم‌های قدیمی شود.</span>
+      </div>
+      <div id="tombList"></div>
+    </div>
+  </div>
+
+  <!-- Epoch -->
+  <div class="panel" id="panel-epoch">
+    <div class="card">
+      <div class="card-title"><span class="ct-info">🔢 وضعیت Epoch</span></div>
+
+      <div class="epoch-card">
+        <div class="ec-label">نسل فعلی دیتابیس</div>
+        <div class="ec-value" id="epochValue">1</div>
+        <div class="ec-sub">با هر Full Reset یک واحد افزایش می‌یابد</div>
+      </div>
+
+      <div class="alert alert-danger">
+        <span class="al-icon">🚨</span>
+        <div>
+          <b>⚠️ Full Reset</b><br>
+          تمام رکوردها، Tombstoneها و del پاک می‌شوند. کاربران غیرفعال حفظ می‌شوند. Epoch یک واحد افزایش می‌یابد و همه کاربران باید Pull کنند.
+        </div>
+      </div>
+
+      <button class="btn btn-danger" onclick="fullReset()">💥 Full Reset</button>
+    </div>
+  </div>
+
+  <!-- Repair -->
+  <div class="panel" id="panel-repair">
+    <div class="card">
+      <div class="card-title"><span class="ct-info">🔧 تعمیر و بررسی</span></div>
+      <div class="alert alert-info">
+        <span class="al-icon">ℹ️</span>
+        <span>ابزارهای بررسی یکپارچگی و رفع مشکلات داده‌ای.</span>
+      </div>
+
+      <div id="repairResults"></div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="runIntegrityCheck()">🔍 بررسی یکپارچگی</button>
+        <button class="btn btn-warning" onclick="mergeDuplicateUsers()">👥 ادغام کاربران تکراری</button>
+        <button class="btn btn-warning" onclick="cleanupOrphanRefs()">🧹 پاکسازی ارجاعات یتیم</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backup -->
+  <div class="panel" id="panel-backup">
+    <div class="card">
+      <div class="card-title"><span class="ct-info">📥 پشتیبان‌گیری</span></div>
+
+      <div class="alert alert-warning">
+        <span class="al-icon">⚠️</span>
+        <span>پشتیبان یک فایل JSON کامل شامل همه رکوردها، محصولات، گروه‌ها، کاربران و Tombstoneها است.</span>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-success" onclick="downloadBackup()">💾 دانلود پشتیبان</button>
+        <button class="btn btn-info" onclick="document.getElementById('restoreInput').click()">📂 بازیابی از فایل</button>
+        <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="restoreFromFile(event)">
+      </div>
+
+      <div id="backupStatus" style="margin-top:14px;font-size:12.5px;color:var(--muted)"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-msg" id="modalMsg"></div>
+    <input type="text" class="modal-input" id="modalInput" hidden>
+    <div class="modal-btns">
+      <button class="modal-btn modal-cancel" id="modalCancel">لغو</button>
+      <button class="modal-btn modal-ok" id="modalOk">تأیید</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================
+   پنل مدیریت — کارخانه قند صنوبر
+   نسخه ۱.۰.۰
+============================================================ */
+
+var DATA_FILE = 'data-LMS-v6.json';
+var CONFIG_KEY = 'lab_github_config';
+var SALT = '_lab_salt_2026';
+var AUTH_KEY = 'lab_admin_auth';
+var AUTH_DURATION = 2 * 60 * 60 * 1000; // 2 ساعت
+
+/* پسورد رمزنگاری‌شده (XOR + Base64) برای 3759 */
+var _K = 0x5A;
+var _ENC = "aW1vYw==";
+
+var state = {
+  records: [],
+  products: { ab: [], sh: [] },
+  effGroups: [],
+  effDevices: [],
+  users: [],
+  del: [],
+  tomb: { p_ab: [], p_sh: [], eg: [], ed: [], df: [], us: [] },
+  epoch: 1,
+  ghFileSha: null,
+  ghFileSize: 0
+};
+
+var ghConfig = { owner: '', repo: '', token: '' };
+var darkMode = localStorage.getItem('lab_darkmode') === '1';
+var loginAttempts = 0;
+var lockUntil = 0;
+
+/* Helpers */
+var FA = '۰۱۲۳۴۵۶۷۸۹';
+function toFa(s){ return String(s).replace(/\d/g, function(d){ return FA[+d]; }); }
+function toLatinDigits(s){ return String(s).replace(/[۰-۹]/g, function(d){ return FA.indexOf(d); }).replace(/[٠-٩]/g, function(d){ return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }); }
+function esc(s){ if(s == null) return ''; return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function fmtNum(v){ if(v == null || v === '') return ''; var n = parseFloat(v); if(isNaN(n)) return ''; if(Number.isInteger(n)) return toFa(n); return toFa(String(n.toFixed(2).replace(/\.?0+$/, ''))); }
+function normalizeDate(s){ if(!s) return ''; var p = toLatinDigits(s.trim()).split(/[\/\-\.]/); if(p.length !== 3) return s.trim(); return p.map(function(x){ return x.padStart(2, '0'); }).join('/'); }
+function todayJalali(){ var d = new Date(); return toFa(d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0')); }
+
+/* Password check */
+function checkPassword(input){
+  try {
+    var bin = atob(_ENC);
+    var decoded = '';
+    for(var i = 0; i < bin.length; i++){
+      decoded += String.fromCharCode(bin.charCodeAt(i) ^ _K);
+    }
+    return String(input) === decoded;
+  } catch(e){ return false; }
+}
+
+/* Dark mode */
+function applyDark(){ document.body.classList.toggle('dark', darkMode); var b = document.getElementById('darkBtn'); if(b) b.textContent = darkMode ? '☀️' : '🌙'; }
+function toggleDark(){ darkMode = !darkMode; localStorage.setItem('lab_darkmode', darkMode ? '1' : '0'); applyDark(); }
+
+/* Toast */
+function showToast(msg, type, dur){
+  type = type || 'success'; dur = dur || 3000;
+  var wrap = document.getElementById('toastWrap');
+  var icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<span>' + (icons[type] || '') + '</span><span>' + esc(msg) + '</span>';
+  wrap.appendChild(t);
+  setTimeout(function(){ t.classList.add('out'); setTimeout(function(){ t.remove(); }, 300); }, dur);
+}
+
+/* Modal */
+var _mR = null, _mT = null;
+var modalOverlay = document.getElementById('modalOverlay');
+var modalMsg = document.getElementById('modalMsg');
+var modalInput = document.getElementById('modalInput');
+var modalOk = document.getElementById('modalOk');
+var modalCancel = document.getElementById('modalCancel');
+
+function openModal(type, msg, opts){
+  opts = opts || {};
+  return new Promise(function(resolve){
+    _mR = resolve; _mT = type;
+    modalMsg.textContent = msg;
+    var okText = opts.okText || 'تأیید';
+    var cancelText = opts.cancelText || 'لغو';
+    var danger = !!opts.danger;
+    var inputDefault = opts.inputDefault || '';
+    var placeholder = opts.placeholder || '';
+    var inputType = opts.inputType || 'text';
+    if(type === 'prompt'){
+      modalInput.hidden = false;
+      modalInput.type = inputType;
+      modalInput.value = inputDefault;
+      modalInput.placeholder = placeholder;
+    } else {
+      modalInput.hidden = true;
+      modalInput.value = '';
+    }
+    modalOk.textContent = okText;
+    modalOk.classList.toggle('danger', danger);
+    modalCancel.textContent = cancelText;
+    modalCancel.hidden = (type === 'alert');
+    modalOverlay.classList.add('show');
+    setTimeout(function(){ type === 'prompt' ? modalInput.focus() : modalOk.focus(); }, 60);
+  });
+}
+function closeModal(r){
+  modalOverlay.classList.remove('show');
+  var R = _mR; _mR = null; _mT = null;
+  if(R) R(r);
+}
+modalOk.addEventListener('click', function(){
+  if(_mT === 'prompt'){ var v = modalInput.value.trim(); closeModal(v || null); }
+  else closeModal(true);
+});
+modalCancel.addEventListener('click', function(){ closeModal(_mT === 'prompt' ? null : false); });
+modalInput.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); modalOk.click(); } });
+modalOverlay.addEventListener('click', function(e){ if(e.target === modalOverlay) closeModal(_mT === 'prompt' ? null : false); });
+
+function customAlert(m, o){ return openModal('alert', m, Object.assign({ okText:'باشه' }, o || {})); }
+function customConfirm(m, o){ return openModal('confirm', m, Object.assign({ okText:'تأیید', cancelText:'لغو' }, o || {})); }
+function customPrompt(m, d, o){ return openModal('prompt', m, Object.assign({ okText:'تأیید', cancelText:'لغو', inputDefault:d || '' }, o || {})); }
+
+/* Config */
+function loadConfig(){
+  try {
+    var s = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
+    if(s.owner) ghConfig.owner = s.owner;
+    if(s.repo) ghConfig.repo = s.repo;
+    if(s.token) ghConfig.token = s.token;
+  } catch(e){}
+}
+function hasConfig(){ return !!(ghConfig.owner && ghConfig.repo && ghConfig.token); }
+
+/* Base64 / UTF-8 */
+function utf8ToBase64(str){
+  var utf8 = new TextEncoder().encode(str);
+  var bin = '', ch = 0x8000;
+  for(var i = 0; i < utf8.length; i += ch){
+    bin += String.fromCharCode.apply(null, utf8.subarray(i, Math.min(i + ch, utf8.length)));
+  }
+  return btoa(bin);
+}
+function base64ToUtf8(b64){
+  var c = b64.replace(/\s/g, '');
+  var bin = atob(c);
+  var bytes = new Uint8Array(bin.length);
+  for(var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+/* GitHub API */
+async function ghGet(){
+  if(!ghConfig.token) throw new Error('no token');
+  var url = 'https://api.github.com/repos/' + ghConfig.owner + '/' + ghConfig.repo + '/contents/' + DATA_FILE + '?_=' + Date.now();
+  var r = await fetch(url, { headers: { 'Authorization': 'Bearer ' + ghConfig.token, 'Accept': 'application/vnd.github+json' } });
+  if(r.status === 404){ state.ghFileSha = null; state.ghFileSize = 0; return null; }
+  if(!r.ok) throw new Error('fetch ' + r.status);
+  var data = await r.json();
+  state.ghFileSha = data.sha;
+  state.ghFileSize = data.size || 0;
+  if(!data.content) throw new Error('no-content');
+  return JSON.parse(base64ToUtf8(data.content));
+}
+async function ghPut(payload){
+  if(!ghConfig.token) throw new Error('no token');
+  var url = 'https://api.github.com/repos/' + ghConfig.owner + '/' + ghConfig.repo + '/contents/' + DATA_FILE;
+  var jsonStr = JSON.stringify(payload, null, 2);
+  var content = utf8ToBase64(jsonStr);
+  var body = { message: 'admin update — ' + new Date().toISOString(), content: content };
+  if(state.ghFileSha) body.sha = state.ghFileSha;
+  var r = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + ghConfig.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!r.ok){
+    var et = ''; try { et = await r.text(); } catch(e){}
+    var err = new Error('push ' + r.status);
+    err.status = r.status;
+    throw err;
+  }
+  var res = await r.json();
+  state.ghFileSha = res.content.sha;
+  state.ghFileSize = res.content.size || 0;
+}
+
+/* Normalizers */
+function normalizeAbProductList(arr){
+  if(!Array.isArray(arr)) return [];
+  return arr.map(function(x){
+    if(typeof x === 'string') return { i: 0, n: x, df: [] };
+    if(x && typeof x === 'object'){
+      var df = Array.isArray(x.df) ? x.df.filter(function(f){ return f && f.k; }).map(function(f){ return { k: String(f.k), l: String(f.l || f.k) }; }) : [];
+      return { i: x.i || 0, n: String(x.n || ''), df: df };
+    }
+    return null;
+  }).filter(function(x){ return x && x.n; });
+}
+function normalizeShProductList(arr){
+  if(!Array.isArray(arr)) return [];
+  return arr.map(function(x){
+    if(typeof x === 'string') return { i: 0, n: x };
+    if(x && typeof x === 'object' && x.n) return { i: x.i || 0, n: String(x.n) };
+    return null;
+  }).filter(Boolean);
+}
+function normalizeEffGroups(arr){
+  if(!Array.isArray(arr)) return [];
+  return arr.map(function(g){ return { i: g.i || 0, n: String(g.n || ''), t: (g.t === 'single' ? 'single' : 'multi') }; }).filter(function(g){ return g.n; });
+}
+function normalizeEffDevices(arr, groups){
+  if(!Array.isArray(arr)) return [];
+  var gids = new Set((groups || []).map(function(g){ return g.i; }));
+  return arr.map(function(d){ return { i: d.i || 0, n: String(d.n || ''), g: d.g || 0 }; }).filter(function(d){ return d.n && gids.has(d.g); });
+}
+function normalizeUser(u){
+  return { i: u.i || 0, n: String(u.n || ''), p: String(u.p || ''), r: ['admin','editor','viewer'].indexOf(u.r) >= 0 ? u.r : 'viewer', a: u.a === 0 ? 0 : 1, c: u.c || Date.now() };
+}
+function normalizeRecord(r){
+  if(!r || typeof r !== 'object') return null;
+  if(typeof r.i !== 'number') return null;
+  if(typeof r.m !== 'number') r.m = r.i;
+  if(typeof r.x !== 'number') r.x = 0;
+  return r;
+}
+function applyRemoteData(raw){
+  state.epoch = raw.epoch || 1;
+  state.users = (raw.users || []).map(normalizeUser);
+  state.products = {
+    ab: normalizeAbProductList((raw.products && raw.products.ab) || []),
+    sh: normalizeShProductList((raw.products && raw.products.sh) || [])
+  };
+  state.effGroups = normalizeEffGroups(raw.effGroups || []);
+  state.effDevices = normalizeEffDevices(raw.effDevices || [], state.effGroups);
+  state.records = (raw.records || []).map(normalizeRecord).filter(Boolean);
+  state.del = Array.isArray(raw.del) ? raw.del.slice() : [];
+  state.tomb = Object.assign({ p_ab:[], p_sh:[], eg:[], ed:[], df:[], us:[] }, raw.tomb || {});
+  if(!Array.isArray(state.tomb.p_ab)) state.tomb.p_ab = [];
+  if(!Array.isArray(state.tomb.p_sh)) state.tomb.p_sh = [];
+  if(!Array.isArray(state.tomb.eg)) state.tomb.eg = [];
+  if(!Array.isArray(state.tomb.ed)) state.tomb.ed = [];
+  if(!Array.isArray(state.tomb.df)) state.tomb.df = [];
+  if(!Array.isArray(state.tomb.us)) state.tomb.us = [];
+}
+function buildPayload(){
+  return {
+    v: 6,
+    epoch: state.epoch,
+    ts: new Date().toISOString(),
+    by: 0,
+    users: state.users,
+    products: state.products,
+    effGroups: state.effGroups,
+    effDevices: state.effDevices,
+    records: state.records,
+    del: state.del,
+    tomb: state.tomb
+  };
+}
+
+/* Save changes */
+async function saveChanges(silent){
+  try {
+    await ghPut(buildPayload());
+    if(!silent) showToast('✅ تغییرات ذخیره شد', 'success');
+    return true;
+  } catch(e){
+    console.error(e);
+    if(e.status === 409){
+      showToast('تعارض — لطفاً بروزرسانی کنید', 'warning');
+    } else {
+      showToast('خطا در ذخیره: ' + (e.message || ''), 'error');
+    }
+    return false;
+  }
+}
+
+/* Login */
+function tryLogin(){
+  var now = Date.now();
+  if(now < lockUntil){
+    var remaining = Math.ceil((lockUntil - now) / 1000);
+    document.getElementById('loginErr').textContent = '⏳ ' + toFa(remaining) + ' ثانیه صبر کنید';
+    document.getElementById('loginErr').hidden = false;
+    return;
+  }
+
+  var val = document.getElementById('passInput').value.trim();
+  var err = document.getElementById('loginErr');
+  var btn = document.getElementById('loginBtn');
+
+  if(!val){
+    err.textContent = '❌ پسورد را وارد کنید';
+    err.hidden = false;
+    return;
+  }
+
+  btn.disabled = true;
+
+  if(checkPassword(val)){
+    loginAttempts = 0;
+    err.hidden = true;
+    localStorage.setItem(AUTH_KEY, JSON.stringify({ ts: Date.now(), exp: Date.now() + AUTH_DURATION }));
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').hidden = false;
+    loadData();
+  } else {
+    loginAttempts++;
+    if(loginAttempts >= 3){
+      lockUntil = Date.now() + 60000;
+      loginAttempts = 0;
+      err.textContent = '🚫 ۳ بار اشتباه — ۱ دقیقه قفل شد';
+    } else {
+      err.textContent = '❌ پسورد اشتباه (' + toFa(loginAttempts) + '/۳)';
+    }
+    err.hidden = false;
+    btn.disabled = false;
+    document.getElementById('passInput').value = '';
+  }
+}
+
+/* Check auth on load */
+function checkAuth(){
+  try {
+    var a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+    if(a && a.exp > Date.now()) return true;
+  } catch(e){}
+  return false;
+}
+function logout(){
+  localStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+
+/* Load data from GitHub */
+async function loadData(){
+  if(!hasConfig()){
+    document.getElementById('tbStatus').textContent = '❌ تنظیمات GitHub یافت نشد';
+    document.getElementById('tbStatus').style.color = '#dc2626';
+    return;
+  }
+  document.getElementById('tbStatus').textContent = 'در حال بارگذاری...';
+  document.getElementById('tbStatus').style.color = '';
+
+  try {
+    var data = await ghGet();
+    if(!data){
+      document.getElementById('tbStatus').textContent = '❌ فایل دیتا یافت نشد';
+      document.getElementById('tbStatus').style.color = '#dc2626';
+      return;
+    }
+    applyRemoteData(data);
+    document.getElementById('tbStatus').textContent = '✅ ' + ghConfig.owner + '/' + ghConfig.repo;
+    document.getElementById('tbStatus').style.color = '#16a34a';
+    renderAll();
+  } catch(e){
+    console.error(e);
+    document.getElementById('tbStatus').textContent = '❌ ' + (e.message || 'خطا');
+    document.getElementById('tbStatus').style.color = '#dc2626';
+  }
+}
+
+async function reloadData(){
+  if(!hasConfig()) return;
+  showToast('در حال بارگذاری...', 'info', 1500);
+  await loadData();
+  showToast('✅ بروزرسانی شد', 'success');
+}
+
+/* Render everything */
+function renderAll(){
+  renderBadges();
+  renderDashboard();
+  renderUsers();
+  renderDeleted();
+  renderTomb();
+  renderEpoch();
+}
+
+/* Badges */
+function renderBadges(){
+  document.getElementById('usersBadge').textContent = toFa(state.users.length);
+  document.getElementById('delBadge').textContent = toFa(state.records.filter(function(r){ return r.x; }).length);
+  var tombCount = 0;
+  Object.keys(state.tomb).forEach(function(k){ tombCount += (state.tomb[k] || []).length; });
+  document.getElementById('tombBadge').textContent = toFa(tombCount);
+}
+
+/* Dashboard */
+function renderDashboard(){
+  var rec = state.records.filter(function(r){ return !r.x; });
+  var abCount = rec.filter(function(r){ return r.t === 0; }).length;
+  var shCount = rec.filter(function(r){ return r.t === 1; }).length;
+  var effCount = rec.filter(function(r){ return r.t === 2; }).length;
+  var maintCount = rec.filter(function(r){ return r.t === 3; }).length;
+  var delCount = state.records.filter(function(r){ return r.x; }).length;
+
+  var statsGrid = document.getElementById('statsGrid');
+  statsGrid.innerHTML =
+    statBox('users', '👥', 'کاربران', toFa(state.users.length), '') +
+    statBox('ab', '💧', 'رکورد آب', toFa(abCount), '') +
+    statBox('sh', '🍯', 'رکورد شربت', toFa(shCount), '') +
+    statBox('eff', '📊', 'رکورد راندمان', toFa(effCount), '') +
+    statBox('maint', '🔧', 'رکورد نگهداری', toFa(maintCount), '') +
+    statBox('deleted', '🗑️', 'حذف‌شده‌ها', toFa(delCount), '');
+
+  // Type stats table
+  var total = abCount + shCount + effCount + maintCount;
+  var typeStats = document.getElementById('typeStats');
+  if(!total){ typeStats.innerHTML = '<div class="empty-msg"><span class="em-icon">📊</span>هیچ رکوردی وجود ندارد</div>'; }
+  else {
+    typeStats.innerHTML = '<table><thead><tr><th>نوع</th><th>تعداد</th><th>درصد</th></tr></thead><tbody>' +
+      statRow('💧 آب', abCount, total) +
+      statRow('🍯 شربت', shCount, total) +
+      statRow('📊 راندمان', effCount, total) +
+      statRow('🔧 نگهداری', maintCount, total) +
+    '</tbody></table>';
+  }
+
+  // User stats
+  var userStats = document.getElementById('userStats');
+  if(!rec.length){ userStats.innerHTML = '<div class="empty-msg">هیچ رکوردی وجود ندارد</div>'; }
+  else {
+    var userCounts = {};
+    rec.forEach(function(r){ if(r.u) userCounts[r.u] = (userCounts[r.u] || 0) + 1; });
+    var rows = Object.keys(userCounts).map(function(uid){
+      var u = state.users.filter(function(x){ return x.i === parseInt(uid); })[0];
+      return { name: u ? u.n : ('کاربر #' + toFa(uid)), count: userCounts[uid] };
+    }).sort(function(a, b){ return b.count - a.count; });
+
+    userStats.innerHTML = '<table><thead><tr><th>کاربر</th><th>تعداد</th></tr></thead><tbody>' +
+      rows.map(function(r){ return '<tr><td>' + esc(r.name) + '</td><td><b>' + toFa(r.count) + '</b></td></tr>'; }).join('') +
+    '</tbody></table>';
+  }
+
+  // Monthly stats (last 6 months)
+  var monthlyStats = document.getElementById('monthlyStats');
+  if(!rec.length){ monthlyStats.innerHTML = '<div class="empty-msg">هیچ رکوردی وجود ندارد</div>'; }
+  else {
+    var monthly = {};
+    rec.forEach(function(r){
+      var d = normalizeDate(r.d);
+      if(!d) return;
+      var parts = d.split('/');
+      if(parts.length < 2) return;
+      var key = parts[0] + '/' + parts[1];
+      monthly[key] = (monthly[key] || 0) + 1;
+    });
+    var months = Object.keys(monthly).sort().slice(-6).reverse();
+    if(!months.length){ monthlyStats.innerHTML = '<div class="empty-msg">داده‌ای برای نمایش نیست</div>'; }
+    else {
+      monthlyStats.innerHTML = '<table><thead><tr><th>ماه</th><th>تعداد</th></tr></thead><tbody>' +
+        months.map(function(m){ return '<tr><td>' + toFa(m) + '</td><td><b>' + toFa(monthly[m]) + '</b></td></tr>'; }).join('') +
+      '</tbody></table>';
+    }
+  }
+}
+function statBox(cls, icon, label, value, sub){
+  return '<div class="stat-box sb-' + cls + '">' +
+    '<div class="sb-icon">' + icon + '</div>' +
+    '<div class="sb-body">' +
+      '<div class="sb-label">' + label + '</div>' +
+      '<div class="sb-value">' + value + '</div>' +
+      (sub ? '<div class="sb-sub">' + sub + '</div>' : '') +
+    '</div></div>';
+}
+function statRow(label, count, total){
+  var pct = total ? ((count / total) * 100).toFixed(1) : 0;
+  return '<tr><td>' + label + '</td><td><b>' + toFa(count) + '</b></td><td>' + toFa(pct) + '٪</td></tr>';
+}
+
+/* Users */
+function renderUsers(){
+  var el = document.getElementById('usersList');
+  if(!state.users.length){
+    el.innerHTML = '<div class="empty-msg"><span class="em-icon">👥</span>هیچ کاربری وجود ندارد</div>';
+    return;
+  }
+  el.innerHTML = '<div class="table-scroll"><table><thead><tr><th>#</th><th>نام</th><th>نقش</th><th>وضعیت</th><th>تعداد رکورد</th><th></th></tr></thead><tbody>' +
+    state.users.map(function(u){
+      var recCount = state.records.filter(function(r){ return !r.x && r.u === u.i; }).length;
+      var roleLabel = { admin:'ادمین', editor:'ویرایشگر', viewer:'بیننده' }[u.r] || u.r;
+      var roleCls = 'role-' + u.r;
+      var status = u.a ? '<span class="status-dot active"></span>فعال' : '<span class="status-dot inactive"></span>غیرفعال';
+      return '<tr class="user-row">' +
+        '<td>' + toFa(u.i) + '</td>' +
+        '<td><b>' + esc(u.n) + '</b></td>' +
+        '<td><span class="role-badge ' + roleCls + '">' + roleLabel + '</span></td>' +
+        '<td>' + status + '</td>' +
+        '<td>' + toFa(recCount) + '</td>' +
+        '<td>' +
+          '<button class="btn btn-secondary btn-sm" onclick="editUser(' + u.i + ')">✏️</button> ' +
+          '<button class="btn btn-warning btn-sm" onclick="resetUserPassword(' + u.i + ')">🔑</button> ' +
+          '<button class="btn btn-secondary btn-sm" onclick="toggleUserStatus(' + u.i + ')">' + (u.a ? '🚫' : '✅') + '</button> ' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteUser(' + u.i + ')">🗑️</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('') +
+  '</tbody></table></div>';
+}
+
+async function addUser(){
+  var name = await customPrompt('نام کاربر:', '', { placeholder: 'مثلاً: علی رضایی' });
+  if(!name) return;
+  var pass = await customPrompt('پسورد:', '', { placeholder: 'حداقل 4 کاراکتر', inputType: 'password' });
+  if(!pass || pass.length < 4){ showToast('پسورد باید حداقل ۴ کاراکتر باشد', 'warning'); return; }
+  var role = await customPrompt('نقش (admin/editor/viewer):', 'editor', { placeholder: 'editor' });
+  if(!['admin','editor','viewer'].includes(role)){ showToast('نقش نامعتبر', 'warning'); return; }
+  if(state.users.some(function(u){ return u.n === name; })){ showToast('این نام قبلاً وجود دارد', 'warning'); return; }
+
+  var hash = await hashPassword(pass);
+  var maxId = state.users.reduce(function(m, u){ return Math.max(m, u.i || 0); }, 0);
+  state.users.push({ i: maxId + 1, n: name, p: hash, r: role, a: 1, c: Date.now() });
+
+  var ok = await saveChanges(true);
+  if(ok){ showToast('✅ کاربر اضافه شد', 'success'); renderUsers(); renderBadges(); }
+}
+
+async function editUser(uid){
+  var u = state.users.filter(function(x){ return x.i === uid; })[0];
+  if(!u) return;
+  var name = await customPrompt('نام جدید:', u.n);
+  if(!name || name === u.n) return;
+  if(state.users.some(function(x){ return x.i !== uid && x.n === name; })){ showToast('تکراری', 'warning'); return; }
+
+  var role = await customPrompt('نقش جدید (admin/editor/viewer):', u.r);
+  if(!['admin','editor','viewer'].includes(role)){ showToast('نقش نامعتبر', 'warning'); return; }
+
+  u.n = name;
+  u.r = role;
+  var ok = await saveChanges(true);
+  if(ok){ showToast('✅ ویرایش شد', 'success'); renderUsers(); }
+}
+
+async function resetUserPassword(uid){
+  var u = state.users.filter(function(x){ return x.i === uid; })[0];
+  if(!u) return;
+  var pass = await customPrompt('پسورد جدید برای «' + u.n + '»:', '', { placeholder: 'حداقل 4 کاراکتر', inputType: 'password' });
+  if(!pass || pass.length < 4){ showToast('پسورد باید حداقل ۴ کاراکتر باشد', 'warning'); return; }
+  u.p = await hashPassword(pass);
+  var ok = await saveChanges(true);
+  if(ok) showToast('✅ پسورد تغییر کرد', 'success');
+}
+
+async function toggleUserStatus(uid){
+  var u = state.users.filter(function(x){ return x.i === uid; })[0];
+  if(!u) return;
+  var activeCount = state.users.filter(function(x){ return x.a; }).length;
+  if(u.a && activeCount <= 1){ showToast('حداقل یک کاربر فعال باید باقی بماند', 'warning'); return; }
+  u.a = u.a ? 0 : 1;
+  var ok = await saveChanges(true);
+  if(ok){ showToast(u.a ? '✅ فعال شد' : '🚫 غیرفعال شد', 'success'); renderUsers(); }
+}
+
+async function deleteUser(uid){
+  var u = state.users.filter(function(x){ return x.i === uid; })[0];
+  if(!u) return;
+  var activeCount = state.users.filter(function(x){ return x.a; }).length;
+  if(u.a && activeCount <= 1){ showToast('حداقل یک کاربر فعال باید باقی بماند', 'warning'); return; }
+  var recCount = state.records.filter(function(r){ return !r.x && r.u === uid; }).length;
+  var ok = await customConfirm('کاربر «' + u.n + '» حذف شود؟\n\n' + toFa(recCount) + ' رکورد به این کاربر وابسته است (رکوردها حفظ می‌شوند).', { okText: 'حذف', danger: true });
+  if(!ok) return;
+  state.users = state.users.filter(function(x){ return x.i !== uid; });
+  state.tomb.us.push(uid);
+  var ok2 = await saveChanges(true);
+  if(ok2){ showToast('✅ کاربر حذف شد', 'success'); renderUsers(); renderBadges(); }
+}
+
+async function hashPassword(pass){
+  var enc = new TextEncoder().encode(pass + SALT);
+  var buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+/* Deleted records */
+function renderDeleted(){
+  var el = document.getElementById('deletedList');
+  var list = state.records.filter(function(r){ return r.x; });
+  if(!list.length){
+    el.innerHTML = '<div class="empty-msg"><span class="em-icon">✅</span>هیچ رکورد حذف‌شده‌ای وجود ندارد</div>';
+    return;
+  }
+  list.sort(function(a, b){ return (b.m || 0) - (a.m || 0); });
+  el.innerHTML = list.map(function(r){
+    var icon, iconCls, title;
+    if(r.t === 0){ icon = '💧'; iconCls = 'ab'; title = 'آب — ' + getProductName(r.p); }
+    else if(r.t === 1){ icon = '🍯'; iconCls = 'sh'; title = 'شربت — ' + getShProductName(r.p); }
+    else if(r.t === 2){ icon = '📊'; iconCls = 'eff'; title = 'راندمان — ' + (r.ep || '—'); }
+    else { icon = '🔧'; iconCls = 'maint'; title = (r.mt === 'regen' ? 'احیا' : 'CIP') + ' — ' + getProductName(r.p); }
+    var meta = toFa(r.d || '') + ' ' + toFa(r.h || '') + ' — ثبت: ' + toFa(new Date(r.m || r.i).toLocaleDateString('fa-IR'));
+    return '<div class="del-item">' +
+      '<div class="di-icon ' + iconCls + '">' + icon + '</div>' +
+      '<div class="di-body"><div class="di-title">' + esc(title) + '</div><div class="di-meta">' + esc(meta) + '</div></div>' +
+      '<div class="di-actions">' +
+        '<button class="di-restore" onclick="restoreRec(' + r.i + ')" title="بازگردانی">🔄</button>' +
+        '<button class="di-delete" onclick="deleteRec(' + r.i + ')" title="حذف کامل">🗑️</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function getProductName(id){
+  var p = state.products.ab.filter(function(x){ return x.i === id; })[0];
+  return p ? p.n : '—';
+}
+function getShProductName(id){
+  var p = state.products.sh.filter(function(x){ return x.i === id; })[0];
+  return p ? p.n : '—';
+}
+
+async function restoreRec(id){
+  var idx = state.records.findIndex(function(r){ return r.i === id; });
+  if(idx === -1) return;
+  state.records[idx].x = 0;
+  state.records[idx].m = Date.now();
+  var ok = await saveChanges(true);
+  if(ok){ showToast('✅ بازگردانی شد', 'success'); renderDeleted(); renderBadges(); renderDashboard(); }
+}
+
+async function deleteRec(id){
+  var ok = await customConfirm('این رکورد برای همیشه حذف شود؟', { okText: 'حذف کامل', danger: true });
+  if(!ok) return;
+  state.records = state.records.filter(function(r){ return r.i !== id; });
+  if(state.del.indexOf(id) === -1) state.del.push(id);
+  var ok2 = await saveChanges(true);
+  if(ok2){ showToast('✅ حذف کامل شد', 'success'); renderDeleted(); renderBadges(); renderDashboard(); }
+}
+
+async function restoreAllDeleted(){
+  var list = state.records.filter(function(r){ return r.x; });
+  if(!list.length){ showToast('رکوردی نیست', 'info'); return; }
+  var ok = await customConfirm(toFa(list.length) + ' رکورد بازگردانی شوند؟', { okText: 'بازگردانی همه' });
+  if(!ok) return;
+  list.forEach(function(r){ r.x = 0; r.m = Date.now(); });
+  var ok2 = await saveChanges(true);
+  if(ok2){ showToast('✅ ' + toFa(list.length) + ' رکورد بازگردانی شد', 'success'); renderDeleted(); renderBadges(); renderDashboard(); }
+}
+
+async function clearAllDeletedPermanent(){
+  var list = state.records.filter(function(r){ return r.x; });
+  if(!list.length){ showToast('رکوردی نیست', 'info'); return; }
+  var ok = await customConfirm('⚠️ ' + toFa(list.length) + ' رکورد برای همیشه حذف شوند؟', { okText: 'حذف کامل', danger: true });
+  if(!ok) return;
+  list.forEach(function(r){ if(state.del.indexOf(r.i) === -1) state.del.push(r.i); });
+  state.records = state.records.filter(function(r){ return !r.x; });
+  var ok2 = await saveChanges(true);
+  if(ok2){ showToast('✅ همه حذف شدند', 'success'); renderDeleted(); renderBadges(); renderDashboard(); }
+}
+
+/* Tombstone */
+function renderTomb(){
+  var el = document.getElementById('tombList');
+  var sections = [
+    { key: 'p_ab', icon: '💧', label: 'محصولات آب حذف‌شده' },
+    { key: 'p_sh', icon: '🍯', label: 'محصولات شربت حذف‌شده' },
+    { key: 'eg',   icon: '📊', label: 'گروه‌های راندمان حذف‌شده' },
+    { key: 'ed',   icon: '🔧', label: 'دستگاه‌های راندمان حذف‌شده' },
+    { key: 'df',   icon: '📅', label: 'فیلدهای تاریخ حذف‌شده' },
+    { key: 'us',   icon: '👥', label: 'کاربران حذف‌شده' }
+  ];
+  var html = '';
+  sections.forEach(function(s){
+    var items = state.tomb[s.key] || [];
+    html += '<div class="tomb-section"><h3>' + s.icon + ' ' + s.label + ' (' + toFa(items.length) + ')</h3>';
+    if(!items.length){ html += '<div class="tomb-empty">خالی</div>'; }
+    else {
+      html += '<div class="tomb-chips">' + items.map(function(item, idx){
+        return '<span class="tomb-chip">' + esc(String(item)) + '<button class="tc-x" onclick="removeTombItem(\'' + s.key + '\',' + idx + ')" title="حذف">✕</button></span>';
+      }).join('') + '</div>';
+    }
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+async function removeTombItem(key, idx){
+  if(!state.tomb[key] || !state.tomb[key][idx]) return;
+  state.tomb[key].splice(idx, 1);
+  var ok = await saveChanges(true);
+  if(ok){ showToast('✅ حذف شد', 'success'); renderTomb(); renderBadges(); }
+}
+
+async function clearAllTombstones(){
+  var total = 0;
+  Object.keys(state.tomb).forEach(function(k){ total += (state.tomb[k] || []).length; });
+  if(!total){ showToast('خالی است', 'info'); return; }
+  var ok = await customConfirm('⚠️ تمام ' + toFa(total) + ' مورد Tombstone پاک شوند؟\n\nممکن است آیتم‌های حذف‌شده قدیمی برگردند.', { okText: 'پاک کن', danger: true });
+  if(!ok) return;
+  state.tomb = { p_ab:[], p_sh:[], eg:[], ed:[], df:[], us:[] };
+  var ok2 = await saveChanges(true);
+  if(ok2){ showToast('✅ پاک شد', 'success'); renderTomb(); renderBadges(); }
+}
+
+/* Epoch */
+function renderEpoch(){
+  document.getElementById('epochValue').textContent = toFa(state.epoch);
+}
+
+async function fullReset(){
+  var ok = await customConfirm('⚠️⚠️ Full Reset — هشدار جدی ⚠️⚠️\n\nتمام رکوردها، Tombstone‌ها و del پاک می‌شوند.\nEpoch یک واحد افزایش می‌یابد.\nهمه کاربران باید Pull کنند.\n\nادامه؟', { okText: 'Full Reset', danger: true });
+  if(!ok) return;
+  var confirmText = await customPrompt('برای تأیید نهایی، عبارت زیر را تایپ کنید:\n\nRESET', '', { placeholder: 'RESET' });
+  if(confirmText !== 'RESET'){ showToast('لغو شد', 'info'); return; }
+
+  state.records = [];
+  state.del = [];
+  state.tomb = { p_ab:[], p_sh:[], eg:[], ed:[], df:[], us:[] };
+  state.epoch = (state.epoch || 1) + 1;
+
+  var ok2 = await saveChanges(true);
+  if(ok2){
+    showToast('✅ Full Reset انجام شد — Epoch: ' + toFa(state.epoch), 'success', 5000);
+    renderAll();
+  }
+}
+
+/* Repair */
+function runIntegrityCheck(){
+  var el = document.getElementById('repairResults');
+  var issues = [];
+
+  // Check 1: record → product refs
+  var abIds = new Set(state.products.ab.map(function(p){ return p.i; }));
+  var shIds = new Set(state.products.sh.map(function(p){ return p.i; }));
+  state.records.forEach(function(r){
+    if(r.x) return;
+    if(r.t === 0 && r.p && !abIds.has(r.p)) issues.push('رکورد آب #' + r.i + ' به محصول ناموجود #' + r.p);
+    if(r.t === 1 && r.p && !shIds.has(r.p)) issues.push('رکورد شربت #' + r.i + ' به محصول ناموجود #' + r.p);
+    if(r.t === 3 && r.p && !abIds.has(r.p)) issues.push('رکورد نگهداری #' + r.i + ' به دستگاه ناموجود #' + r.p);
+  });
+
+  // Check 2: duplicate IDs
+  var idMap = {};
+  state.records.forEach(function(r){ idMap[r.i] = (idMap[r.i] || 0) + 1; });
+  Object.keys(idMap).forEach(function(id){ if(idMap[id] > 1) issues.push('ID تکراری در رکوردها: ' + id); });
+
+  // Check 3: orphan users (records with invalid user)
+  var userIds = new Set(state.users.map(function(u){ return u.i; }));
+  state.records.forEach(function(r){
+    if(r.x) return;
+    if(r.u && !userIds.has(r.u)) issues.push('رکورد #' + r.i + ' به کاربر ناموجود #' + r.u);
+  });
+
+  // Check 4: eff devices group refs
+  var groupIds = new Set(state.effGroups.map(function(g){ return g.i; }));
+  state.effDevices.forEach(function(d){
+    if(d.g && !groupIds.has(d.g)) issues.push('دستگاه #' + d.i + ' به گروه ناموجود #' + d.g);
+  });
+
+  if(!issues.length){
+    el.innerHTML = '<div class="alert alert-success"><span class="al-icon">✅</span><span>هیچ مشکلی یافت نشد. یکپارچگی داده تأیید شد.</span></div>';
+  } else {
+    el.innerHTML = '<div class="alert alert-warning"><span class="al-icon">⚠️</span><div><b>' + toFa(issues.length) + ' مشکل یافت شد:</b><br>' +
+      issues.slice(0, 20).map(function(i){ return '• ' + esc(i); }).join('<br>') +
+      (issues.length > 20 ? '<br>... و ' + toFa(issues.length - 20) + ' مورد دیگر' : '') +
+    '</div></div>';
+  }
+}
+
+async function mergeDuplicateUsers(){
+  var nameMap = {};
+  var dupes = [];
+  state.users.forEach(function(u){
+    if(nameMap[u.n]){ dupes.push({ keep: nameMap[u.n], dup: u }); }
+    else { nameMap[u.n] = u; }
+  });
+  if(!dupes.length){ showToast('کاربر تکراری یافت نشد', 'info'); return; }
+  var ok = await customConfirm(toFa(dupes.length) + ' کاربر تکراری یافت شد. ادغام شوند؟', { okText: 'ادغام' });
+  if(!ok) return;
+
+  dupes.forEach(function(d){
+    // انتقال رکوردها
+    state.records.forEach(function(r){ if(r.u === d.dup.i) r.u = d.keep.i; });
+    // حذف کاربر
+    state.users = state.users.filter(function(u){ return u.i !== d.dup.i; });
+    if(state.tomb.us.indexOf(d.dup.i) === -1) state.tomb.us.push(d.dup.i);
+  });
+
+  var ok2 = await saveChanges(true);
+  if(ok2){ showToast('✅ ' + toFa(dupes.length) + ' کاربر ادغام شد', 'success'); renderAll(); }
+}
+
+async function cleanupOrphanRefs(){
+  var abIds = new Set(state.products.ab.map(function(p){ return p.i; }));
+  var shIds = new Set(state.products.sh.map(function(p){ return p.i; }));
+  var userIds = new Set(state.users.map(function(u){ return u.i; }));
+  var removed = 0;
+
+  // حذف رکوردهای یتیم (x=1 کن)
+  state.records.forEach(function(r){
+    if(r.x) return;
+    var orphan = false;
+    if(r.t === 0 && r.p && !abIds.has(r.p)) orphan = true;
+    if(r.t === 1 && r.p && !shIds.has(r.p)) orphan = true;
+    if(r.t === 3 && r.p && !abIds.has(r.p)) orphan = true;
+    if(r.u && !userIds.has(r.u)) orphan = true;
+    if(orphan){ r.x = 1; r.m = Date.now(); removed++; }
+  });
+
+  if(!removed){ showToast('ارجاع یتیمی یافت نشد', 'info'); return; }
+  var ok = await saveChanges(true);
+  if(ok){ showToast('✅ ' + toFa(removed) + ' رکورد یتیم حذف شد', 'success', 4000); renderAll(); }
+}
+
+/* Backup */
+function downloadBackup(){
+  var json = JSON.stringify(buildPayload(), null, 2);
+  var name = 'lab-admin-backup-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.json';
+  var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+  document.getElementById('backupStatus').textContent = '⬇️ ' + name;
+  showToast('✅ دانلود شد', 'success');
+}
+
+async function restoreFromFile(ev){
+  var file = ev.target.files && ev.target.files[0];
+  ev.target.value = '';
+  if(!file) return;
+
+  try {
+    var text = await file.text();
+    var data = JSON.parse(text);
+    if(!data || !Array.isArray(data.records)) throw new Error('invalid format');
+
+    var ok = await customConfirm('بازیابی از «' + file.name + '»؟\n\n⚠️ تمام داده‌های فعلی جایگزین می‌شوند.', { okText: 'بازیابی', danger: true });
+    if(!ok) return;
+
+    // Validate و بارگذاری
+    state.epoch = data.epoch || 1;
+    state.users = (data.users || []).map(normalizeUser);
+    state.products = {
+      ab: normalizeAbProductList((data.products && data.products.ab) || []),
+      sh: normalizeShProductList((data.products && data.products.sh) || [])
+    };
+    state.effGroups = normalizeEffGroups(data.effGroups || []);
+    state.effDevices = normalizeEffDevices(data.effDevices || [], state.effGroups);
+    state.records = (data.records || []).map(normalizeRecord).filter(Boolean);
+    state.del = Array.isArray(data.del) ? data.del.slice() : [];
+    state.tomb = Object.assign({ p_ab:[], p_sh:[], eg:[], ed:[], df:[], us:[] }, data.tomb || {});
+
+    var ok2 = await saveChanges(true);
+    if(ok2){
+      showToast('✅ بازیابی شد', 'success');
+      renderAll();
+      document.getElementById('backupStatus').textContent = '✅ بازیابی از: ' + file.name;
+    }
+  } catch(e){
+    console.error(e);
+    showToast('❌ فایل معتبر نیست: ' + (e.message || ''), 'error', 4000);
+  }
+}
+
+/* Tabs */
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    var target = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById('panel-' + target).classList.add('active');
+    // رفرش داده
+    if(target === 'dashboard') renderDashboard();
+    if(target === 'users') renderUsers();
+    if(target === 'deleted') renderDeleted();
+    if(target === 'tomb') renderTomb();
+    if(target === 'epoch') renderEpoch();
+  });
+});
+
+/* Init */
+window.addEventListener('DOMContentLoaded', function(){
+  loadConfig();
+  applyDark();
+
+  if(checkAuth()){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').hidden = false;
+    loadData();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    setTimeout(function(){ document.getElementById('passInput').focus(); }, 200);
+  }
+
+  // Enter on password
+  document.getElementById('passInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') tryLogin();
+  });
+
+  // Number input conversion for Persian
+  document.getElementById('passInput').addEventListener('input', function(e){
+    var v = toLatinDigits(e.target.value);
+    if(v !== e.target.value) e.target.value = v;
+  });
+});
+
+/* Cleanup on unload */
+window.addEventListener('beforeunload', function(e){ /* no pending state in admin */ });
+
+console.log('%c⚙️ Admin Panel v1.0.0', 'color:#dc2626;font-weight:900;font-size:14px');
+</script>
+
+</body>
+</html>
