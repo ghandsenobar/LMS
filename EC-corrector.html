@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ماشین‌حساب تصحیح EC — کارخانه قند صنوبر</title>
+<link rel="icon" href="./icon-192.png">
+<style>
+:root{
+  --primary:#6366f1;--primary-dark:#4f46e5;
+  --bg-start:#f0f4ff;--bg-end:#e0e7ff;
+  --surface:#ffffff;--surface-2:#f8fafc;
+  --border:#e2e8f0;--text:#0f172a;--text-soft:#475569;--muted:#94a3b8;
+  --water:#06b6d4;--syrup:#f59e0b;--mix:#8b5cf6;
+  --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+  --shadow:0 4px 20px rgba(99,102,241,.08);
+}
+body.dark{
+  --bg-start:#0a0f1e;--bg-end:#0f172a;
+  --surface:#1e293b;--surface-2:#0f172a;
+  --border:#334155;--text:#f1f5f9;--text-soft:#cbd5e1;--muted:#64748b;
+  --shadow:0 4px 20px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;font-family:Tahoma,'Segoe UI',sans-serif}
+body{margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg-start),var(--bg-end));color:var(--text);font-size:14px;line-height:1.6}
+
+.wrap{max-width:720px;margin:0 auto;padding:14px 14px 40px}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;margin-bottom:14px;background:var(--surface);border-radius:14px;box-shadow:var(--shadow)}
+.topbar .tb-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:900;color:var(--primary-dark);flex:1;justify-content:center}
+.topbar .tb-title .icon{font-size:20px}
+.icon-btn{width:36px;height:36px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--text);font-family:inherit;text-decoration:none;transition:all .15s;flex-shrink:0}
+.icon-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:scale(1.05)}
+.icon-btn.back{font-size:22px;font-weight:900;line-height:1}
+
+/* Section */
+.section{background:var(--surface);border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}
+.section-title{font-size:12px;font-weight:900;color:var(--primary-dark);margin-bottom:10px;letter-spacing:.3px;display:flex;align-items:center;gap:6px}
+.section-title .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
+
+/* Segmented control */
+.seg-control{display:flex;gap:4px;padding:4px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;margin-bottom:12px}
+.seg-control button{flex:1;padding:8px 6px;border:none;background:transparent;border-radius:8px;font-family:inherit;font-size:12px;font-weight:900;color:var(--muted);cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:4px}
+.seg-control button:hover{color:var(--primary-dark)}
+.seg-control button.active{background:var(--surface);color:var(--primary-dark);box-shadow:0 2px 6px rgba(99,102,241,.15);border:1px solid var(--border)}
+
+/* Compact grid */
+.compact-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compact-grid .full{grid-column:1/-1}
+@media(max-width:500px){.compact-grid{grid-template-columns:1fr}}
+
+/* Pills */
+.pill{position:relative;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;padding:8px 12px 6px;transition:all .15s}
+.pill:focus-within{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.pill.p-ec:focus-within{border-color:var(--water);box-shadow:0 0 0 3px rgba(6,182,212,.12)}
+.pill.p-temp:focus-within{border-color:var(--warning);box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+.pill.p-brix:focus-within{border-color:var(--syrup);box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+.pill .pill-lbl{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10.5px;font-weight:900;color:var(--muted);margin-bottom:2px}
+.pill .pill-lbl .u{font-size:9.5px;background:var(--surface);padding:1px 6px;border-radius:6px;color:var(--primary);border:1px solid var(--border);font-family:'Courier New',monospace}
+.pill input{width:100%;border:none;background:transparent;outline:none;font-size:17px;font-weight:900;color:var(--text);font-family:'Courier New',monospace;direction:ltr;text-align:left;padding:0}
+.pill input::placeholder{color:var(--muted);font-weight:normal;opacity:.6}
+.pill .hint{font-size:9.5px;color:var(--muted);font-style:italic;margin-top:2px}
+
+/* Copy button in pill */
+.pill-with-copy{position:relative}
+.pill-with-copy .copy-btn-mini{
+  position:absolute;left:8px;top:50%;transform:translateY(-50%);
+  width:30px;height:30px;border-radius:8px;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--muted);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;font-family:inherit;padding:0;z-index:2;
+}
+.pill-with-copy .copy-btn-mini:hover{background:var(--water);color:#fff;border-color:var(--water);transform:translateY(-50%) scale(1.08)}
+.pill-with-copy .copy-btn-mini.copied{background:var(--success);color:#fff;border-color:var(--success);animation:copyPop .4s}
+.pill-with-copy input{padding-left:38px}
+@keyframes copyPop{0%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-50%) scale(1.25)}100%{transform:translateY(-50%) scale(1)}}
+
+/* Unit toggle */
+.unit-toggle{display:flex;gap:4px;margin-top:6px}
+.unit-toggle button{flex:1;padding:4px 8px;border:1px solid var(--border);background:var(--surface);border-radius:6px;font-family:'Courier New',monospace;font-size:10.5px;font-weight:900;color:var(--muted);cursor:pointer;transition:all .15s}
+.unit-toggle button.active{background:var(--water);color:#fff;border-color:var(--water)}
+
+/* Result card (gradient) */
+.result-main{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 8px 24px rgba(99,102,241,.28);position:relative}
+.result-main .rm-label{font-size:11px;font-weight:900;opacity:.85;margin-bottom:4px;display:flex;align-items:center;gap:6px;padding-left:42px}
+.result-main .rm-value{font-size:30px;font-weight:900;direction:ltr;text-align:left;line-height:1.1;font-family:'Courier New',monospace;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding-left:42px}
+.result-main .rm-value .rm-unit{font-size:14px;font-weight:700;opacity:.9}
+.result-main .rm-badge{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:900;background:rgba(255,255,255,.22);color:#fff;margin-left:42px}
+.result-main .copy-btn{
+  position:absolute;top:14px;left:14px;
+  width:34px;height:34px;border-radius:10px;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  color:#fff;font-size:15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;font-family:inherit;padding:0;
+  backdrop-filter:blur(4px);
+}
+.result-main .copy-btn:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}
+.result-main .copy-btn.copied{background:var(--success);border-color:var(--success);animation:copyPopBig .5s}
+@keyframes copyPopBig{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+@media(max-width:520px){.result-main .rm-value{font-size:24px}}
+
+/* Stats chips */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+@media(max-width:520px){.stats-grid{grid-template-columns:1fr 1fr}}
+.stat-chip{background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center}
+.stat-chip .sc-label{font-size:9.5px;font-weight:900;color:var(--muted);margin-bottom:2px;letter-spacing:.2px}
+.stat-chip .sc-value{font-size:14px;font-weight:900;color:var(--primary-dark);direction:ltr;font-family:'Courier New',monospace;line-height:1.1}
+.stat-chip .sc-value small{font-size:9px;font-weight:700;color:var(--muted);margin-right:2px}
+.stat-chip.sc-positive{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.35)}
+.stat-chip.sc-positive .sc-value{color:var(--success)}
+.stat-chip.sc-negative{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.35)}
+.stat-chip.sc-negative .sc-value{color:var(--danger)}
+.stat-chip.sc-warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.35)}
+.stat-chip.sc-warn .sc-value{color:var(--warning)}
+
+/* ⭐ TDS Card */
+.tds-card{
+  background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(6,182,212,.03));
+  border:1.5px solid rgba(6,182,212,.35);
+  border-radius:12px;
+  padding:10px 14px;
+  display:flex;align-items:center;gap:12px;
+  transition:all .2s;
+}
+.tds-card.hidden{display:none}
+.tds-card .tds-ico{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,#06b6d4,#0891b2);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;box-shadow:0 3px 10px rgba(6,182,212,.3);
+}
+.tds-card .tds-info{flex:1;min-width:0}
+.tds-card .tds-lbl{
+  font-size:10.5px;font-weight:900;color:var(--muted);
+  margin-bottom:2px;display:flex;align-items:center;gap:4px;
+}
+.tds-card .tds-val{
+  font-size:20px;font-weight:900;color:#0891b2;
+  font-family:'Courier New',monospace;direction:ltr;text-align:left;
+  line-height:1.1;
+}
+.tds-card .tds-val small{font-size:11px;color:var(--muted);font-weight:700;margin-right:2px}
+.tds-card select{
+  background:var(--surface);
+  border:1.5px solid rgba(6,182,212,.3);
+  border-radius:9px;
+  padding:7px 10px;
+  font-family:inherit;
+  font-size:11px;
+  font-weight:900;
+  color:var(--text);
+  cursor:pointer;
+  outline:none;
+  direction:rtl;
+  min-width:120px;
+  transition:all .15s;
+}
+.tds-card select:hover{border-color:var(--water)}
+.tds-card select:focus{border-color:var(--water);box-shadow:0 0 0 3px rgba(6,182,212,.15)}
+.tds-card .tds-warn{
+  font-size:10px;color:var(--warning);font-weight:900;
+  margin-top:2px;font-style:italic;
+}
+@media(max-width:520px){
+  .tds-card{flex-wrap:wrap}
+  .tds-card select{width:100%;min-width:0}
+}
+
+/* Formula */
+.formula-box{background:var(--surface-2);border:1px dashed var(--border);border-radius:10px;padding:12px 14px;font-family:'Courier New',monospace;direction:ltr;text-align:center;font-size:12.5px;color:var(--primary-dark);font-weight:700;line-height:1.7;margin-bottom:10px}
+.formula-box .highlight{background:rgba(99,102,241,.15);padding:2px 8px;border-radius:6px;color:var(--primary-dark)}
+
+/* Note */
+.note-box{display:flex;align-items:flex-start;gap:8px;background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--text-soft);line-height:1.8;border-right:3px solid var(--warning)}
+.note-box .nb-icon{flex-shrink:0;font-size:14px}
+.note-box.nb-info{border-right-color:var(--primary);background:rgba(99,102,241,.06)}
+.note-box.nb-warn{border-right-color:var(--warning);background:rgba(245,158,11,.06)}
+.note-box.nb-danger{border-right-color:var(--danger);background:rgba(239,68,68,.06)}
+
+/* Actions */
+.bottom-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:14px}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border:none;border-radius:12px;font-size:13.5px;font-weight:900;font-family:inherit;cursor:pointer;transition:all .15s}
+.btn-print{background:var(--primary);color:#fff}
+.btn-print:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 6px 16px rgba(99,102,241,.3)}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;max-width:92vw}
+.toast{background:var(--surface);color:var(--text);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.2);border-right:4px solid var(--primary);pointer-events:auto;min-width:200px;max-width:92vw;display:flex;align-items:center;gap:8px;animation:tIn .3s ease-out}
+.toast.success{border-right-color:var(--success)}
+.toast.error{border-right-color:var(--danger)}
+.toast.warning{border-right-color:var(--warning)}
+@keyframes tIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tOut{to{opacity:0;transform:translateY(20px)}}
+.toast.out{animation:tOut .3s ease-in forwards}
+
+/* Print */
+@media print{
+  body{background:#fff!important;padding:0}
+  .topbar,.bottom-actions,.toast-wrap,.copy-btn,.copy-btn-mini,.tds-card select{display:none!important}
+  .section,.result-main{box-shadow:none;page-break-inside:avoid;border:1px solid #ccc}
+  .result-main{background:#0d6e8c!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <button class="icon-btn" onclick="toggleDark()" id="darkBtn" title="حالت شب">🌙</button>
+    <div class="tb-title"><span class="icon">🔬</span><span>تصحیح EC</span></div>
+    <button class="icon-btn back" onclick="goBack()" title="بازگشت">‹</button>
+  </div>
+
+  <!-- ورودی‌ها -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span> ورودی‌ها</div>
+
+    <div class="seg-control" id="modeTabs">
+      <button data-mode="auto" class="active">🎯 خودکار</button>
+      <button data-mode="water">💧 آب</button>
+      <button data-mode="syrup">🍯 شربت</button>
+    </div>
+
+    <div class="compact-grid">
+
+      <div class="pill p-ec full pill-with-copy">
+        <div class="pill-lbl"><span>هدایت الکتریکی اندازه‌گیری‌شده (EC)</span><span class="u" id="ecUnitLabel">µS/cm</span></div>
+        <input id="ec" type="text" inputmode="decimal" value="1500" placeholder="1500">
+        <button class="copy-btn-mini" onclick="copyEcRaw(this)" title="کپی مقدار خام">📋</button>
+        <div class="unit-toggle" id="unitToggle">
+          <button data-unit="uS" class="active">µS/cm</button>
+          <button data-unit="mS">mS/cm</button>
+        </div>
+      </div>
+
+      <div class="pill p-temp">
+        <div class="pill-lbl"><span>دمای نمونه</span><span class="u">°C</span></div>
+        <input id="temp" type="text" inputmode="decimal" value="18" placeholder="18">
+      </div>
+
+      <div class="pill p-brix">
+        <div class="pill-lbl"><span>بریکس شربت</span><span class="u">%</span></div>
+        <input id="brix" type="text" inputmode="decimal" value="0" placeholder="0">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- نتیجه -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span> نتیجه</div>
+
+    <div class="result-main">
+      <button class="copy-btn" onclick="copyEc25(this)" title="کپی مقدار تصحیح‌شده">📋</button>
+      <div class="rm-label">🎯 هدایت الکتریکی تصحیح‌شده در ۲۵°C</div>
+      <div class="rm-value" id="ec25">
+        0.00 <span class="rm-unit">µS/cm</span>
+      </div>
+      <div id="classification"><span class="rm-badge">آب</span></div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-chip">
+        <div class="sc-label">ضریب K</div>
+        <div class="sc-value" id="kValue">0.020</div>
+      </div>
+      <div class="stat-chip">
+        <div class="sc-label">ضریب تصحیح</div>
+        <div class="sc-value" id="corrFactor">1.000</div>
+      </div>
+      <div class="stat-chip" id="diffChip">
+        <div class="sc-label">تغییر نسبت به خام</div>
+        <div class="sc-value" id="diffValue">0.0%</div>
+      </div>
+    </div>
+
+    <!-- ⭐ TDS Card -->
+    <div class="tds-card" id="tdsCard">
+      <div class="tds-ico">💧</div>
+      <div class="tds-info">
+        <div class="tds-lbl">TDS تخمینی <span id="tdsWarn" class="tds-warn"></span></div>
+        <div class="tds-val" id="tdsValue">0 <small>mg/L</small></div>
+      </div>
+      <select id="tdsFactor" onchange="onTdsFactorChange()" title="نوع آب">
+        <option value="0.50">آب خالص/RO</option>
+        <option value="0.55">آشامیدنی</option>
+        <option value="0.64">استاندارد US</option>
+        <option value="0.70">کشاورزی/چاه</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- جزئیات -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span> جزئیات محاسبه</div>
+    <div class="formula-box" id="formulaBox">
+      EC₂₅ = EC_t / [1 + K × (t − 25)]
+    </div>
+    <div class="note-box nb-info" id="noteBox">
+      <span class="nb-icon">ℹ️</span>
+      <span>ضریب K بر اساس بریکس شما تخمین زده می‌شود. برای دقت بالاتر، ضریب تجربی نمونه خود را در محاسبات وارد کنید.</span>
+    </div>
+  </div>
+
+  <div class="bottom-actions">
+    <button class="btn btn-print" onclick="window.print()">🖨️ چاپ / ذخیره PDF</button>
+  </div>
+
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================
+   ماشین‌حساب تصحیح EC — کارخانه قند صنوبر
+   نسخه ۳.۳ (TDS هوشمند با ضریب قابل تنظیم)
+============================================================ */
+
+var TDS_FACTOR_KEY = 'lab_tds_factor';
+var TDS_FACTORS = {
+  '0.50': 'آب خالص/RO',
+  '0.55': 'آشامیدنی',
+  '0.64': 'استاندارد US',
+  '0.70': 'کشاورزی/چاه'
+};
+
+/* goBack هوشمند */
+function goBack(){
+  if(window.history.length > 1){
+    try { history.back(); return; } catch(e){}
+  }
+  try { window.location.href = './index.html'; }
+  catch(e){ alert('❌ خطا در بازگشت: ' + e.message); }
+}
+
+/* Helpers */
+var FA = '۰۱۲۳۴۵۶۷۸۹';
+function toFa(s){ return String(s).replace(/\d/g, function(d){ return FA[+d]; }); }
+function toLatin(s){ return String(s).replace(/[۰-۹]/g, function(d){ return FA.indexOf(d); }).replace(/[٠-٩]/g, function(d){ return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }); }
+function num(id){ var el = document.getElementById(id); if(!el) return NaN; var v = toLatin(el.value.trim()); return v === '' ? NaN : parseFloat(v); }
+function fmt(v, digits){
+  if(digits == null) digits = 2;
+  if(isNaN(v) || !isFinite(v)) return '—';
+  return toFa(Number(v).toFixed(digits));
+}
+
+/* Dark mode */
+var darkMode = localStorage.getItem('lab_darkmode') === '1';
+function applyDark(){ document.body.classList.toggle('dark', darkMode); document.getElementById('darkBtn').textContent = darkMode ? '☀️' : '🌙'; }
+function toggleDark(){ darkMode = !darkMode; localStorage.setItem('lab_darkmode', darkMode ? '1' : '0'); applyDark(); }
+applyDark();
+
+/* Toast */
+function showToast(msg, type, dur){
+  type = type || 'success'; dur = dur || 2500;
+  var wrap = document.getElementById('toastWrap');
+  var icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<span>' + (icons[type] || '') + '</span><span>' + msg + '</span>';
+  wrap.appendChild(t);
+  setTimeout(function(){ t.classList.add('out'); setTimeout(function(){ t.remove(); }, 300); }, dur);
+}
+
+/* ---------- TDS Factor ---------- */
+function loadTdsFactor(){
+  try {
+    var v = localStorage.getItem(TDS_FACTOR_KEY);
+    if(v && TDS_FACTORS[v]) return parseFloat(v);
+  } catch(e){}
+  return 0.50;
+}
+function saveTdsFactor(v){
+  try { localStorage.setItem(TDS_FACTOR_KEY, String(v)); } catch(e){}
+}
+function onTdsFactorChange(){
+  var sel = document.getElementById('tdsFactor');
+  var v = parseFloat(sel.value);
+  saveTdsFactor(v);
+  showToast('ضریب TDS: ' + v + ' (' + TDS_FACTORS[sel.value] + ')', 'info', 1800);
+  calculate();
+}
+
+/* ---------- State ---------- */
+var currentMode = 'auto';
+var currentUnit = 'uS';
+var lastEc25 = null;
+var lastEcRaw = null;
+
+/* ---------- Copy ---------- */
+function copyToClipboard(text, onSuccess, onError){
+  if(!text){ if(onError) onError(); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      if(onSuccess) onSuccess();
+    }).catch(function(){ fallbackCopy(text, onSuccess, onError); });
+    return;
+  }
+  fallbackCopy(text, onSuccess, onError);
+}
+function fallbackCopy(text, onSuccess, onError){
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-9999px'; ta.style.opacity = '0';
+    ta.setAttribute('readonly', '');
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, 99999);
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    if(ok){ if(onSuccess) onSuccess(); } else { if(onError) onError(); }
+  } catch(e){ if(onError) onError(e); }
+}
+function copyEc25(btn){
+  if(!lastEc25){ showToast('مقداری برای کپی وجود ندارد', 'warning', 2000); return; }
+  copyToClipboard(lastEc25.value, function(){
+    showCopyFeedback(btn);
+    showToast('EC تصحیح‌شده کپی شد: ' + toFa(lastEc25.value), 'success', 2200);
+  }, function(){ showToast('خطا در کپی', 'error', 2000); });
+}
+function copyEcRaw(btn){
+  var ecRaw = num('ec');
+  if(isNaN(ecRaw)){ showToast('مقدار EC خالی است', 'warning', 2000); return; }
+  copyToClipboard(String(ecRaw), function(){
+    showCopyFeedback(btn);
+    showToast('EC خام کپی شد: ' + toFa(ecRaw), 'success', 2200);
+  }, function(){ showToast('خطا در کپی', 'error', 2000); });
+}
+function showCopyFeedback(btn){
+  if(!btn) return;
+  var originalText = btn.textContent;
+  btn.classList.add('copied');
+  btn.textContent = '✅';
+  setTimeout(function(){
+    btn.classList.remove('copied');
+    btn.textContent = originalText;
+  }, 1200);
+}
+
+/* ---------- K estimation ---------- */
+function estimateK(brix, mode){
+  if(mode === 'water') return 0.020;
+  if(mode === 'syrup'){
+    var b = Math.max(0, Math.min(brix, 80));
+    return 0.045 + 0.011 * (b / 80);
+  }
+  if(brix < 2) return 0.020;
+  if(brix < 10) return 0.020 + (0.045 - 0.020) * (brix - 2) / 8;
+  var b2 = Math.min(brix, 80);
+  return 0.045 + 0.011 * (b2 - 10) / 70;
+}
+
+function classify(brix, mode){
+  if(mode === 'water') return { text: '💧 آب', cls: 'water' };
+  if(mode === 'syrup') return { text: '🍯 شربت قند', cls: 'syrup' };
+  if(brix < 2) return { text: '💧 آب (خودکار)', cls: 'water' };
+  if(brix < 10) return { text: '🧪 محلول رقیق قندی', cls: 'mix' };
+  return { text: '🍯 شربت قند (خودکار)', cls: 'syrup' };
+}
+
+/* ⭐ تعیین می‌کنه TDS نمایش داده بشه یا نه */
+function shouldShowTDS(brix, mode){
+  if(mode === 'syrup') return false;              // شربت — معنی نداره
+  if(mode === 'water') return true;               // آب — همیشه
+  // auto:
+  if(brix < 2) return true;                       // آب
+  if(brix < 10) return true;                      // ناحیه گذار — با اخطار
+  return false;                                   // شربت
+}
+
+/* ---------- Main calculation ---------- */
+function calculate(){
+  var ecRaw = num('ec');
+  var t = num('temp');
+  var brix = num('brix');
+
+  if(isNaN(ecRaw) || isNaN(t) || isNaN(brix) || ecRaw < 0){
+    document.getElementById('ec25').innerHTML = '— <span class="rm-unit">ورودی نامعتبر</span>';
+    lastEc25 = null; lastEcRaw = null;
+    document.getElementById('tdsCard').classList.add('hidden');
+    return;
+  }
+
+  var ec_uS = ecRaw;
+  if(currentUnit === 'mS') ec_uS = ecRaw * 1000;
+
+  var K = estimateK(brix, currentMode);
+  var factor = 1 + K * (t - 25);
+  var ec25_uS = ec_uS / factor;
+
+  var displayValue, displayUnit;
+  if(currentUnit === 'mS'){ displayValue = ec25_uS / 1000; displayUnit = 'mS/cm'; }
+  else { displayValue = ec25_uS; displayUnit = 'µS/cm'; }
+
+  var diff = ec_uS === 0 ? 0 : ((ec25_uS - ec_uS) / ec_uS) * 100;
+
+  // ذخیره برای کپی
+  lastEcRaw = ecRaw;
+  lastEc25 = {
+    value: Number(displayValue).toFixed(2).replace(/\.?0+$/, '') || '0',
+    unit: displayUnit,
+    full: Number(displayValue).toFixed(2).replace(/\.?0+$/, '') + ' ' + displayUnit
+  };
+
+  // خروجی اصلی
+  document.getElementById('ec25').innerHTML = fmt(displayValue, 2) + ' <span class="rm-unit">' + displayUnit + '</span>';
+
+  var c = classify(brix, currentMode);
+  document.getElementById('classification').innerHTML = '<span class="rm-badge">' + c.text + '</span>';
+
+  // آمار
+  document.getElementById('kValue').innerHTML = K.toFixed(4) + '<small>' + fmt(K * 100, 2) + '٪/°C</small>';
+  document.getElementById('corrFactor').textContent = factor.toFixed(4);
+  document.getElementById('diffValue').textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1) + '٪';
+
+  var diffChip = document.getElementById('diffChip');
+  diffChip.classList.remove('sc-positive', 'sc-negative', 'sc-warn');
+  if(diff > 5) diffChip.classList.add('sc-positive');
+  else if(diff < -5) diffChip.classList.add('sc-negative');
+  else diffChip.classList.add('sc-warn');
+
+  /* ⭐ TDS */
+  var tdsCard = document.getElementById('tdsCard');
+  var tdsValueEl = document.getElementById('tdsValue');
+  var tdsWarnEl = document.getElementById('tdsWarn');
+
+  if(shouldShowTDS(brix, currentMode)){
+    tdsCard.classList.remove('hidden');
+    var tdsFactor = loadTdsFactor();
+    var tds = ec25_uS * tdsFactor;
+    tdsValueEl.innerHTML = fmt(tds, 0) + ' <small>mg/L</small>';
+
+    // اخطار در ناحیه گذار
+    if(currentMode === 'auto' && brix >= 2 && brix < 10){
+      tdsWarnEl.textContent = '⚠️ تقریبی';
+    } else {
+      tdsWarnEl.textContent = '';
+    }
+  } else {
+    tdsCard.classList.add('hidden');
+  }
+
+  /* فرمول */
+  document.getElementById('formulaBox').innerHTML =
+    '<span class="highlight">EC₂₅</span> = ' + ecRaw.toFixed(2) + ' ÷ [1 + ' + K.toFixed(4) + ' × (' + toFa(t) + ' − 25)] = ' +
+    '<span class="highlight">' + displayValue.toFixed(2) + ' ' + displayUnit + '</span>';
+
+  /* نکته */
+  var noteBox = document.getElementById('noteBox');
+  noteBox.classList.remove('nb-info', 'nb-warn', 'nb-danger');
+  var noteIcon = 'ℹ️', noteCls = 'nb-info', noteText = '';
+  if(currentMode === 'auto' && brix >= 2 && brix < 10){
+    noteIcon = '⚠️'; noteCls = 'nb-warn';
+    noteText = 'نمونه در ناحیه گذار بین آب و شربت است. دقت تخمین ضریب K و TDS کمتر است.';
+  } else if(brix > 80){
+    noteIcon = '⚠️'; noteCls = 'nb-warn';
+    noteText = 'بریکس بالای ۸۰٪ است. ضریب K در حداکثر مقدار خود ثابت شده است.';
+  } else if(currentMode === 'syrup' || brix >= 10){
+    noteIcon = 'ℹ️'; noteCls = 'nb-info';
+    noteText = 'در شربت قند، TDS معنی ندارد (ساکارز EC نمی‌دهد ولی TDS را بالا می‌برد). به همین دلیل نمایش داده نمی‌شود.';
+  } else {
+    noteIcon = 'ℹ️'; noteCls = 'nb-info';
+    noteText = 'ضریب تبدیل EC به TDS وابسته به نوع آب است. برای آب خالص/RO ضریب ۰.۵، آشامیدنی ۰.۵۵، کشاورزی ۰.۷ توصیه می‌شود.';
+  }
+  noteBox.className = 'note-box ' + noteCls;
+  noteBox.innerHTML = '<span class="nb-icon">' + noteIcon + '</span><span>' + noteText + '</span>';
+}
+
+/* ---------- Events ---------- */
+['ec','temp','brix'].forEach(function(id){
+  var el = document.getElementById(id);
+  el.addEventListener('input', calculate);
+  el.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      var order = ['ec','temp','brix'];
+      var idx = order.indexOf(id);
+      if(idx >= 0 && idx < order.length - 1) document.getElementById(order[idx+1]).focus();
+      else calculate();
+    }
+  });
+});
+
+document.querySelectorAll('#unitToggle button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#unitToggle button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentUnit = btn.dataset.unit;
+    document.getElementById('ecUnitLabel').textContent = currentUnit === 'mS' ? 'mS/cm' : 'µS/cm';
+    calculate();
+  });
+});
+
+document.querySelectorAll('#modeTabs button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#modeTabs button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentMode = btn.dataset.mode;
+    calculate();
+    showToast('حالت: ' + btn.textContent.trim(), 'info', 1500);
+  });
+});
+
+/* ---------- Init ---------- */
+window.addEventListener('DOMContentLoaded', function(){
+  // بازیابی ضریب TDS
+  var savedFactor = loadTdsFactor();
+  var sel = document.getElementById('tdsFactor');
+  sel.value = String(savedFactor);
+
+  calculate();
+  setTimeout(function(){
+    var el = document.getElementById('ec');
+    if(el){ el.focus(); el.select(); }
+  }, 300);
+});
+
+console.log('%c🔬 EC Corrector v3.3 — TDS Smart', 'color:#6366f1;font-weight:900;font-size:14px');
+</script>
+
+</body>
+</html>
