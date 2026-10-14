@@ -4,7 +4,7 @@
    نسخه: 4.2.0
 ============================================================ */
 
-var SW_VERSION = 'lab-v4.2.0.a';
+var SW_VERSION = 'lab-v4.2.0.a1';
 var STATIC_CACHE = SW_VERSION + '-static';
 var RUNTIME_CACHE = SW_VERSION + '-runtime';
 
