@@ -17,7 +17,6 @@ body{margin:0;padding:12px;background:var(--bg);color:var(--text);font-size:14px
 .container{max-width:1100px;margin:0 auto}
 button:focus{outline:none}
 
-/* Splash */
 #splashScreen{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px 20px;background:linear-gradient(160deg,#1e40af,#1e3a8a 55%,#0c1e4d);color:#fff;text-align:center;transition:opacity .7s,visibility .7s;user-select:none;cursor:pointer}
 #splashScreen.hide{opacity:0;visibility:hidden}
 #splashScreen .splash-logo{width:150px;height:150px;border-radius:34px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:72px;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:spP 1.8s ease-in-out infinite;overflow:hidden;position:relative}
@@ -38,7 +37,6 @@ button:focus{outline:none}
 #splashScreen .splash-designer-name{font-size:20px;font-weight:900}
 #splashScreen .splash-version{position:absolute;bottom:24px;font-size:12px;color:#bfdbfe;opacity:.7}
 
-/* Fullscreen */
 .fullscreen-screen{position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,#1e40af,#1e3a8a 55%,#0c1e4d);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
 .login-box{background:#fff;color:#1e293b;border-radius:16px;padding:30px 26px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35);margin:auto}
 body.dark .login-box{background:#1e293b;color:#e2e8f0}
@@ -66,7 +64,6 @@ body.dark .login-box .hint code{background:#0f172a}
 .spin{display:inline-block;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* App header */
 .app-header{position:relative;padding:20px 70px 20px 170px;margin-bottom:14px;text-align:center;background:var(--card);border-radius:12px;border:1px solid var(--border);border-bottom:3px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.07)}
 .app-header .company-name{font-size:19px;font-weight:bold;color:var(--primary-dark);margin-bottom:8px}
 .app-header .factory-name{font-size:17px;font-weight:bold;margin-bottom:10px}
@@ -108,7 +105,6 @@ body.dark .login-box .hint code{background:#0f172a}
 h2{font-size:15px;margin:0 0 12px;border-bottom:2px solid var(--primary);padding-bottom:6px}
 .card{background:var(--card);padding:14px;border-radius:10px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 
-/* ⭐ Entry buttons — horizontal small */
 .entry-buttons{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
 @media(max-width:900px){.entry-buttons{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.entry-buttons{grid-template-columns:repeat(2,1fr)}}
@@ -257,7 +253,6 @@ body.dark .btn-print-sm{background:transparent}
 .ab-dv-field .ab-dv-clear{position:absolute;left:6px;bottom:9px;width:26px;height:26px;border-radius:6px;border:none;background:var(--danger);color:#fff;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .ab-dv-hint{font-size:10.5px;color:var(--muted);margin-top:3px;font-style:italic}
 
-/* ⭐ Maint cross — colored backgrounds */
 .maint-cross{display:grid;grid-template-columns:1fr 1fr;position:relative;margin-bottom:14px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--card)}
 .maint-cross::before{content:'';position:absolute;left:0;right:0;top:50%;height:1.5px;background:linear-gradient(90deg,transparent,var(--border) 20%,var(--border) 80%,transparent);z-index:1;pointer-events:none}
 .maint-cross::after{content:'';position:absolute;top:0;bottom:0;left:50%;width:1.5px;background:linear-gradient(180deg,transparent,var(--border) 20%,var(--border) 80%,transparent);z-index:1;pointer-events:none}
@@ -267,24 +262,19 @@ body.dark .btn-print-sm{background:transparent}
 .maint-box .mb-label{font-size:11.5px;font-weight:900;color:var(--primary-dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .maint-box .mb-date{font-size:16px;font-weight:900;color:var(--text);font-family:'Courier New',monospace;direction:ltr;text-align:left;margin-top:2px}
 .maint-box .mb-days{font-size:11px;font-weight:bold;color:var(--muted);margin-top:auto}
-/* Empty → cyan */
 .maint-box.empty{background:linear-gradient(135deg,rgba(6,182,212,.14),rgba(6,182,212,.05))}
 .maint-box.empty .mb-date{color:var(--muted);opacity:.6;font-style:italic;font-weight:normal;font-size:14px}
 .maint-box.empty .mb-days{color:var(--cip-color);opacity:.7;font-style:italic;font-weight:900}
-/* Has-data → green */
 .maint-box.has-data{background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(34,197,94,.05))}
 .maint-box.has-data .mb-days{color:var(--success)}
-/* Warn → orange */
 .maint-box.warn{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.08))}
 .maint-box.warn .mb-days{color:var(--warning);font-weight:900}
 .maint-box.warn .mb-date{color:#92400e}
-/* Danger → red */
 .maint-box.danger{background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.08))}
 .maint-box.danger .mb-days{color:var(--danger);font-weight:900}
 .maint-box.danger .mb-date{color:#991b1b}
 body.dark .maint-box.warn .mb-date{color:#fbbf24}
 body.dark .maint-box.danger .mb-date{color:#fca5a5}
-/* Icons */
 .maint-box.mb-icon-regen .mb-icon{background:linear-gradient(135deg,var(--regen-color),#059669)}
 .maint-box.mb-icon-cip .mb-icon{background:linear-gradient(135deg,var(--cip-color),#0891b2)}
 .maint-box.mb-icon-custom .mb-icon{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
@@ -308,7 +298,6 @@ body.dark .maint-box.danger .mb-date{color:#fca5a5}
 .adv-chip .chip-label{opacity:.7}
 .adv-chip .chip-remove{background:transparent;border:none;color:var(--primary);font-size:14px;cursor:pointer;padding:0;font-weight:bold;font-family:inherit}
 
-/* ⭐ Deleted list (vertical) */
 .deleted-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .deleted-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(220,38,38,.05);border:1.5px solid rgba(220,38,38,.2);position:relative}
 .deleted-item .di-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
@@ -496,7 +485,6 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
 .support-item .s-value{font-weight:bold;color:var(--text);direction:ltr;text-align:left}
 .support-item .s-value.fa{direction:rtl;text-align:right}
 
-/* ⭐ Maint field editor — each card has its own warn/danger */
 .mf-row{padding:10px;margin-bottom:10px;background:var(--subtle-bg);border-radius:10px;border:1px solid var(--border)}
 .mf-row-top{display:flex;gap:6px;align-items:center;margin-bottom:8px}
 .mf-row .mf-icon-input{width:38px;height:38px;flex:0 0 38px;text-align:center;font-size:18px;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--card)}
@@ -558,7 +546,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
   <div class="splash-subtitle">مدیریت هوشمند آزمون‌های آب، شربت، راندمان و نگهداری</div>
   <div class="splash-loader"><span></span><span></span><span></span></div>
   <div class="splash-designer"><span class="splash-designer-label">طراح و توسعه‌دهنده</span><span class="splash-designer-name">علی صنوبری</span></div>
-  <div class="splash-version">نسخه ۴.۲.۰</div>
+  <div class="splash-version">نسخه ۴.۳.۰</div>
 </div>
 
 <div class="fullscreen-screen" id="setupScreen" hidden>
@@ -613,7 +601,6 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
   </div>
 </div>
 
-<!-- ⭐ Maintenance cross — moved here, always visible -->
 <div class="maint-cross" id="maintenanceCard"></div>
 
 <div class="entry-buttons">
@@ -737,7 +724,6 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
       <div class="empty" id="maintEmpty">موردی یافت نشد</div>
     </div>
   </div>
-  <!-- ⭐ Deleted section — moved to bottom -->
   <div class="collapsible-section">
     <div class="collapsible-header" onclick="toggleCollapsible('deletedSection', event)"><span class="collapsible-title">🗑️ رکوردهای حذف‌شده<span class="collapsible-badge" id="deletedCountBadge" hidden>۰</span></span><button type="button" class="collapsible-toggle" id="toggleBtnDeletedSection" onclick="event.stopPropagation();toggleCollapsible('deletedSection')">+</button></div>
     <div class="collapsible-body collapsed" id="deletedSection">
@@ -867,7 +853,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
 
 <script>
 /* ==================================================
-   سیستم مدیریت آزمایشگاه — نسخه ۴.۲.۰
+   سیستم مدیریت آزمایشگاه — نسخه ۴.۳.۰
 ================================================== */
 
 var DATA_FILE = 'data-LMS-v6.json';
@@ -969,7 +955,6 @@ function showToast(msg, type, duration){
   setTimeout(remove, dur);
 }
 
-/* ⭐ navigateTo — closes drawer then navigates */
 function navigateTo(url){
   closeDrawer();
   setTimeout(function(){ window.location.href = url; }, 200);
@@ -1726,7 +1711,6 @@ function renderManageLists(){
   }
 }
 
-/* ⭐ Maint field editor — each has warn/danger */
 function renderMaintFieldsEditor(){
   var el = document.getElementById('manageMaintFields');
   if(!el) return;
@@ -2052,7 +2036,6 @@ async function clearAllDeleted(){
   markDirty(); renderRecords(); renderDeletedList();
 }
 
-/* ⭐ Render deleted list */
 function renderDeletedList(){
   var el = document.getElementById('deletedList');
   if(!el) return;
@@ -2329,7 +2312,6 @@ function renderEffThead(){
   th.innerHTML = '<tr><th>تاریخ</th><th>ساعت</th>' + devCols + '<th>راندمان کل</th><th>ضایعات کل</th><th>توضیحات</th><th></th></tr>';
 }
 
-/* ⭐ Maintenance cross — always visible, colored per state */
 function renderMaintenanceCard(){
   var el = document.getElementById('maintenanceCard');
   if(!el) return;
@@ -2345,7 +2327,6 @@ function renderMaintenanceCard(){
     if(f.key === 'regen') iconCls = 'mb-icon-regen';
     else if(f.key === 'cip') iconCls = 'mb-icon-cip';
 
-    // Empty (no key or no label)
     if(!f.key || !f.label){
       html += '<div class="' + baseCls + ' empty ' + iconCls + '">' +
         '<div class="mb-head"><span class="mb-icon">' + (f.icon || '📅') + '</span><span class="mb-label">' + esc(f.label || 'خالی') + '</span></div>' +
@@ -2355,7 +2336,6 @@ function renderMaintenanceCard(){
       continue;
     }
 
-    // Find last record
     var recs = state.records.filter(function(r){ return !r.x && r.t === 3 && r.mt === f.key; });
     if(!recs.length){
       html += '<div class="' + baseCls + ' empty ' + iconCls + '">' +
@@ -2384,9 +2364,48 @@ function renderMaintenanceCard(){
   el.innerHTML = html;
 }
 
+/* ⭐ گرفتن اجزای تاریخ و زمان تهران (میلادی) */
+function getTehranDateParts(){
+  try {
+    var parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Tehran',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+    var p = {};
+    parts.forEach(function(x){ if(x.type !== 'literal') p[x.type] = x.value; });
+    return p;
+  } catch(e){
+    var d = new Date();
+    return {
+      year: String(d.getFullYear()),
+      month: String(d.getMonth() + 1).padStart(2, '0'),
+      day: String(d.getDate()).padStart(2, '0'),
+      hour: String(d.getHours()).padStart(2, '0'),
+      minute: String(d.getMinutes()).padStart(2, '0'),
+      second: String(d.getSeconds()).padStart(2, '0')
+    };
+  }
+}
+
+/* ⭐ ساخت نام فایل پشتیبان با تاریخ شمسی تهران */
+function buildBackupFileName(){
+  var p = getTehranDateParts();
+  var gy = parseInt(p.year, 10);
+  var gm = parseInt(p.month, 10);
+  var gd = parseInt(p.day, 10);
+  var j;
+  try { j = d2j(g2d(gy, gm, gd)); }
+  catch(e){ j = { jy: gy, jm: gm, jd: gd }; }
+  var dateStr = j.jy + '-' + String(j.jm).padStart(2, '0') + '-' + String(j.jd).padStart(2, '0');
+  var timeStr = p.hour + '-' + p.minute + '-' + p.second;
+  return 'lab-backup-' + dateStr + '_' + timeStr + '.json';
+}
+
 function backupDownload(){
   var json = JSON.stringify(buildPayload(), null, 2);
-  var name = 'lab-backup-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.json';
+  var name = buildBackupFileName();
   var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a'); a.href = url; a.download = name;
@@ -2613,7 +2632,7 @@ window.addEventListener('DOMContentLoaded', function(){
   document.getElementById('setupToken').addEventListener('keydown', function(e){ if(e.key === 'Enter') saveSetup(); });
 });
 
-console.log('%c🧪 Lab Manager v4.2.0 — Multi-User', 'color:#2563eb;font-weight:bold;font-size:14px');
+console.log('%c🧪 Lab Manager v4.3.0 — Persian Backup Name', 'color:#2563eb;font-weight:bold;font-size:14px');
 </script>
 
 </body>
