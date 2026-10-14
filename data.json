@@ -1,8 +1,38 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-14T09:32:52.976Z",
+  "updatedAt": "2026-10-14T09:34:59.448Z",
   "updatedBy": "lab-app",
   "records": [
+    {
+      "id": 1791970497246,
+      "type": "ab",
+      "date": "۱۴۰۵/۰۷/۲۰",
+      "time": "۰۸:۰۰",
+      "notes": "",
+      "product": "دیگ بخار",
+      "hardness": "45",
+      "ec": "801",
+      "tds": "400",
+      "ph": "10.82",
+      "sugar": "فاقد قند",
+      "updatedAt": 1791970497245,
+      "deleted": false
+    },
+    {
+      "id": 1791970468886,
+      "type": "ab",
+      "date": "۱۴۰۵/۰۷/۲۰",
+      "time": "۰۸:۰۰",
+      "notes": "",
+      "product": "تغذیه کوره",
+      "hardness": "0",
+      "ec": "13",
+      "tds": "6",
+      "ph": "",
+      "sugar": "فاقد قند",
+      "updatedAt": 1791970468885,
+      "deleted": false
+    },
     {
       "id": 1791970370791,
       "type": "sharbat",
