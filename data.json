@@ -1,8 +1,24 @@
 {
   "version": 8,
-  "updatedAt": "2026-10-14T08:29:25.147Z",
+  "updatedAt": "2026-10-14T08:32:20.265Z",
   "updatedBy": "lab-app",
   "records": [
+    {
+      "id": 1791966737866,
+      "type": "sharbat",
+      "date": "۱۴۰۵/۰۷/۲۲",
+      "time": "۱۲:۰۱",
+      "notes": "",
+      "product": "شکر تربت حیدریه",
+      "color": "",
+      "ash": "29",
+      "turbidity": "",
+      "so2": "",
+      "sh_ec": "",
+      "sh_ph": "",
+      "updatedAt": 1791966737865,
+      "deleted": false
+    },
     {
       "id": 1791966561028,
       "type": "ab",
@@ -541,7 +557,8 @@
     "sharbat": [
       "شکر نیشابور",
       "قند محصول",
-      "شکر کوهرنگ"
+      "شکر کوهرنگ",
+      "شکر تربت حیدریه"
     ]
   },
   "effGroups": [
