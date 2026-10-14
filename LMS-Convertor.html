@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مبدل داده آزمایشگاه — نسخه قدیمی به v6</title>
+<link rel="icon" href="./icon-192.png">
+<style>
+:root{--primary:#2563eb;--primary-dark:#1d4ed8;--danger:#dc2626;--success:#16a34a;--warning:#f59e0b;--bg:#f1f5f9;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;--subtle-bg:#f8fafc;--code-bg:#0f172a;--code-text:#e2e8f0}
+body.dark{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--subtle-bg:#0f172a}
+*{box-sizing:border-box;font-family:Tahoma,'Segoe UI',sans-serif}
+body{margin:0;padding:12px;background:var(--bg);color:var(--text);font-size:14px;line-height:1.7}
+.container{max-width:1100px;margin:0 auto}
+.app-header{padding:20px;margin-bottom:16px;text-align:center;background:var(--card);border-radius:12px;border:1px solid var(--border);border-bottom:3px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.07);position:relative}
+.app-header .company{font-size:18px;font-weight:bold;color:var(--primary-dark);margin-bottom:6px}
+.app-header .title{font-size:16px;font-weight:bold}
+.app-header .subtitle{font-size:13px;color:var(--muted);margin-top:6px;padding-top:8px;border-top:1px dashed var(--border)}
+.dark-toggle{position:absolute;left:14px;top:14px;width:38px;height:38px;border-radius:9px;background:var(--subtle-bg);border:1px solid var(--border);font-size:18px;cursor:pointer;color:var(--text)}
+.card{background:var(--card);padding:16px;border-radius:12px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid var(--border)}
+h2{font-size:15px;margin:0 0 14px;border-bottom:2px solid var(--primary);padding-bottom:8px;color:var(--primary-dark);display:flex;align-items:center;gap:8px}
+h2 .step-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:900;flex-shrink:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.field{margin-bottom:12px}
+label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:bold}
+input,textarea,select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:var(--card);color:var(--text)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary)}
+textarea{resize:vertical;min-height:120px;font-family:'Courier New',monospace;font-size:12px;direction:ltr;text-align:left}
+.file-drop{border:2.5px dashed var(--border);border-radius:12px;padding:30px 20px;text-align:center;cursor:pointer;background:var(--subtle-bg);transition:all .2s}
+.file-drop:hover,.file-drop.dragover{border-color:var(--primary);background:rgba(37,99,235,.05)}
+.file-drop .icon{font-size:42px;margin-bottom:10px}
+.file-drop .txt{font-size:14px;font-weight:bold;color:var(--primary-dark);margin-bottom:5px}
+.file-drop .hint{font-size:12px;color:var(--muted)}
+.file-loaded{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(22,163,74,.08);border:1.5px solid var(--success);border-radius:10px;margin-top:12px}
+.file-loaded .ic{font-size:28px;flex-shrink:0}
+.file-loaded .info{flex:1;min-width:0}
+.file-loaded .fname{font-size:13.5px;font-weight:bold;color:var(--success);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-loaded .fsize{font-size:11.5px;color:var(--muted);margin-top:2px}
+.file-loaded .change-btn{padding:7px 12px;background:transparent;border:1.5px solid var(--success);color:var(--success);border-radius:7px;font-size:12px;font-weight:bold;cursor:pointer;font-family:inherit}
+.file-loaded .change-btn:hover{background:var(--success);color:#fff}
+.tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:2px solid var(--border)}
+.tab{flex:1;padding:10px;background:transparent;border:none;border-bottom:3px solid transparent;font-size:13px;font-weight:bold;color:var(--muted);cursor:pointer;font-family:inherit;margin-bottom:-2px}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.btn{padding:11px 20px;border:none;border-radius:9px;font-size:13.5px;font-weight:bold;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--primary-dark)}
+.btn-success{background:var(--success);color:#fff}
+.btn-secondary{background:var(--border);color:var(--text)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-block{width:100%;padding:14px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--subtle-bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat .lbl{font-size:11.5px;color:var(--muted);margin-bottom:5px;font-weight:bold}
+.stat .val{font-size:20px;font-weight:900;color:var(--primary-dark)}
+.stat.good .val{color:var(--success)}
+.stat.warn .val{color:var(--warning)}
+.stat.bad .val{color:var(--danger)}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:850px){.preview-grid{grid-template-columns:1fr}}
+.preview-box{border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
+.preview-box .head{padding:10px 14px;background:var(--subtle-bg);font-weight:bold;font-size:13px;border-bottom:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.preview-box .head .tag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--muted);color:#fff;font-weight:bold}
+.preview-box .head .tag.new{background:var(--success)}
+.preview-box pre{margin:0;padding:14px;background:var(--code-bg);color:var(--code-text);font-size:11px;line-height:1.5;max-height:400px;overflow:auto;font-family:'Courier New',monospace;direction:ltr;text-align:left}
+.alert{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:14px;border:1.5px solid;display:flex;align-items:flex-start;gap:10px;line-height:1.8}
+.alert .icon{font-size:18px;flex-shrink:0}
+.alert.info{background:rgba(37,99,235,.08);border-color:var(--primary);color:var(--primary-dark)}
+.alert.success{background:rgba(22,163,74,.08);border-color:var(--success);color:#15803d}
+.alert.warning{background:rgba(245,158,11,.08);border-color:var(--warning);color:#92400e}
+.alert.danger{background:rgba(220,38,38,.08);border-color:var(--danger);color:#991b1b}
+.hidden{display:none!important}
+.report-item{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--border);font-size:13px;gap:10px}
+.report-item:last-child{border-bottom:none}
+.report-item .k{color:var(--muted);flex-shrink:0}
+.report-item .v{font-weight:bold;text-align:left;direction:ltr;word-break:break-all}
+.report-item .v.fa{direction:rtl;text-align:right}
+.footer-note{text-align:center;color:var(--muted);font-size:12px;padding:16px 0;line-height:2}
+code{background:var(--subtle-bg);padding:2px 6px;border-radius:4px;font-size:12px;border:1px solid var(--border);font-family:'Courier New',monospace;direction:ltr;display:inline-block}
+.steps-list{padding-right:20px;margin:8px 0;line-height:2.2;font-size:13px}
+.steps-list li{margin-bottom:4px}
+.progress{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:10px}
+.progress-bar{height:100%;background:var(--primary);width:0%;transition:width .4s ease}
+.warn-list{margin-top:12px;padding:12px;background:rgba(245,158,11,.1);border:1.5px solid var(--warning);border-radius:10px;font-size:12.5px;line-height:2}
+.warn-list .wt{font-weight:900;color:var(--warning);margin-bottom:8px;font-size:13px}
+.warn-list .wi{padding:4px 0;border-bottom:1px dashed rgba(245,158,11,.3)}
+.warn-list .wi:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="app-header">
+  <button type="button" class="dark-toggle" onclick="toggleDark()" id="darkBtn">🌙</button>
+  <div class="company">شرکت صنایع غذایی سایه سار صنوبر آریا</div>
+  <div class="title">🔄 مبدل داده آزمایشگاه</div>
+  <div class="subtitle">تبدیل فایل‌های قدیمی به فرمت جدید <code>data-LMS-v6.json</code></div>
+</div>
+
+<!-- ============ مرحله ۱: ورودی ============ -->
+<div class="card" id="step1">
+  <h2><span class="step-num">۱</span> انتخاب فایل ورودی</h2>
+
+  <div class="alert info">
+    <span class="icon">ℹ️</span>
+    <div>
+      این ابزار <b>کاملاً آفلاین</b> کار می‌کند. فایل شما به هیچ سروری ارسال نمی‌شود.<br>
+      <b>ورودی‌های پذیرفته‌شده:</b><br>
+      • فایل بکاپ JSON از برنامه قدیمی (دکمه «پشتیبان‌گیری» در drawer)<br>
+      • فایل <code>data.json</code> قدیمی روی GitHub
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button type="button" class="tab active" onclick="switchTab('file')">📁 از فایل</button>
+    <button type="button" class="tab" onclick="switchTab('paste')">📋 کپی/پیست</button>
+  </div>
+
+  <div class="tab-content active" id="tab-file">
+    <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()">
+      <div class="icon">📂</div>
+      <div class="txt">برای انتخاب فایل کلیک کنید یا فایل را اینجا رها کنید</div>
+      <div class="hint">فرمت‌های پشتیبانی‌شده: .json</div>
+    </div>
+    <input type="file" id="fileInput" accept=".json,application/json" hidden>
+    <div id="fileLoaded" class="hidden"></div>
+  </div>
+
+  <div class="tab-content" id="tab-paste">
+    <div class="field">
+      <label>متن JSON را اینجا بچسبانید:</label>
+      <textarea id="pasteInput" placeholder='{"app":"lab-manager","version":8,...}'></textarea>
+    </div>
+    <button type="button" class="btn btn-primary btn-block" onclick="loadFromPaste()">🔍 تحلیل متن</button>
+  </div>
+
+  <div class="alert danger hidden" id="errBox"></div>
+</div>
+
+<!-- ============ مرحله ۲: تنظیمات ادمین ============ -->
+<div class="card hidden" id="step2">
+  <h2><span class="step-num">۲</span> تنظیمات کاربر اول (ادمین)</h2>
+
+  <div class="alert warning">
+    <span class="icon">🔑</span>
+    <div>
+      اولین کاربر ساخته می‌شود. این کاربر <b>دسترسی ادمین کامل</b> دارد.<br>
+      بعداً از پنل ادمین (<code>admin.html</code>) می‌توانید کاربران دیگر را اضافه کنید.
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="field">
+      <label>نام کاربر ادمین</label>
+      <input id="adminName" type="text" value="مدیر سیستم" placeholder="مثلاً: علی صنوبری" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>پسورد ادمین</label>
+      <input id="adminPass" type="password" value="1234" placeholder="حداقل ۴ کاراکتر" autocomplete="new-password">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>تکرار پسورد</label>
+    <input id="adminPass2" type="password" value="1234" placeholder="تکرار پسورد" autocomplete="new-password">
+  </div>
+
+  <div class="alert info">
+    <span class="icon">💡</span>
+    <div>
+      پسورد شما به صورت <b>hash امن (SHA-256 + salt)</b> ذخیره می‌شود، نه متن خام.<br>
+      <b>پسورد پیش‌فرض <code>1234</code> است</b> — بعد از اولین ورود، حتماً آن را عوض کنید.
+    </div>
+  </div>
+
+  <button type="button" class="btn btn-primary btn-block" onclick="runConversion()" id="convertBtn">
+    ⚙️ تبدیل به v6
+  </button>
+  <div class="progress hidden" id="progressBar"><div class="progress-bar" id="progressFill"></div></div>
+</div>
+
+<!-- ============ مرحله ۳: پیش‌نمایش و دانلود ============ -->
+<div class="card hidden" id="step3">
+  <h2><span class="step-num">۳</span> پیش‌نمایش و دانلود</h2>
+
+  <div class="alert success" id="okBox">
+    <span class="icon">✅</span>
+    <div><b>تبدیل با موفقیت انجام شد!</b> فایل آماده دانلود است.</div>
+  </div>
+
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <div class="preview-grid">
+    <div class="preview-box">
+      <div class="head"><span>📥 قبل (ورودی)</span><span class="tag" id="tagBefore">—</span></div>
+      <pre id="previewBefore"></pre>
+    </div>
+    <div class="preview-box">
+      <div class="head"><span>📤 بعد (خروجی v6)</span><span class="tag new">v6</span></div>
+      <pre id="previewAfter"></pre>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+    <button type="button" class="btn btn-success" style="flex:1;min-width:200px" onclick="downloadV6()">
+      💾 دانلود data-LMS-v6.json
+    </button>
+    <button type="button" class="btn btn-secondary" style="flex:1;min-width:200px" onclick="downloadReport()">
+      📊 دانلود گزارش تبدیل
+    </button>
+  </div>
+
+  <div class="card" style="margin-top:16px;background:var(--subtle-bg)">
+    <div style="font-size:13.5px;font-weight:bold;color:var(--primary-dark);margin-bottom:10px">📋 گزارش تبدیل</div>
+    <div id="reportList"></div>
+  </div>
+
+  <div class="alert info" style="margin-top:14px">
+    <span class="icon">📌</span>
+    <div>
+      <b>مراحل بعدی — راهنمای گام‌به‌گام:</b>
+      <ol class="steps-list">
+        <li>فایل <code>data-LMS-v6.json</code> را دانلود کنید</li>
+        <li>به مخزن GitHub خود بروید: <code>github.com/ghandsenobar/LMS</code></li>
+        <li>روی <b>Add file → Upload files</b> کلیک کنید</li>
+        <li>فایل <code>data-LMS-v6.json</code> را آپلود کنید</li>
+        <li>پیام commit: <code>Initial v6 data</code> — سپس Commit بزنید</li>
+        <li>برنامه اصلی (<code>index.html</code>) را باز کنید</li>
+        <li>در صفحه <b>Setup</b>، اطلاعات GitHub و پسورد ادمین را وارد کنید</li>
+        <li>شروع به کار کنید! 🎉</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="alert warning" style="margin-top:14px">
+    <span class="icon">⚠️</span>
+    <div>
+      <b>مهم:</b> قبل از حذف فایل <code>data.json</code> قدیمی، حتماً مطمئن شوید که فایل جدید کار می‌کند. 
+      توصیه می‌کنیم فایل قدیمی را در پوشه جدا نگه دارید یا نام آن را به <code>data.json.bak</code> تغییر دهید.
+    </div>
+  </div>
+</div>
+
+<div class="footer-note">
+  مبدل داده آزمایشگاه — کارخانه قند صنوبر<br>
+  طراحی و توسعه: علی صنوبری<br>
+  <span style="opacity:.6;font-size:11px">converter v1.0.0</span>
+</div>
+
+</div>
+
+<script>
+/* ==================================================
+   مبدل داده آزمایشگاه — تبدیل به v6
+   طراحی: علی صنوبری
+   مخزن: ghandsenobar/LMS
+   فایل داده: data-LMS-v6.json
+================================================== */
+
+/* ================= متغیرهای عمومی ================= */
+var rawInput = null;
+var converted = null;
+var report = null;
+var inputSourceName = '';
+
+/* ================= Helper ها ================= */
+var FA = '۰۱۲۳۴۵۶۷۸۹';
+function toLatinDigits(s){
+  return String(s).replace(/[۰-۹]/g,function(d){return FA.indexOf(d)})
+                  .replace(/[٠-٩]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'.indexOf(d)});
+}
+function toFa(s){return String(s).replace(/\d/g,function(d){return FA[+d]})}
+function normalizeDate(s){
+  if(!s) return '';
+  var latin = toLatinDigits(String(s).trim());
+  var p = latin.split(/[\/\-\.]/);
+  if(p.length !== 3) return String(s).trim();
+  return p.map(function(x){return String(x).padStart(2,'0')}).join('/');
+}
+function fmtBytes(b){
+  if(b < 1024) return toFa(b) + ' بایت';
+  if(b < 1024*1024) return toFa((b/1024).toFixed(1)) + ' KB';
+  return toFa((b/1024/1024).toFixed(2)) + ' MB';
+}
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+async function hashPassword(pass){
+  var enc = new TextEncoder().encode(pass + '_lab_salt_2026');
+  var buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+}
+
+/* ================= Dark Mode ================= */
+var darkMode = localStorage.getItem('lab_darkmode') === '1';
+function applyDark(){
+  document.body.classList.toggle('dark', darkMode);
+  document.getElementById('darkBtn').textContent = darkMode ? '☀️' : '🌙';
+}
+function toggleDark(){
+  darkMode = !darkMode;
+  localStorage.setItem('lab_darkmode', darkMode ? '1' : '0');
+  applyDark();
+}
+applyDark();
+
+/* ================= UI ================= */
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active')});
+  if(name === 'file'){
+    document.querySelectorAll('.tab')[0].classList.add('active');
+    document.getElementById('tab-file').classList.add('active');
+  } else {
+    document.querySelectorAll('.tab')[1].classList.add('active');
+    document.getElementById('tab-paste').classList.add('active');
+  }
+}
+function showError(msg){
+  var el = document.getElementById('errBox');
+  el.innerHTML = '<span class="icon">❌</span><div>' + msg + '</div>';
+  el.classList.remove('hidden');
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function hideError(){
+  document.getElementById('errBox').classList.add('hidden');
+}
+
+/* ================= ورودی فایل ================= */
+var fileDrop = document.getElementById('fileDrop');
+var fileInput = document.getElementById('fileInput');
+
+fileInput.addEventListener('change', function(e){
+  if(e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+['dragover','dragenter'].forEach(function(ev){
+  fileDrop.addEventListener(ev, function(e){
+    e.preventDefault();
+    fileDrop.classList.add('dragover');
+  });
+});
+['dragleave','drop'].forEach(function(ev){
+  fileDrop.addEventListener(ev, function(e){
+    e.preventDefault();
+    fileDrop.classList.remove('dragover');
+  });
+});
+fileDrop.addEventListener('drop', function(e){
+  if(e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+async function handleFile(file){
+  hideError();
+  document.getElementById('fileLoaded').classList.add('hidden');
+  try{
+    var text = await file.text();
+    parseInput(text, file.name, file.size);
+  }catch(err){
+    showError('خطا در خواندن فایل: ' + esc(err.message || ''));
+  }
+}
+
+function loadFromPaste(){
+  hideError();
+  var text = document.getElementById('pasteInput').value.trim();
+  if(!text){ showError('متنی وارد نشده است'); return; }
+  parseInput(text, 'متن پیست‌شده', text.length);
+}
+
+/* ================= تحلیل ورودی ================= */
+function parseInput(text, sourceName, fileSize){
+  var json;
+  try{
+    json = JSON.parse(text);
+  }catch(err){
+    showError('فایل JSON معتبر نیست: ' + esc(err.message || ''));
+    return;
+  }
+  if(!json || typeof json !== 'object'){
+    showError('ساختار فایل شناخته نشد');
+    return;
+  }
+
+  var v = detectVersion(json);
+  if(v === 'v6'){
+    showError('این فایل از قبل نسخه v6 است و نیازی به تبدیل ندارد.<br>لطفاً مستقیماً در برنامه اصلی استفاده کنید.');
+    return;
+  }
+  if(v === 'unknown'){
+    showError('ساختار فایل ورودی پشتیبانی نمی‌شود.<br>لازم است فایل بکاپ (version:8) یا data.json قدیمی باشد.');
+    return;
+  }
+
+  rawInput = json;
+  inputSourceName = sourceName;
+  rawInput.___size = fileSize || text.length;
+
+  // نمایش فایل بارگذاری‌شده
+  var fl = document.getElementById('fileLoaded');
+  fl.classList.remove('hidden');
+  var vLabel = (v === 'v8') ? 'نسخه قدیمی v8 (بکاپ)' : 'data.json قدیمی';
+  fl.innerHTML =
+    '<div class="ic">📄</div>' +
+    '<div class="info">' +
+      '<div class="fname">' + esc(sourceName) + '</div>' +
+      '<div class="fsize">' + vLabel + ' — ' + fmtBytes(rawInput.___size) + '</div>' +
+    '</div>' +
+    '<button type="button" class="change-btn" onclick="resetInput()">تغییر فایل</button>';
+
+  document.getElementById('step1').scrollIntoView({behavior:'smooth', block:'start'});
+  document.getElementById('step2').classList.remove('hidden');
+  setTimeout(function(){
+    document.getElementById('step2').scrollIntoView({behavior:'smooth', block:'start'});
+  }, 250);
+}
+
+function resetInput(){
+  rawInput = null;
+  inputSourceName = '';
+  fileInput.value = '';
+  document.getElementById('pasteInput').value = '';
+  document.getElementById('fileLoaded').classList.add('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  hideError();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function detectVersion(raw){
+  // v6 جدید
+  if(raw.v === 6 && Array.isArray(raw.users) && raw.products && raw.tomb){
+    return 'v6';
+  }
+  // LMS v8 (فرمول فعلی)
+  if(raw.version === 8 || raw.app === 'lab-manager'){
+    return 'v8';
+  }
+  // data.json قدیمی‌تر
+  if(Array.isArray(raw.records) && raw.products){
+    return 'legacy';
+  }
+  return 'unknown';
+}
+
+/* ================= تبدیل ================= */
+async function runConversion(){
+  hideError();
+  var name = document.getElementById('adminName').value.trim();
+  var pass = document.getElementById('adminPass').value;
+  var pass2 = document.getElementById('adminPass2').value;
+
+  if(!name){ showError('نام ادمین را وارد کنید'); return; }
+  if(!pass || pass.length < 4){ showError('پسورد باید حداقل ۴ کاراکتر باشد'); return; }
+  if(pass !== pass2){ showError('پسورد و تکرار آن یکسان نیست'); return; }
+
+  var btn = document.getElementById('convertBtn');
+  var prog = document.getElementById('progressBar');
+  var fill = document.getElementById('progressFill');
+  btn.disabled = true;
+  btn.textContent = '⏳ در حال تبدیل...';
+  prog.classList.remove('hidden');
+  fill.style.width = '30%';
+
+  try{
+    var hash = await hashPassword(pass);
+    fill.style.width = '60%';
+
+    var v = detectVersion(rawInput);
+    var result;
+    if(v === 'v8'){
+      result = convertFromV8(rawInput, name, hash);
+    } else if(v === 'legacy'){
+      result = convertFromLegacy(rawInput, name, hash);
+    }
+    fill.style.width = '90%';
+
+    converted = result.data;
+    report = result.report;
+
+    renderPreview();
+    fill.style.width = '100%';
+    setTimeout(function(){ prog.classList.add('hidden'); }, 400);
+
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+    document.getElementById('step3').scrollIntoView({behavior:'smooth', block:'start'});
+  }catch(err){
+    console.error(err);
+    showError('خطا در تبدیل: ' + esc(err.message || ''));
+    prog.classList.add('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '⚙️ تبدیل به v6';
+  }
+}
+
+/* ================= تبدیل v8 → v6 ================= */
+function convertFromV8(raw, adminName, adminPassHash){
+  var warnings = [];
+  var skippedList = [];
+  var users = [{
+    i: 1,
+    n: adminName,
+    p: adminPassHash,
+    r: 'admin',
+    a: 1,
+    c: Date.now()
+  }];
+
+  // ---------- محصولات آب ----------
+  var abProducts = [];
+  var abMap = {};
+  var abRaw = (raw.products && raw.products.ab) || [];
+  abRaw.forEach(function(p, idx){
+    var id = idx + 1;
+    var name = (typeof p === 'string') ? p : (p && p.name ? p.name : '');
+    if(!name){
+      warnings.push('محصول آب بدون نام در ایندکس ' + toFa(idx) + ' رد شد');
+      return;
+    }
+    if(abMap[name]) return; // تکراری
+    var dfs = [];
+    if(p && Array.isArray(p.dateFields)){
+      p.dateFields.forEach(function(df){
+        if(df && df.key){
+          dfs.push({ k: String(df.key), l: String(df.label || df.key) });
+        }
+      });
+    }
+    abProducts.push({ i: id, n: name, df: dfs });
+    abMap[name] = id;
+  });
+
+  // ---------- محصولات شربت ----------
+  var shProducts = [];
+  var shMap = {};
+  var shRaw = (raw.products && raw.products.sharbat) || [];
+  shRaw.forEach(function(p, idx){
+    var id = idx + 1;
+    var name = (typeof p === 'string') ? p : (p && p.name ? p.name : '');
+    if(!name) return;
+    if(shMap[name]) return;
+    shProducts.push({ i: id, n: name });
+    shMap[name] = id;
+  });
+
+  // ---------- گروه‌های راندمان ----------
+  var effGroups = [];
+  var egMap = {};
+  (raw.effGroups || []).forEach(function(g, idx){
+    var id = idx + 1;
+    effGroups.push({
+      i: id,
+      n: String(g.name || 'گروه ' + (idx + 1)),
+      t: (g.type === 'single' ? 'single' : 'multi')
+    });
+    if(g.id) egMap[g.id] = id;
+  });
+
+  // ---------- دستگاه‌های راندمان ----------
+  var effDevices = [];
+  var edMap = {};
+  (raw.effDevices || []).forEach(function(d, idx){
+    var gid = egMap[d.groupId];
+    if(!gid){
+      warnings.push('دستگاه «' + (d.name || '') + '» بدون گروه معتبر رد شد');
+      return;
+    }
+    var id = idx + 1;
+    effDevices.push({
+      i: id,
+      n: String(d.name || ('دستگاه ' + id)),
+      g: gid
+    });
+    if(d.id) edMap[d.id] = id;
+  });
+
+  // ---------- رکوردها ----------
+  var typeMap = { ab: 0, sharbat: 1, eff: 2, maint: 3 };
+  var records = [];
+  var typeCount = { 0: 0, 1: 0, 2: 0, 3: 0 };
+  var skipped = 0;
+
+  (raw.records || []).forEach(function(r, ri){
+    if(!r || !r.type){ skipped++; skippedList.push('رکورد #' + toFa(ri + 1) + ': نوع ندارد'); return; }
+    var t = typeMap[r.type];
+    if(t === undefined){ skipped++; skippedList.push('رکورد #' + toFa(ri + 1) + ': نوع نامعتبر'); return; }
+
+    var rec = {
+      i: (typeof r.id === 'number' && r.id > 0) ? r.id : (Date.now() + ri),
+      t: t,
+      d: normalizeDate(r.date),
+      h: String(r.time || ''),
+      u: 1,
+      m: (typeof r.updatedAt === 'number') ? r.updatedAt : Date.now(),
+      x: r.deleted ? 1 : 0
+    };
+
+    if(r.type === 'ab'){
+      var pid = abMap[r.product];
+      if(!pid){
+        warnings.push('رکورد آب #' + toFa(ri + 1) + ' با محصول نامعتبر: «' + r.product + '»');
+        skipped++;
+        skippedList.push('رکورد #' + toFa(ri + 1) + ': محصول نامعتبر');
+        return;
+      }
+      rec.p = pid;
+      if(r.hardness) rec.hd = String(r.hardness);
+      if(r.ec) rec.ec = String(r.ec);
+      if(r.tds) rec.td = String(r.tds);
+      if(r.ph) rec.ph = String(r.ph);
+      if(r.sugar) rec.sg = String(r.sugar);
+      if(r.dateValues && typeof r.dateValues === 'object' && Object.keys(r.dateValues).length){
+        rec.dv = {};
+        Object.keys(r.dateValues).forEach(function(k){
+          if(r.dateValues[k]) rec.dv[k] = String(r.dateValues[k]);
+        });
+      }
+      if(r.notes) rec.n = String(r.notes);
+
+    } else if(r.type === 'sharbat'){
+      var pid2 = shMap[r.product];
+      if(!pid2){
+        warnings.push('رکورد شربت #' + toFa(ri + 1) + ' با محصول نامعتبر: «' + r.product + '»');
+        skipped++;
+        skippedList.push('رکورد #' + toFa(ri + 1) + ': محصول نامعتبر');
+        return;
+      }
+      rec.p = pid2;
+      if(r.color) rec.cl = String(r.color);
+      if(r.ash) rec.as = String(r.ash);
+      if(r.turbidity) rec.tb = String(r.turbidity);
+      if(r.so2) rec.so = String(r.so2);
+      if(r.sh_ec) rec.ec2 = String(r.sh_ec);
+      if(r.sh_ph) rec.ph2 = String(r.sh_ph);
+      if(r.notes) rec.n = String(r.notes);
+
+    } else if(r.type === 'eff'){
+      rec.p = 0;
+      if(r.effInput) rec.ei = String(r.effInput);
+      if(r.effOutput) rec.eo = String(r.effOutput);
+      if(r.effPercent) rec.ep = String(r.effPercent);
+      if(r.wastePercent) rec.wp = String(r.wastePercent);
+      if(r.effStages && typeof r.effStages === 'object'){
+        var es = {};
+        Object.keys(r.effStages).forEach(function(gk){
+          var st = r.effStages[gk];
+          if(!st) return;
+          var newGid = egMap[gk];
+          if(!newGid) return;
+          var vals = {};
+          if(st.values && typeof st.values === 'object'){
+            Object.keys(st.values).forEach(function(dk){
+              var newDid = edMap[dk];
+              if(newDid) vals[newDid] = String(st.values[dk]);
+            });
+          }
+          es[newGid] = {
+            gn: String(st.groupName || ''),
+            w: (typeof st.avgWaste === 'number') ? st.avgWaste : (parseFloat(String(st.avgWaste || 0)) || 0),
+            v: vals
+          };
+        });
+        if(Object.keys(es).length) rec.es = es;
+      }
+      if(r.notes) rec.n = String(r.notes);
+
+    } else if(r.type === 'maint'){
+      var devId = abMap[r.device];
+      if(!devId){
+        warnings.push('رکورد نگهداری #' + toFa(ri + 1) + ' با دستگاه نامعتبر: «' + r.device + '»');
+        skipped++;
+        skippedList.push('رکورد #' + toFa(ri + 1) + ': دستگاه نامعتبر');
+        return;
+      }
+      rec.p = devId;
+      rec.mt = (r.maintType === 'cip') ? 'cip' : 'regen';
+      if(r.notes) rec.n = String(r.notes);
+    }
+
+    records.push(rec);
+    typeCount[t]++;
+  });
+
+  // ---------- Tombstone خالی ----------
+  var tomb = { p_ab: [], p_sh: [], eg: [], ed: [], df: [], us: [] };
+
+  // ---------- خروجی نهایی ----------
+  var data = {
+    v: 6,
+    epoch: 1,
+    ts: new Date().toISOString(),
+    by: 1,
+    users: users,
+    products: { ab: abProducts, sh: shProducts },
+    effGroups: effGroups,
+    effDevices: effDevices,
+    records: records,
+    del: [],
+    tomb: tomb
+  };
+
+  var report = {
+    version: 'v8 → v6',
+    sourceName: inputSourceName,
+    convertedAt: new Date().toISOString(),
+    counts: {
+      users: users.length,
+      abProducts: abProducts.length,
+      shProducts: shProducts.length,
+      effGroups: effGroups.length,
+      effDevices: effDevices.length,
+      recordsTotal: records.length,
+      recordsAb: typeCount[0],
+      recordsSh: typeCount[1],
+      recordsEff: typeCount[2],
+      recordsMaint: typeCount[3],
+      deletedRecords: records.filter(function(r){return r.x === 1}).length
+    },
+    skipped: skipped,
+    skippedList: skippedList,
+    warnings: warnings
+  };
+
+  return { data: data, report: report };
+}
+
+/* ================= تبدیل legacy (data.json قدیمی) ================= */
+function convertFromLegacy(raw, adminName, adminPassHash){
+  // data.json قدیمی معمولاً فاقد effGroups/effDevices است
+  var upgraded = {
+    app: 'lab-manager',
+    version: 8,
+    records: raw.records || [],
+    products: raw.products || { ab: [], sharbat: [] },
+    effGroups: raw.effGroups || [],
+    effDevices: raw.effDevices || []
+  };
+  // نرمال‌سازی محصولات (اگه Object بود، به Array تبدیل کن)
+  if(raw.products){
+    if(raw.products.ab && !Array.isArray(raw.products.ab) && typeof raw.products.ab === 'object'){
+      upgraded.products.ab = Object.values(raw.products.ab);
+    }
+    if(raw.products.sharbat && !Array.isArray(raw.products.sharbat) && typeof raw.products.sharbat === 'object'){
+      upgraded.products.sharbat = Object.values(raw.products.sharbat);
+    }
+  }
+  // اگه effGroups/effDevices نبود، پیش‌فرض‌ها رو می‌سازیم
+  if(!upgraded.effGroups.length){
+    upgraded.effGroups = [
+      { id: 'g_regen', name: 'خیس بر', type: 'multi' },
+      { id: 'g_kiln', name: 'گرمخانه', type: 'single' },
+      { id: 'g_crusher', name: 'قند شکن', type: 'multi' }
+    ];
+  }
+  if(!upgraded.effDevices.length){
+    upgraded.effDevices = [
+      { id: 'd1', name: 'خیس بر ۱', groupId: 'g_regen' },
+      { id: 'd2', name: 'خیس بر ۲', groupId: 'g_regen' },
+      { id: 'd3', name: 'گرمخانه', groupId: 'g_kiln' },
+      { id: 'd4', name: 'قند شکن ۱', groupId: 'g_crusher' },
+      { id: 'd5', name: 'قند شکن ۲', groupId: 'g_crusher' }
+    ];
+  }
+  return convertFromV8(upgraded, adminName, adminPassHash);
+}
+
+/* ================= پیش‌نمایش ================= */
+function renderPreview(){
+  var rawSize = JSON.stringify(rawInput).length;
+  var newSize = JSON.stringify(converted).length;
+  var delta = rawSize > 0 ? Math.round((1 - newSize / rawSize) * 100) : 0;
+
+  var c = report.counts;
+  document.getElementById('statsGrid').innerHTML = [
+    stat('تعداد رکوردها', toFa(c.recordsTotal), ''),
+    stat('محصولات آب', toFa(c.abProducts), ''),
+    stat('محصولات شربت', toFa(c.shProducts), ''),
+    stat('گروه‌های راندمان', toFa(c.effGroups), ''),
+    stat('دستگاه‌های راندمان', toFa(c.effDevices), ''),
+    stat('رکوردهای حذف‌شده', toFa(c.deletedRecords), c.deletedRecords > 0 ? 'warn' : ''),
+    stat('حجم قبل', fmtBytes(rawSize), ''),
+    stat('حجم بعد', fmtBytes(newSize), delta > 0 ? 'good' : (delta < 0 ? 'bad' : ''))
+  ].join('');
+
+  // نمایش JSON
+  var beforeStr = JSON.stringify(rawInput, null, 2);
+  var afterStr = JSON.stringify(converted, null, 2);
+  document.getElementById('tagBefore').textContent = detectVersion(rawInput) === 'v8' ? 'v8' : 'legacy';
+  document.getElementById('previewBefore').textContent = beforeStr.slice(0, 10000) + (beforeStr.length > 10000 ? '\n\n... (مختصر شده)' : '');
+  document.getElementById('previewAfter').textContent = afterStr.slice(0, 10000) + (afterStr.length > 10000 ? '\n\n... (مختصر شده)' : '');
+
+  // گزارش
+  var r = report;
+  var html = '';
+  html += rItem('نوع منبع', r.version);
+  html += rItem('نام فایل', r.sourceName, true);
+  html += rItem('تاریخ تبدیل', new Date(r.convertedAt).toLocaleString('fa-IR'));
+  html += rItem('رکوردهای تبدیل‌شده', toFa(r.counts.recordsTotal));
+  html += rItem('↳ آب', toFa(r.counts.recordsAb));
+  html += rItem('↳ شربت', toFa(r.counts.recordsSh));
+  html += rItem('↳ راندمان', toFa(r.counts.recordsEff));
+  html += rItem('↳ نگهداری', toFa(r.counts.recordsMaint));
+  html += rItem('رکوردهای ردشده', toFa(r.skipped), false, r.skipped > 0 ? 'var(--danger)' : 'var(--success)');
+  html += rItem('کاهش حجم', toFa(delta) + '٪ کمتر', false, delta > 0 ? 'var(--success)' : 'var(--warning)');
+
+  if(r.warnings.length){
+    html += '<div class="warn-list">';
+    html += '<div class="wt">⚠️ هشدارها (' + toFa(r.warnings.length) + ')</div>';
+    r.warnings.slice(0, 20).forEach(function(w){
+      html += '<div class="wi">• ' + esc(w) + '</div>';
+    });
+    if(r.warnings.length > 20){
+      html += '<div class="wi" style="opacity:.7">... و ' + toFa(r.warnings.length - 20) + ' مورد دیگر</div>';
+    }
+    html += '</div>';
+  }
+
+  document.getElementById('reportList').innerHTML = html;
+}
+
+function rItem(k, v, isFa, color){
+  var cls = isFa ? 'v fa' : 'v';
+  var style = color ? ' style="color:' + color + '"' : '';
+  return '<div class="report-item"><span class="k">' + esc(k) + '</span><span class="' + cls + '"' + style + '>' + esc(v) + '</span></div>';
+}
+
+function stat(label, val, cls){
+  return '<div class="stat ' + (cls || '') + '"><div class="lbl">' + esc(label) + '</div><div class="val">' + val + '</div></div>';
+}
+
+/* ================= دانلود ================= */
+function downloadV6(){
+  if(!converted){ return; }
+  var json = JSON.stringify(converted, null, 2);
+  var blob = new Blob([json], {type:'application/json;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'data-LMS-v6.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 400);
+}
+
+function downloadReport(){
+  if(!report){ return; }
+  var json = JSON.stringify(report, null, 2);
+  var blob = new Blob([json], {type:'application/json;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'migration-report.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 400);
+}
+
+/* ================= پایان ================= */
+console.log('%c🔄 converter.html v1.0.0 — آماده', 'color:#2563eb;font-weight:bold');
+console.log('فایل داده خروجی: data-LMS-v6.json');
+console.log('مخزن هدف: ghandsenobar/LMS');
+</script>
+
+</body>
+</html>
