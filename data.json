@@ -1,7 +1,7 @@
 {
-  "version": 8,
-  "updatedAt": "2026-10-13T05:41:46.388Z",
-  "updatedBy": "lab-app",
+  "version": 5,
+  "updatedAt": "2026-10-14T08:25:03.078Z",
+  "updatedBy": "unknown",
   "records": [
     {
       "id": 1791869664806,
@@ -459,6 +459,21 @@
       "notes": "",
       "updatedAt": 1791843137028,
       "deleted": false
+    },
+    {
+      "id": 1791880598505,
+      "type": "ab",
+      "date": "۱۴۰۵/۰۷/۲۱",
+      "time": "۱۲:۰۶",
+      "notes": "",
+      "product": "RO",
+      "hardness": "0",
+      "ec": "1",
+      "tds": "2",
+      "ph": "",
+      "sugar": "",
+      "updatedAt": 1791880598504,
+      "deleted": false
     }
   ],
   "products": {
@@ -496,48 +511,5 @@
       "شکر کوهرنگ"
     ]
   },
-  "effGroups": [
-    {
-      "id": "g_regen",
-      "name": "خیس بر",
-      "type": "multi"
-    },
-    {
-      "id": "g_1791842897046_uf2d",
-      "name": "گرمخانه",
-      "type": "multi"
-    },
-    {
-      "id": "g_crusher",
-      "name": "قند شکن",
-      "type": "multi"
-    }
-  ],
-  "effDevices": [
-    {
-      "id": "d_1791841982071_un3o",
-      "name": "شماره ۱ دیوار نبات",
-      "groupId": "g_regen"
-    },
-    {
-      "id": "d_1791841986304_wvgv",
-      "name": "شماره ۲ وسط سالن",
-      "groupId": "g_regen"
-    },
-    {
-      "id": "d_1791842101415_rvom",
-      "name": "شماره ۱ کنار دیوار",
-      "groupId": "g_crusher"
-    },
-    {
-      "id": "d_1791842110098_nlgo",
-      "name": "شماره ۲ وسط سالن",
-      "groupId": "g_crusher"
-    },
-    {
-      "id": "d_1791842932924_vsm9",
-      "name": "شماره ۱",
-      "groupId": "g_1791842897046_uf2d"
-    }
-  ]
+  "devices": []
 }
