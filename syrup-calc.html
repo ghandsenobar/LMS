@@ -61,12 +61,14 @@ body{margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg-start)
 
 .err-box{display:none;gap:8px;align-items:flex-start;background:rgba(239,68,68,.08);border:1.5px solid var(--danger);color:var(--danger);padding:10px 12px;border-radius:10px;font-size:12px;font-weight:bold;margin-bottom:14px;line-height:1.7}
 .err-box.show{display:flex}
+.err-box.warn{background:rgba(245,158,11,.1);border-color:var(--warning);color:#b45309}
+body.dark .err-box.warn{color:#fbbf24}
 
 .results-grid{display:grid;grid-template-columns:1fr;gap:8px}
 @media(min-width:520px){.results-grid.two-col{grid-template-columns:1fr 1fr}}
 
 .res{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface-2);border:1.5px solid var(--border);position:relative;overflow:hidden}
-.res::before{content:'';position:absolute;inset:0;right:0;width:4px;background:var(--accent,var(--primary))}
+.res::before{content:'';position:absolute;top:0;bottom:0;right:0;width:4px;background:var(--accent,var(--primary))}
 .res .r-ico{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;background:var(--accent,var(--primary))}
 .res .r-body{flex:1;min-width:0}
 .res .r-lbl{font-size:10.5px;font-weight:900;color:var(--muted);letter-spacing:.2px}
@@ -111,6 +113,9 @@ body{margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg-start)
 .btn-reset{background:var(--surface-2);color:var(--text-soft);border:1.5px solid var(--border)}
 .btn-reset:hover{background:var(--border)}
 
+.source-note{margin-top:8px;padding:12px 16px 16px;text-align:center;font-size:10px;color:var(--muted);line-height:1.9;border-top:1px dashed var(--border);font-weight:bold}
+.source-note .st{color:var(--primary-dark);font-size:11px;display:block;margin-bottom:4px}
+
 .toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;max-width:92vw}
 .toast{background:var(--surface);color:var(--text);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.2);border-right:4px solid var(--primary);pointer-events:auto;min-width:200px;max-width:92vw;display:flex;align-items:center;gap:8px;animation:tIn .3s ease-out}
 .toast.success{border-right-color:var(--success)}
@@ -126,9 +131,9 @@ body{margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg-start)
 <div class="wrap">
 
   <div class="topbar">
-    <button class="icon-btn" onclick="toggleDark()" id="darkBtn" title="حالت شب">🌙</button>
+    <button class="icon-btn" onclick="toggleDark()" id="darkBtn" title="حالت شب" aria-label="حالت شب">🌙</button>
     <div class="tb-title"><span class="icon">🧪</span><span>محاسبه پارامترهای شربت</span></div>
-    <button class="icon-btn back" onclick="goBack()" title="بازگشت">‹</button>
+    <button class="icon-btn back" onclick="goBack()" title="بازگشت" aria-label="بازگشت">‹</button>
   </div>
 
   <div class="section">
@@ -136,49 +141,49 @@ body{margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg-start)
     <div class="compact-grid">
 
       <div class="pill">
-        <div class="pill-lbl"><span>بریکس</span><span class="u">%</span></div>
-        <input id="inBrix" type="text" inputmode="decimal" value="50" placeholder="50">
+        <label class="pill-lbl" for="inBrix"><span>بریکس (۴۵ تا ۵۹.۹)</span><span class="u">%</span></label>
+        <input id="inBrix" type="text" inputmode="decimal" value="50" placeholder="50" autocomplete="off" aria-label="بریکس">
       </div>
 
       <div class="pill p-ash">
-        <div class="pill-lbl"><span>هدایت الکتریکی</span><span class="u">μS/cm</span></div>
-        <input id="inEC" type="text" inputmode="decimal" placeholder="22">
+        <label class="pill-lbl" for="inEC"><span>هدایت الکتریکی</span><span class="u">μS/cm</span></label>
+        <input id="inEC" type="text" inputmode="decimal" placeholder="22" autocomplete="off" aria-label="هدایت الکتریکی">
       </div>
 
       <div class="pill p-color">
-        <div class="pill-lbl"><span>جذب بدون کدورت</span><span class="u">A₁</span></div>
-        <input id="inA1" type="text" inputmode="decimal" placeholder="0.005">
+        <label class="pill-lbl" for="inA1"><span>جذب بدون کدورت</span><span class="u">A₁</span></label>
+        <input id="inA1" type="text" inputmode="decimal" placeholder="0.005" autocomplete="off" aria-label="جذب بدون کدورت">
       </div>
 
       <div class="pill p-turbidity">
-        <div class="pill-lbl"><span>جذب با کدورت</span><span class="u">A₂</span></div>
-        <input id="inA2" type="text" inputmode="decimal" placeholder="0.010">
+        <label class="pill-lbl" for="inA2"><span>جذب با کدورت</span><span class="u">A₂</span></label>
+        <input id="inA2" type="text" inputmode="decimal" placeholder="0.010" autocomplete="off" aria-label="جذب با کدورت">
       </div>
 
       <div class="pill p-so2">
-        <div class="pill-lbl"><span>ید مصرفی</span><span class="u">cc</span></div>
-        <input id="inV" type="text" inputmode="decimal" placeholder="3.5">
+        <label class="pill-lbl" for="inV"><span>ید مصرفی</span><span class="u">cc</span></label>
+        <input id="inV" type="text" inputmode="decimal" placeholder="3.5" autocomplete="off" aria-label="ید مصرفی">
       </div>
 
       <div class="pill p-so2">
-        <div class="pill-lbl"><span>وزن ماده خشک</span><span class="u">g</span></div>
-        <input id="inW" type="text" inputmode="decimal" value="50" placeholder="50">
+        <label class="pill-lbl" for="inW"><span>وزن ماده خشک</span><span class="u">g</span></label>
+        <input id="inW" type="text" inputmode="decimal" value="50" placeholder="50" autocomplete="off" aria-label="وزن ماده خشک">
       </div>
 
     </div>
 
     <div class="info-line">
       <span class="i">ℹ️</span>
-      <span>نرمالیته ید ثابت: ۱/۳۰۰</span>
+      <span>نرمالیته ید ثابت: ۱/۳۰۰ — محدوده بریکس رنگ: ۴۵ تا ۵۹.۹ (مطابق ISIRI 69)</span>
     </div>
 
     <div class="density-toggle" onclick="toggleDensity()" id="densityToggle">
-      <span>📋 جدول چگالی ساکارز (۲۰°C)</span>
+      <span>📋 جدول چگالی ساکارز — ISIRI 69 (۲۰°C، چگالی حقیقی)</span>
       <span class="arrow">▼</span>
     </div>
     <div class="density-wrap" id="densityWrap">
       <table class="density-table">
-        <thead><tr><th>Brix %</th><th>ρ (g/mL)</th></tr></thead>
+        <thead><tr><th>Brix %</th><th>ρ حقیقی (kg/m³)</th></tr></thead>
         <tbody id="densityBody"></tbody>
       </table>
     </div>
@@ -202,110 +207,134 @@ body{margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg-start)
     <button class="btn btn-reset" onclick="resetAll()">🔄 پاک کردن فرم</button>
   </div>
 
+  <div class="source-note">
+    <span class="st">📚 منبع جدول چگالی</span>
+    استاندارد ملی ایران شماره ۶۹ — تجدیدنظر چهارم (۱۳۸۷)<br>
+    پیوست الف، جدول ۱ — ستون ρ (چگالی حقیقی، kg/m³) — دمای ۲۰°C<br>
+    محدوده مجاز بریکس: ۴۵ تا ۵۹.۹
+  </div>
+
 </div>
 
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
 /* ============================================================
-   محاسبه پارامترهای شربت — نسخه ۳.۱
+   محاسبه پارامترهای شربت — نسخه ۳.۲
    کارخانه قند صنوبر — علی صنوبری
+   جدول چگالی: ISIRI 69 (تجدیدنظر چهارم) — پیوست الف
 ============================================================ */
 
 /* ⭐ دکمه بازگشت هوشمند */
 function goBack(){
-  // ۱. اگر از داخل برنامه اومده (history داره)
-  if(window.history.length > 1){
-    try {
-      history.back();
-      // اگه بعد از ۱ ثانیه هنوز اینجاییم، fallback بزن
-      setTimeout(function(){
-        if(!document.hidden){
-          tryFallbackNav();
-        }
-      }, 1000);
-      return;
-    } catch(e){}
-  }
-  // ۲. تلاش برای مسیر مستقیم
-  tryFallbackNav();
-}
-
-function tryFallbackNav(){
-  // تلاش برای مسیر نسبی
-  var testUrl = './index.html';
   try {
-    // چک می‌کنیم که آیا فایل وجود داره (فقط روی http/https کار می‌کنه)
-    if(location.protocol === 'file:' || location.protocol === 'content:'){
-      window.location.href = testUrl;
-      // اگه بعد از ۱.۵ ثانیه هنوز اینجاییم، پیام بده
-      setTimeout(function(){
-        if(!document.hidden && document.body){
-          var w = window.open(testUrl, '_self');
-          if(!w){
-            setTimeout(function(){
-              alert('❌ فایل index.html رو پیدا نکردم.\n\nلطفاً مطمئن شوید هر دو فایل (index.html و syrup-calc.html) در یک پوشه هستن.\n\nاگه از فایل‌منیجر باز می‌کنید، به‌جاش از مرورگر یا سرور محلی استفاده کنید.');
-            }, 800);
-          }
-        }
-      }, 1500);
-    } else {
-      window.location.href = testUrl;
+    var ref = document.referrer;
+    if (ref) {
+      var refUrl = new URL(ref);
+      if (refUrl.origin === location.origin || location.protocol === 'file:') {
+        history.back();
+        return;
+      }
     }
-  } catch(e){
-    alert('❌ خطا در بازگشت: ' + e.message);
-  }
+  } catch(e){ /* ignore */ }
+  location.href = './index.html';
 }
 
-/* جدول چگالی ساکارز (۲۰°C) — ۴۰ تا ۷۰ با گام ۰.۵ */
+/* جدول چگالی ساکارز (ISIRI 69، پیوست الف، ستون ρ حقیقی، kg/m³)
+   دمای ۲۰°C — گام ۰.۵ از ۴۵.۰ تا ۵۹.۵ و گام نهایی ۰.۴ (۵۹.۵ → ۵۹.۹)
+   مقادیر ۵۹.۰، ۵۹.۵، ۵۹.۹ برون‌یابی‌شده هستند (خارج از PDF اصلی). */
 var DENSITY_TABLE = [
-  [40.0,1.17679],[40.5,1.179604],[41.0,1.182418],[41.5,1.185232],
-  [42.0,1.188046],[42.5,1.19086],[43.0,1.193674],[43.5,1.196488],
-  [44.0,1.199302],[44.5,1.202116],[45.0,1.20493],[45.5,1.207765],
-  [46.0,1.2106],[46.5,1.213435],[47.0,1.21627],[47.5,1.219105],
-  [48.0,1.22194],[48.5,1.224775],[49.0,1.22761],[49.5,1.230445],
-  [50.0,1.23328],[50.5,1.236115],[51.0,1.23895],[51.5,1.241785],
-  [52.0,1.24462],[52.5,1.247455],[53.0,1.25029],[53.5,1.253125],
-  [54.0,1.25596],[54.5,1.258795],[55.0,1.26163],[55.5,1.264477],
-  [56.0,1.267324],[56.5,1.270171],[57.0,1.273018],[57.5,1.275865],
-  [58.0,1.278712],[58.5,1.281559],[59.0,1.284406],[59.5,1.287253],
-  [60.0,1.29010],[60.5,1.292953],[61.0,1.295806],[61.5,1.298659],
-  [62.0,1.301512],[62.5,1.304365],[63.0,1.307218],[63.5,1.310071],
-  [64.0,1.312924],[64.5,1.315777],[65.0,1.31863],[65.5,1.321492],
-  [66.0,1.324354],[66.5,1.327216],[67.0,1.330078],[67.5,1.33294],
-  [68.0,1.335802],[68.5,1.338664],[69.0,1.341526],[69.5,1.344388],
-  [70.0,1.34725]
+  [45.0, 1202.619],
+  [45.5, 1205.280],
+  [46.0, 1207.950],
+  [46.5, 1210.630],
+  [47.0, 1213.320],
+  [47.5, 1216.019],
+  [48.0, 1218.727],
+  [48.5, 1221.445],
+  [49.0, 1224.172],
+  [49.5, 1226.909],
+  [50.0, 1229.656],
+  [50.5, 1232.412],
+  [51.0, 1235.177],
+  [51.5, 1237.952],
+  [52.0, 1240.737],
+  [52.5, 1243.532],
+  [53.0, 1246.336],
+  [53.5, 1249.150],
+  [54.0, 1251.973],
+  [54.5, 1254.806],
+  [55.0, 1257.649],
+  [55.5, 1260.502],
+  [56.0, 1263.364],
+  [56.5, 1266.236],
+  [57.0, 1269.118],
+  [57.5, 1272.009],
+  [58.0, 1274.910],
+  [58.5, 1277.821],
+  [59.0, 1280.742],
+  [59.5, 1283.672],
+  [59.9, 1286.024]
 ];
 
+var BRIX_MIN = 45.0;
+var BRIX_MAX = 59.9;
+
+/* درون‌یابی خطی — واحد خروجی kg/m³ */
 function getDensity(brix){
-  if(isNaN(brix)) return 1.23328;
-  if(brix <= 40) return DENSITY_TABLE[0][1];
-  if(brix >= 70) return DENSITY_TABLE[DENSITY_TABLE.length - 1][1];
-  for(var i = 0; i < DENSITY_TABLE.length - 1; i++){
-    var a = DENSITY_TABLE[i], b = DENSITY_TABLE[i+1];
-    if(brix >= a[0] && brix <= b[0]){
+  if (isNaN(brix)) return NaN;
+  if (brix < BRIX_MIN || brix > BRIX_MAX) return NaN;
+  for (var i = 0; i < DENSITY_TABLE.length - 1; i++){
+    var a = DENSITY_TABLE[i], b = DENSITY_TABLE[i + 1];
+    if (brix >= a[0] && brix <= b[0]){
       var t = (brix - a[0]) / (b[0] - a[0]);
       return a[1] + t * (b[1] - a[1]);
     }
   }
-  return 1.23328;
+  if (brix === BRIX_MAX) return DENSITY_TABLE[DENSITY_TABLE.length - 1][1];
+  return NaN;
 }
 
 var FA = '۰۱۲۳۴۵۶۷۸۹';
 function toFa(s){ return String(s).replace(/\d/g, function(d){ return FA[+d]; }); }
-function toLatin(s){ return String(s).replace(/[۰-۹]/g, function(d){ return FA.indexOf(d); }).replace(/[٠-٩]/g, function(d){ return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }); }
-function num(id){ var v = document.getElementById(id).value.trim(); v = toLatin(v); return v === '' ? NaN : parseFloat(v); }
-function fmt(v, dec){ if(isNaN(v) || !isFinite(v)) return '—'; if(dec == null) dec = 3; return toFa(v.toFixed(dec).replace(/\.?0+$/, '')); }
+function toLatin(s){
+  return String(s)
+    .replace(/[۰-۹]/g, function(d){ return FA.indexOf(d); })
+    .replace(/[٠-٩]/g, function(d){ return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); });
+}
+function num(id){
+  var v = document.getElementById(id).value.trim();
+  v = toLatin(v);
+  if (v === '') return NaN;
+  if (!/^-?\d*\.?\d*$/.test(v)) return NaN;
+  var n = Number(v);
+  return isFinite(n) ? n : NaN;
+}
+function fmt(v, dec){
+  if (isNaN(v) || !isFinite(v)) return '—';
+  if (dec == null) dec = 3;
+  return toFa(v.toFixed(dec).replace(/\.?0+$/, ''));
+}
 
+/* حالت شب */
 var darkMode = localStorage.getItem('lab_darkmode') === '1';
-function applyDark(){ document.body.classList.toggle('dark', darkMode); document.getElementById('darkBtn').textContent = darkMode ? '☀️' : '🌙'; }
-function toggleDark(){ darkMode = !darkMode; localStorage.setItem('lab_darkmode', darkMode ? '1' : '0'); applyDark(); }
-applyDark();
+function applyDark(){
+  document.body.classList.toggle('dark', darkMode);
+  document.getElementById('darkBtn').textContent = darkMode ? '☀️' : '🌙';
+}
+function toggleDark(){
+  darkMode = !darkMode;
+  localStorage.setItem('lab_darkmode', darkMode ? '1' : '0');
+  applyDark();
+}
 
+/* جدول چگالی */
 function renderDensityTable(){
   var body = document.getElementById('densityBody');
   body.innerHTML = DENSITY_TABLE.map(function(row){
-    return '<tr data-brix="' + row[0] + '"><td>' + toFa(row[0].toFixed(1)) + '</td><td>' + toFa(row[1].toFixed(5)) + '</td></tr>';
+    return '<tr data-brix="' + row[0] + '"><td>' +
+      toFa(row[0].toFixed(1)) + '</td><td>' +
+      toFa(row[1].toFixed(3)) + '</td></tr>';
   }).join('');
   updateDensityHighlight();
 }
@@ -313,75 +342,76 @@ function updateDensityHighlight(){
   var brix = num('inBrix');
   var rows = document.querySelectorAll('.density-table tbody tr');
   rows.forEach(function(r){ r.classList.remove('active'); });
-  if(isNaN(brix)) return;
+  if (isNaN(brix)) return;
   var closest = null, minDiff = Infinity;
   rows.forEach(function(r){
     var rb = parseFloat(r.dataset.brix);
     var d = Math.abs(rb - brix);
-    if(d < minDiff){ minDiff = d; closest = r; }
+    if (d < minDiff){ minDiff = d; closest = r; }
   });
-  if(closest) closest.classList.add('active');
+  if (closest) closest.classList.add('active');
 }
 function toggleDensity(){
   var w = document.getElementById('densityWrap');
   var t = document.getElementById('densityToggle');
   var open = w.classList.toggle('open');
   t.classList.toggle('open', open);
-  if(open){
+  if (open){
     updateDensityHighlight();
     setTimeout(function(){
       var active = document.querySelector('.density-table tbody tr.active');
-      if(active){
-        var wrap = w;
-        var top = active.offsetTop - wrap.clientHeight / 2 + active.offsetHeight / 2;
-        wrap.scrollTop = Math.max(0, top);
+      if (active){
+        var top = active.offsetTop - w.clientHeight / 2 + active.offsetHeight / 2;
+        w.scrollTop = Math.max(0, top);
       }
     }, 350);
   }
 }
-renderDensityTable();
 
+/* Toast + Error */
 function showToast(msg, type, dur){
   type = type || 'success'; dur = dur || 2800;
   var wrap = document.getElementById('toastWrap');
   var icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
   var t = document.createElement('div');
   t.className = 'toast ' + type;
-  t.innerHTML = '<span>' + (icons[type] || '') + '</span><span>' + msg + '</span>';
+  var ic = document.createElement('span');
+  ic.textContent = icons[type] || '';
+  var tx = document.createElement('span');
+  tx.textContent = msg;
+  t.appendChild(ic); t.appendChild(tx);
   wrap.appendChild(t);
-  setTimeout(function(){ t.classList.add('out'); setTimeout(function(){ t.remove(); }, 300); }, dur);
+  setTimeout(function(){
+    t.classList.add('out');
+    setTimeout(function(){ t.remove(); }, 300);
+  }, dur);
 }
-
-function showErr(msg){ document.getElementById('errMsg').innerHTML = msg; document.getElementById('errBox').classList.add('show'); }
-function hideErr(){ document.getElementById('errBox').classList.remove('show'); }
+function showErr(msg){
+  var box = document.getElementById('errBox');
+  var el = document.getElementById('errMsg');
+  el.textContent = msg;
+  box.classList.remove('warn');
+  box.classList.add('show');
+}
+function showWarn(msg){
+  var box = document.getElementById('errBox');
+  var el = document.getElementById('errMsg');
+  el.textContent = msg;
+  box.classList.add('warn');
+  box.classList.add('show');
+}
+function hideErr(){
+  var box = document.getElementById('errBox');
+  box.classList.remove('show');
+  box.classList.remove('warn');
+}
 
 var currentResults = null;
 
-function validateAll(){
-  hideErr();
-  var errs = [];
-  var brix = num('inBrix');
-  var a1 = num('inA1');
-  var a2 = num('inA2');
-  var ec = num('inEC');
-  var v = num('inV');
-  var w = num('inW');
-
-  if(isNaN(brix)) errs.push('بریکس را وارد کنید');
-  else if(brix < 40 || brix > 70) errs.push('بریکس باید بین ۴۰ تا ۷۰ باشد');
-  if(!isNaN(a1) && (a1 < 0.001 || a1 > 0.1)) errs.push('جذب بدون کدورت باید بین ۰.۰۰۱ تا ۰.۱ باشد');
-  if(!isNaN(a2) && (a2 < 0.001 || a2 > 1)) errs.push('جذب با کدورت باید بین ۰.۰۰۱ تا ۱ باشد');
-  if(!isNaN(a1) && !isNaN(a2) && a2 < a1) errs.push('جذب با کدورت باید ≥ جذب بدون کدورت باشد');
-  if(!isNaN(ec) && ec <= 1) errs.push('هدایت الکتریکی باید بزرگ‌تر از ۱ باشد');
-  if(!isNaN(v) && v < 0) errs.push('ید مصرفی نمی‌تواند منفی باشد');
-  if(!isNaN(w) && w <= 0) errs.push('وزن ماده خشک باید مثبت باشد');
-
-  if(errs.length){ showErr(errs.join(' • ')); return false; }
-  return true;
-}
-
+/* محاسبه */
 function calculate(){
-  if(!validateAll()){ showToast('لطفاً خطاها را برطرف کنید', 'warning'); return; }
+  hideErr();
+
   var brix = num('inBrix');
   var a1 = num('inA1');
   var a2 = num('inA2');
@@ -389,67 +419,103 @@ function calculate(){
   var v = num('inV');
   var w = num('inW');
 
-  if(isNaN(a1) && isNaN(ec) && isNaN(v)){
+  /* اعتبارسنجی */
+  var errs = [];
+  if (!isNaN(a1) && (a1 < 0.0001 || a1 > 0.1)) errs.push('جذب A₁ باید بین ۰.۰۰۰۱ تا ۰.۱ باشد');
+  if (!isNaN(a2) && (a2 < 0.0001 || a2 > 1)) errs.push('جذب A₂ باید بین ۰.۰۰۰۱ تا ۱ باشد');
+  if (!isNaN(a1) && !isNaN(a2) && a2 < a1) errs.push('جذب با کدورت باید ≥ جذب بدون کدورت باشد');
+  if (!isNaN(ec) && ec < 1) errs.push('هدایت الکتریکی باید ≥ ۱ باشد');
+  if (!isNaN(v) && v < 0) errs.push('ید مصرفی نمی‌تواند منفی باشد');
+  if (!isNaN(w) && w <= 0) errs.push('وزن ماده خشک باید مثبت باشد');
+  if (errs.length){
+    showErr(errs.join(' • '));
+    showToast('لطفاً خطاها را برطرف کنید', 'warning');
+    return;
+  }
+
+  /* بررسی بازه بریکس (فقط برای رنگ و کدورت) */
+  var wantColor = !isNaN(a1) || !isNaN(a2);
+  var brixOK = !isNaN(brix) && brix >= BRIX_MIN && brix <= BRIX_MAX;
+
+  if (wantColor && !brixOK){
+    if (!isNaN(brix)){
+      showWarn('بریکس ' + toFa(brix.toFixed(1)) + '٪ خارج از بازه جدول (۴۵ تا ۵۹.۹) است — رنگ و کدورت محاسبه نمی‌شوند.');
+    } else {
+      showWarn('برای محاسبه رنگ و کدورت، بریکس را در بازه ۴۵ تا ۵۹.۹ وارد کنید.');
+    }
+  }
+
+  /* حداقل یک پارامتر */
+  if (isNaN(brix) && isNaN(a1) && isNaN(a2) && isNaN(ec) && isNaN(v)){
     showToast('حداقل یکی از پارامترها را وارد کنید', 'warning');
     return;
   }
 
-  var rho = getDensity(brix);
-  var K_ASH = 0.00060;
-  var EC_WATER = 1;
-  var N_IODINE = 1/300;
-  var CONV_POAN = 0.0018;
-  var CONV_COLOR = 7.5;
+  var CONV_COLOR = 7.5;        /* پوآن = IU / 7.5 */
+  var K_ASH = 0.00060;         /* ISIRI 69: Ash% = 6×10⁻⁴ × C₂₈ */
+  var EC_WATER = 1;            /* تقریب: هدایت آب مقطر ≈ 1 μS/cm */
+  var N_IODINE = 1 / 300;
+  var M_EQ_SO2 = 32030;        /* mg/eq */
 
   var results = {
-    brix: brix, rho: rho,
-    color: null, turbidity: null,
-    ashPercent: null, ashPoan: null,
+    brix: brixOK ? brix : null,
+    rho: brixOK ? getDensity(brix) : null,   /* kg/m³ */
+    color: null,
+    turbidity: null,
+    ashPercent: null,
+    ashPoan: null,
     so2: null
   };
 
-  // ۱. رنگ (پوآن)
-  if(!isNaN(a1)){
-    var raw = 1000 * a1 / ((brix / 100) * rho);
-    results.color = raw / CONV_COLOR;
+  /* ۱. رنگ (پوآن) — نیاز به بریکس معتبر دارد */
+  if (brixOK && !isNaN(a1)){
+    var rhoGmL = results.rho / 1000;         /* kg/m³ → g/mL */
+    var c = (brix / 100) * rhoGmL;           /* g/mL */
+    var iu = 1000 * a1 / c;
+    results.color = iu / CONV_COLOR;
   }
-  // ۲. کدورت (IU)
-  if(!isNaN(a1) && !isNaN(a2) && a2 >= a1){
-    results.turbidity = 1000 * (a2 - a1) / ((brix / 100) * rho);
+
+  /* ۲. کدورت (IU) */
+  if (brixOK && !isNaN(a1) && !isNaN(a2) && a2 >= a1){
+    var rhoGmL2 = results.rho / 1000;
+    var c2 = (brix / 100) * rhoGmL2;
+    results.turbidity = 1000 * (a2 - a1) / c2;
   }
-  // ۳. خاکستر (درصد)
-  if(!isNaN(ec)){
+
+  /* ۳. خاکستر (درصد) */
+  if (!isNaN(ec)){
     results.ashPercent = K_ASH * (ec - EC_WATER);
+    results.ashPoan = results.ashPercent / 0.018;   /* هر ۰.۰۱۸٪ = ۱ پوآن */
   }
-  // ۴. خاکستر (پوآن)
-  if(results.ashPercent !== null){
-    results.ashPoan = results.ashPercent / CONV_POAN;
-  }
-  // ۵. SO₂ (ppm)
-  if(!isNaN(v) && v >= 0 && !isNaN(w) && w > 0){
-    results.so2 = v * N_IODINE * 32030 / w;
+
+  /* ۴. SO₂ (ppm) */
+  if (!isNaN(v) && v >= 0 && !isNaN(w) && w > 0){
+    results.so2 = v * N_IODINE * M_EQ_SO2 / w;
   }
 
   currentResults = results;
   renderResults();
-  var hasAny = results.color !== null || results.turbidity !== null || results.ashPercent !== null || results.so2 !== null;
+
+  var hasAny = results.color !== null || results.turbidity !== null ||
+               results.ashPercent !== null || results.so2 !== null;
   document.getElementById('sendBtn').disabled = !hasAny;
   showToast('محاسبه انجام شد', 'success', 1800);
 }
 
 function renderResults(){
   var r = currentResults;
-  if(!r) return;
+  if (!r) return;
   var items = [];
 
-  if(r.color !== null) items.push(resItem('color', '🎨', 'رنگ محلول', fmt(r.color, 2), 'پوآن'));
-  if(r.turbidity !== null) items.push(resItem('turbidity', '💧', 'کدورت', fmt(r.turbidity, 2), 'IU'));
-  if(r.ashPercent !== null) items.push(resItem('ash', '🔥', 'خاکستر هدایت', fmt(r.ashPercent, 4), '٪'));
-  if(r.ashPoan !== null) items.push(resItem('ashp', '🏭', 'خاکستر هدایت', fmt(r.ashPoan, 2), 'پوآن'));
-  if(r.so2 !== null) items.push(resItem('so2', '💨', 'انیدرید سولفورو', fmt(r.so2, 2), 'ppm'));
+  if (r.color !== null) items.push(resItem('color', '🎨', 'رنگ محلول', fmt(r.color, 2), 'پوآن'));
+  if (r.turbidity !== null) items.push(resItem('turbidity', '💧', 'کدورت', fmt(r.turbidity, 2), 'IU'));
+  if (r.ashPercent !== null) items.push(resItem('ash', '🔥', 'خاکستر هدایتی', fmt(r.ashPercent, 4), '٪'));
+  if (r.ashPoan !== null) items.push(resItem('ashp', '🏭', 'خاکستر هدایتی', fmt(r.ashPoan, 2), 'پوآن'));
+  if (r.so2 !== null) items.push(resItem('so2', '💨', 'انیدرید سولفورو', fmt(r.so2, 2), 'ppm'));
 
-  if(!items.length){
-    document.getElementById('resultsArea').innerHTML = '<div class="empty-res"><span class="em-icon">⚠️</span>هیچ پارامتری محاسبه نشد</div>';
+  if (!items.length){
+    document.getElementById('resultsArea').innerHTML =
+      '<div class="empty-res"><span class="em-icon">⚠️</span>هیچ پارامتری محاسبه نشد</div>';
     return;
   }
 
@@ -457,10 +523,12 @@ function renderResults(){
   var html = '<div class="' + cls + '">' + items.join('') + '</div>';
 
   html += '<div class="verify">';
-  html += '<div class="v"><span class="k">بریکس</span><span class="val">' + toFa(r.brix.toFixed(2)) + ' %</span></div>';
-  html += '<div class="v"><span class="k">چگالی</span><span class="val">' + toFa(r.rho.toFixed(5)) + '</span></div>';
-  html += '<div class="v"><span class="k">Bx × ρ</span><span class="val">' + toFa(((r.brix/100) * r.rho).toFixed(5)) + '</span></div>';
-  html += '<div class="v"><span class="k">ضریب پوآن</span><span class="val">0.0006</span></div>';
+  if (r.brix !== null){
+    html += '<div class="v"><span class="k">بریکس</span><span class="val">' + toFa(r.brix.toFixed(2)) + ' %</span></div>';
+    html += '<div class="v"><span class="k">ρ حقیقی</span><span class="val">' + toFa(r.rho.toFixed(3)) + ' kg/m³</span></div>';
+    html += '<div class="v"><span class="k">Bx × ρ</span><span class="val">' + toFa(((r.brix/100) * (r.rho/1000)).toFixed(6)) + ' g/mL</span></div>';
+  }
+  html += '<div class="v"><span class="k">ضریب خاکستر</span><span class="val">0.0006</span></div>';
   html += '</div>';
 
   document.getElementById('resultsArea').innerHTML = html;
@@ -476,19 +544,18 @@ function resItem(cls, icon, label, value, unit){
 }
 
 function sendToForm(){
-  if(!currentResults){ showToast('ابتدا محاسبه کنید', 'warning'); return; }
+  if (!currentResults){ showToast('ابتدا محاسبه کنید', 'warning'); return; }
   var r = currentResults;
   var prefill = { ts: Date.now() };
-  if(r.color !== null) prefill.color = toLatin(r.color.toFixed(2).replace(/\.?0+$/, ''));
-  if(r.turbidity !== null) prefill.turbidity = toLatin(r.turbidity.toFixed(2).replace(/\.?0+$/, ''));
-  if(r.ashPoan !== null) prefill.ash = toLatin(r.ashPoan.toFixed(3).replace(/\.?0+$/, ''));
-  if(r.so2 !== null) prefill.so2 = toLatin(r.so2.toFixed(2).replace(/\.?0+$/, ''));
+  if (r.color !== null) prefill.color = toLatin(r.color.toFixed(2).replace(/\.?0+$/, ''));
+  if (r.turbidity !== null) prefill.turbidity = toLatin(r.turbidity.toFixed(2).replace(/\.?0+$/, ''));
+  if (r.ashPoan !== null) prefill.ash = toLatin(r.ashPoan.toFixed(3).replace(/\.?0+$/, ''));
+  if (r.so2 !== null) prefill.so2 = toLatin(r.so2.toFixed(2).replace(/\.?0+$/, ''));
 
   try {
-    localStorage.setItem('lab_syrup_prefill', JSON.stringify(prefill));
+    sessionStorage.setItem('lab_syrup_prefill', JSON.stringify(prefill));
     showToast('انتقال به فرم شربت...', 'success', 1500);
     setTimeout(function(){
-      // مسیر نسبی برای index
       window.location.href = './index.html?prefill=syrup';
     }, 800);
   } catch(e){
@@ -502,35 +569,44 @@ function resetAll(){
   ['inA1','inA2','inEC','inV'].forEach(function(id){ document.getElementById(id).value = ''; });
   currentResults = null;
   document.getElementById('sendBtn').disabled = true;
-  document.getElementById('resultsArea').innerHTML = '<div class="empty-res"><span class="em-icon">🧪</span>مقادیر را وارد کرده و دکمه محاسبه را بزنید</div>';
+  document.getElementById('resultsArea').innerHTML =
+    '<div class="empty-res"><span class="em-icon">🧪</span>مقادیر را وارد کرده و دکمه محاسبه را بزنید</div>';
   hideErr();
   updateDensityHighlight();
   showToast('فرم پاک شد', 'info', 1500);
 }
 
+/* راه‌اندازی */
 window.addEventListener('DOMContentLoaded', function(){
-  document.getElementById('inBrix').addEventListener('input', updateDensityHighlight);
+  applyDark();
+  renderDensityTable();
 
-  var order = ['inBrix','inEC','inA1','inA2','inV','inW'];
-  order.forEach(function(id, idx){
-    document.getElementById(id).addEventListener('keydown', function(e){
-      if(e.key === 'Enter'){
+  var inputs = Array.prototype.slice.call(document.querySelectorAll('.pill input'));
+
+  inputs.forEach(function(el, idx){
+    /* Enter برای پیمایش */
+    el.addEventListener('keydown', function(e){
+      if (e.key === 'Enter'){
         e.preventDefault();
-        if(idx < order.length - 1) document.getElementById(order[idx+1]).focus();
+        if (idx < inputs.length - 1) inputs[idx + 1].focus();
         else calculate();
       }
     });
+
+    /* تغییر مقدار → invalidation */
+    el.addEventListener('input', function(){
+      currentResults = null;
+      document.getElementById('sendBtn').disabled = true;
+      if (el.id === 'inBrix') updateDensityHighlight();
+    });
   });
 
-  /* فوکوس روی بریکس + انتخاب متن */
+  /* فوکوس اولیه روی بریکس */
   setTimeout(function(){
     var el = document.getElementById('inBrix');
-    el.focus();
-    el.select();
+    if (el){ el.focus(); el.select(); }
   }, 350);
 });
-
-console.log('%c🧪 Syrup Calculator v3.1', 'color:#6366f1;font-weight:900;font-size:14px');
 </script>
 
 </body>
