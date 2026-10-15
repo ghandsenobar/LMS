@@ -546,7 +546,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
   <div class="splash-subtitle">مدیریت هوشمند آزمون‌های آب، شربت، راندمان و نگهداری</div>
   <div class="splash-loader"><span></span><span></span><span></span></div>
   <div class="splash-designer"><span class="splash-designer-label">طراح و توسعه‌دهنده</span><span class="splash-designer-name">علی صنوبری</span></div>
-  <div class="splash-version">نسخه ۴.۳.۱</div>
+  <div class="splash-version">نسخه ۴.۳.۲</div>
 </div>
 
 <div class="fullscreen-screen" id="setupScreen" hidden>
@@ -854,11 +854,11 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
 
 <script>
 /* ==================================================
-   سیستم مدیریت آزمایشگاه — نسخه ۴.۳.۱
-   تغییرات این نسخه:
-   • افزودن فیلد «خاکستر هدایت (درصد وزنی)» به فرم شربت
-   • بازیابی خودکار پیش‌نویس (Draft) پس از رفرش
-   • هماهنگی prefill با syrup-calc (localStorage)
+   سیستم مدیریت آزمایشگاه — نسخه ۴.۳.۲
+   ─────────────────────────────────────────────────
+   • بازیابی State محلی (Local Persistence) با merge امن
+   • سازگار با Multi-User / Epoch / Tombstone
+   • پاک‌سازی کامل بعد از Push موفق، Pull موفق و Logout
 ================================================== */
 
 var DATA_FILE = 'data-LMS-v6.json';
@@ -866,6 +866,7 @@ var CONFIG_KEY = 'lab_github_config';
 var SESSION_KEY = 'lab_session';
 var DRAFT_PREFIX = 'lab_draft_';
 var MAINT_FIELDS_KEY = 'lab_maint_fields';
+var LOCAL_STATE_KEY = 'lab_local_state_v1';
 var SALT = '_lab_salt_2026';
 var SESSION_DURATION = 24 * 60 * 60 * 1000;
 
@@ -1175,6 +1176,126 @@ function buildPayload(){
   };
 }
 
+/* ═══════════════════════════════════════════════════════
+   ذخیره/بازیابی State محلی — ایمن در برابر Multi-User
+   ─────────────────────────────────────────────────────
+   • فقط در حالت dirty ذخیره می‌شود
+   • هنگام بازیابی، MERGE می‌شود (نه replace)
+   • Epoch, Tombstone, del همه رعایت می‌شوند
+   • با Push موفق / Pull موفق / Logout پاک می‌شود
+═══════════════════════════════════════════════════════ */
+function saveLocalState(){
+  try {
+    if(!state.session) return;
+    if(!state.dirty){ clearLocalState(); return; }
+    var payload = buildPayload();
+    payload._savedAt = Date.now();
+    payload._userId = state.session.userId;
+    localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(payload));
+  } catch(e){ console.error('saveLocalState:', e); }
+}
+function loadLocalState(){
+  try {
+    var raw = localStorage.getItem(LOCAL_STATE_KEY);
+    if(!raw) return null;
+    var data = JSON.parse(raw);
+    if(!data || !data._savedAt) return null;
+    if(Date.now() - data._savedAt > 30 * 24 * 60 * 60 * 1000){
+      localStorage.removeItem(LOCAL_STATE_KEY);
+      return null;
+    }
+    return data;
+  } catch(e){ return null; }
+}
+function clearLocalState(){
+  try { localStorage.removeItem(LOCAL_STATE_KEY); } catch(e){}
+}
+function hasLocalPendingState(){
+  try {
+    var raw = localStorage.getItem(LOCAL_STATE_KEY);
+    if(!raw) return false;
+    var data = JSON.parse(raw);
+    return !!(data && data._savedAt && data._userId);
+  } catch(e){ return false; }
+}
+function unionArray(a, b){
+  var out = (a || []).slice();
+  (b || []).forEach(function(v){ if(out.indexOf(v) === -1) out.push(v); });
+  return out;
+}
+function unionTombstones(t1, t2){
+  var out = Object.assign({ p_ab:[], p_sh:[], eg:[], ed:[], df:[], us:[] }, t1 || {});
+  ['p_ab','p_sh','eg','ed','df','us'].forEach(function(k){
+    out[k] = unionArray(out[k] || [], (t2 && t2[k]) || []);
+  });
+  return out;
+}
+function mergeLocalPendingIntoState(localPending){
+  if(!localPending) return false;
+  if(!state.session) return false;
+  if(localPending._userId !== state.session.userId) return false;
+
+  /* چک Epoch: اگر DB ریست شده، localPending بی‌اعتبار است */
+  var remoteEpoch = state.epoch || 1;
+  var localEpoch  = localPending.epoch || 1;
+  if(localEpoch < remoteEpoch){
+    clearLocalState();
+    return false;
+  }
+
+  /* محصولات آب */
+  state.products.ab = mergeAbProducts(
+    normalizeAbProductList((localPending.products && localPending.products.ab) || []),
+    state.products.ab,
+    state.tomb
+  );
+
+  /* محصولات شربت */
+  state.products.sh = mergeWithTombstone(
+    normalizeShProductList((localPending.products && localPending.products.sh) || []),
+    state.products.sh,
+    state.tomb.p_sh
+  );
+
+  /* گروه‌ها و دستگاه‌های راندمان */
+  state.effGroups = mergeWithTombstone(
+    normalizeEffGroups(localPending.effGroups || []),
+    state.effGroups,
+    state.tomb.eg
+  );
+  state.effDevices = mergeWithTombstone(
+    normalizeEffDevices(localPending.effDevices || [], state.effGroups),
+    state.effDevices,
+    state.tomb.ed
+  );
+
+  /* رکوردها — LWW با m، tie به‌نفع localPending */
+  state.records = mergeRecordsById(
+    (localPending.records || []).map(normalizeRecord).filter(Boolean),
+    state.records,
+    state.del,
+    state.tomb
+  );
+
+  /* کاربران */
+  if(Array.isArray(localPending.users)){
+    state.users = mergeWithTombstone(
+      localPending.users.map(normalizeUser),
+      state.users,
+      state.tomb.us
+    );
+  }
+
+  /* Tombstoneها: union */
+  state.tomb = unionTombstones(state.tomb, localPending.tomb);
+  state.del  = unionArray(state.del, localPending.del);
+
+  if((localPending.epoch || 1) > state.epoch) state.epoch = localPending.epoch;
+
+  state.dirty = true;
+  return true;
+}
+
 function mergeRecordsById(local, remote, del, tombstones){
   var stones = new Set(del || []); var map = new Map();
   (remote || []).forEach(function(r){ if(r && r.i != null && !stones.has(r.i)) map.set(r.i, r); });
@@ -1230,7 +1351,7 @@ async function syncPull(){
   if(state.dirty){
     var ch = await customTriple('⚠️ تغییرات ذخیره‌نشده دارید.\n\nچه کنیم؟', { okText: '⬆️ اول ذخیره', cancelText: 'لغو', thirdText: '🗑️ دور بریز و دریافت', thirdDanger: true });
     if(ch === true){ await syncPush(); return; }
-    if(ch === 'third'){ state.dirty = false; state.records = []; state.products = { ab: [], sh: [] }; state.effGroups = []; state.effDevices = []; updateSyncBar(); }
+    if(ch === 'third'){ state.dirty = false; state.records = []; state.products = { ab: [], sh: [] }; state.effGroups = []; state.effDevices = []; clearLocalState(); updateSyncBar(); }
     else return;
   }
   updateSyncBar('loading', 'در حال دریافت...');
@@ -1239,6 +1360,7 @@ async function syncPull(){
     if(!data){ updateSyncBar(); showToast('فایل دیتا روی سرور نیست', 'info'); return; }
     applyRemoteData(data);
     state.dirty = false; state.lastSyncAt = Date.now();
+    clearLocalState();
     editingId = null; currentType = null;
     applyTypeUI(); fillFormProducts(); renderManageLists(); renderRecords();
     updateSyncBar();
@@ -1267,6 +1389,7 @@ async function syncPush(){
     if(!found && u > 0){ state.users.push({ i: u, n: state.session.username, p: state.session.passHash || '', r: state.session.role, a: 1, c: Date.now() }); }
     await ghPut(buildPayload());
     state.dirty = false; state.lastSyncAt = Date.now(); state.ghCanWrite = true;
+    clearLocalState();
     updateSyncBar();
     showToast('✅ ذخیره شد', 'success');
   } catch(e){
@@ -1341,11 +1464,23 @@ async function doLogout(){
     var ch = await customConfirm('تغییرات ذخیره‌نشده دارید. ذخیره شود؟', { okText:'ذخیره و خروج', cancelText:'خروج بدون ذخیره' });
     if(ch) await syncPush();
   }
-  clearSession(); state.session = null;
+  /* ⭐ پاک کردن کامل داده‌های محلی هنگام خروج */
+  clearLocalState();
+  clearSession();
+  state.session = null;
   editingId = null; currentType = null;
+  try {
+    /* پاک کردن draft ها */
+    Object.keys(localStorage).forEach(function(k){
+      if(k.indexOf(DRAFT_PREFIX) === 0 || k === 'lab_syrup_prefill'){
+        localStorage.removeItem(k);
+      }
+    });
+  } catch(e){}
   applyTypeUI(); showLoginScreen();
   document.getElementById('loginUser').value = '';
   document.getElementById('loginPass').value = '';
+  showToast('👋 با موفقیت خارج شدید', 'info', 2000);
 }
 
 function enterApp(){
@@ -1407,15 +1542,12 @@ function saveDraft(){
   } catch(e){}
 }
 function clearDraft(t){ try { if(t) localStorage.removeItem(draftKey(t)); else if(currentType) localStorage.removeItem(draftKey(currentType)); } catch(e){} clearTimeout(draftTimer); }
-
-/* ⭐ بازیابی پیش‌نویس */
 function restoreDraft(type){
   try {
     var raw = localStorage.getItem(draftKey(type));
     if(!raw) return false;
     var data = JSON.parse(raw);
     if(!data || data.type !== type) return false;
-    /* پیش‌نویس قدیمی‌تر از ۳۰ روز → دور ریخته شود */
     if(data.ts && (Date.now() - data.ts) > 30 * 24 * 60 * 60 * 1000){
       localStorage.removeItem(draftKey(type));
       return false;
@@ -1450,8 +1582,6 @@ function restoreDraft(type){
     return hasAny;
   } catch(e){ return false; }
 }
-
-/* ⭐ بازیابی + اعمال prefill */
 function tryRestoreDraftAndPrefill(){
   if(editingId !== null || !currentType) return;
   var wasRestored = restoreDraft(currentType);
@@ -1465,7 +1595,6 @@ function tryRestoreDraftAndPrefill(){
     }, 100);
   }
 }
-
 function attachDraftListeners(){ DRAFT_ALL.forEach(function(id){ var el = document.getElementById(id); if(!el) return; el.addEventListener('input', scheduleSaveDraft); el.addEventListener('change', scheduleSaveDraft); }); }
 
 async function switchType(t){
@@ -1968,7 +2097,7 @@ async function removeProduct(){
 }
 
 function generateId(){ var now = Date.now(); return now * 1000 + Math.floor(Math.random() * 1000); }
-function markDirty(){ state.dirty = true; saveDraft(); updateSyncBar(); }
+function markDirty(){ state.dirty = true; saveDraft(); saveLocalState(); updateSyncBar(); }
 
 async function saveRecord(){
   if(!currentType){ showToast('اول یک تب', 'warning'); return; }
@@ -2664,14 +2793,37 @@ window.addEventListener('DOMContentLoaded', function(){
     state.session = sess;
     (async function(){
       try {
+        /* ۱. اول از GitHub تازه بگیر */
         var data = await ghGet();
         if(data){ applyRemoteData(data); state.lastSyncAt = Date.now(); }
+
+        /* ۲. سپس State محلی رو MERGE کن (نه جایگزین) */
+        var pendingRestored = false;
+        if(hasLocalPendingState()){
+          var localPending = loadLocalState();
+          if(localPending){
+            pendingRestored = mergeLocalPendingIntoState(localPending);
+          }
+        }
+
+        /* ۳. مجوزها و session */
         var perm = await checkTokenPermissions();
         state.ghCanWrite = perm ? perm.canWrite : null;
         var u = state.users.filter(function(x){ return x.i === sess.userId && x.a; })[0];
-        if(!u){ clearSession(); state.session = null; showLoginScreen(); return; }
+        if(!u){ clearSession(); state.session = null; clearLocalState(); showLoginScreen(); return; }
         state.session.role = u.r;
+
+        /* ۴. ورود به برنامه */
         enterApp();
+
+        /* ۵. اگه state محلی بازیابی شد، به کاربر خبر بده */
+        if(pendingRestored){
+          setTimeout(function(){
+            showToast('📝 رکوردهای ذخیره‌نشده بازیابی شد — برای امنیت روی «ذخیره» بزن', 'warning', 6000);
+            updateSyncBar();
+          }, 800);
+        }
+
         if(urlPrefill || localStorage.getItem('lab_syrup_prefill')){
           setTimeout(function(){
             switchType('sharbat');
@@ -2687,7 +2839,7 @@ window.addEventListener('DOMContentLoaded', function(){
   document.getElementById('setupToken').addEventListener('keydown', function(e){ if(e.key === 'Enter') saveSetup(); });
 });
 
-console.log('%c🧪 Lab Manager v4.3.1', 'color:#2563eb;font-weight:bold;font-size:14px');
+console.log('%c🧪 Lab Manager v4.3.2 — Local Persistence', 'color:#2563eb;font-weight:bold;font-size:14px');
 </script>
 
 </body>
