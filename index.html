@@ -159,15 +159,14 @@ th{background:var(--subtle-bg);color:var(--muted);font-weight:bold;font-size:12p
 tr:hover td{background:var(--subtle-bg)}
 tr.editing td{background:rgba(245,158,11,.15)!important}
 tr.editing td:first-child{border-right:3px solid var(--warning)}
-/* ⭐ رکوردهای ذخیره‌نشده (pending) */
-tr.pending-row td{background:rgba(250,204,21,.22)!important;box-shadow:inset 0 0 0 1px rgba(245,158,11,.25)}
+/* ⭐ رکوردهای ذخیره‌نشده (pending) — هایلایت ملایم */
+tr.pending-row td{background:rgba(250,204,21,.09)!important;box-shadow:none}
 tr.pending-row td:first-child{border-right:3px solid var(--warning)}
-tr.pending-row:hover td{background:rgba(250,204,21,.32)!important}
-body.dark tr.pending-row td{background:rgba(245,158,11,.16)!important;box-shadow:inset 0 0 0 1px rgba(245,158,11,.3)}
-body.dark tr.pending-row:hover td{background:rgba(245,158,11,.24)!important}
-tr.pending-row td::after{content:''}
+tr.pending-row:hover td{background:rgba(250,204,21,.16)!important}
+body.dark tr.pending-row td{background:rgba(245,158,11,.07)!important;box-shadow:none}
+body.dark tr.pending-row:hover td{background:rgba(245,158,11,.12)!important}
 /* اگه هم pending هم editing */
-tr.pending-row.editing td{background:rgba(250,204,21,.32)!important;box-shadow:inset 0 0 0 1.5px var(--warning)!important}
+tr.pending-row.editing td{background:rgba(250,204,21,.16)!important;box-shadow:inset 0 0 0 1.5px var(--warning)!important}
 .empty{text-align:center;color:var(--muted);padding:16px;font-size:12px}
 .records-table-scroll{max-height:clamp(320px,55vh,720px);overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:8px;position:relative}
 .records-table-scroll table{margin-top:0;border-collapse:separate;border-spacing:0}
@@ -294,6 +293,10 @@ body.dark .maint-box.danger .mb-date{color:#fca5a5}
 .collapsible-header:hover{background:rgba(37,99,235,.06)}
 .collapsible-title{font-size:13px;font-weight:bold;color:var(--primary-dark);display:flex;align-items:center;gap:8px;flex:1}
 .collapsible-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--warning);color:#fff;font-size:11px;font-weight:bold}
+/* ⭐ بج pending روی سربرگ سکشن‌ها */
+.collapsible-badge.pending-badge{background:var(--warning);color:#fff;animation:pendingPulse 2s ease-in-out infinite;font-size:10.5px;padding:0 7px}
+@keyframes pendingPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.6)}50%{box-shadow:0 0 0 5px rgba(245,158,11,0)}}
+body.dark .collapsible-badge.pending-badge{background:#d97706}
 .collapsible-toggle{width:28px;height:28px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--primary-dark);font-size:16px;font-weight:bold;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit;flex-shrink:0}
 .collapsible-toggle:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
 .collapsible-body{padding:12px 14px;border-top:1px solid var(--border)}
@@ -309,8 +312,9 @@ body.dark .maint-box.danger .mb-date{color:#fca5a5}
 
 .deleted-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .deleted-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(220,38,38,.05);border:1.5px solid rgba(220,38,38,.2);position:relative;transition:all .15s}
-.deleted-item.pending-item{background:rgba(250,204,21,.14);border-color:var(--warning);box-shadow:0 0 0 1px rgba(245,158,11,.25) inset}
-body.dark .deleted-item.pending-item{background:rgba(245,158,11,.12)}
+/* ⭐ آیتم حذف‌شده pending — ملایم‌تر */
+.deleted-item.pending-item{background:rgba(250,204,21,.07);border-color:var(--warning);box-shadow:none}
+body.dark .deleted-item.pending-item{background:rgba(245,158,11,.06)}
 .deleted-item .di-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
 .deleted-item .di-icon.ab{background:linear-gradient(135deg,var(--ab-color),#0284c7)}
 .deleted-item .di-icon.sh{background:linear-gradient(135deg,var(--sh-color),#d97706)}
@@ -557,7 +561,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
   <div class="splash-subtitle">مدیریت هوشمند آزمون‌های آب، شربت، راندمان و نگهداری</div>
   <div class="splash-loader"><span></span><span></span><span></span></div>
   <div class="splash-designer"><span class="splash-designer-label">طراح و توسعه‌دهنده</span><span class="splash-designer-name">علی صنوبری</span></div>
-  <div class="splash-version">نسخه ۴.۳.۳</div>
+  <div class="splash-version">نسخه ۴.۳.۴</div>
 </div>
 
 <div class="fullscreen-screen" id="setupScreen" hidden>
@@ -705,7 +709,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
     </div>
   </div>
   <div class="collapsible-section">
-    <div class="collapsible-header" onclick="toggleCollapsible('abSection', event)"><span class="collapsible-title">💧 سوابق آب <span class="badge badge-ab" id="abBadge">۰</span></span><button type="button" class="collapsible-toggle" id="toggleBtnAbSection" onclick="event.stopPropagation();toggleCollapsible('abSection')">+</button></div>
+    <div class="collapsible-header" onclick="toggleCollapsible('abSection', event)"><span class="collapsible-title">💧 سوابق آب <span class="badge badge-ab" id="abBadge">۰</span><span class="collapsible-badge pending-badge" id="abPendingBadge" hidden title="رکورد ذخیره‌نشده"></span></span><button type="button" class="collapsible-toggle" id="toggleBtnAbSection" onclick="event.stopPropagation();toggleCollapsible('abSection')">+</button></div>
     <div class="collapsible-body collapsed" id="abSection">
       <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button type="button" class="btn-print-sm green" onclick="exportCSV('ab')">📊 CSV</button><button type="button" class="btn-print-sm" onclick="printWaterReport()">🖨️ گزارش آب</button></div>
       <div class="records-table-scroll"><table><thead id="abThead"></thead><tbody id="abBody"></tbody></table></div>
@@ -713,7 +717,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
     </div>
   </div>
   <div class="collapsible-section">
-    <div class="collapsible-header" onclick="toggleCollapsible('shSection', event)"><span class="collapsible-title">🍯 سوابق شربت <span class="badge badge-sh" id="shBadge">۰</span></span><button type="button" class="collapsible-toggle" id="toggleBtnShSection" onclick="event.stopPropagation();toggleCollapsible('shSection')">+</button></div>
+    <div class="collapsible-header" onclick="toggleCollapsible('shSection', event)"><span class="collapsible-title">🍯 سوابق شربت <span class="badge badge-sh" id="shBadge">۰</span><span class="collapsible-badge pending-badge" id="shPendingBadge" hidden title="رکورد ذخیره‌نشده"></span></span><button type="button" class="collapsible-toggle" id="toggleBtnShSection" onclick="event.stopPropagation();toggleCollapsible('shSection')">+</button></div>
     <div class="collapsible-body collapsed" id="shSection">
       <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button type="button" class="btn-print-sm green" onclick="exportCSV('sharbat')">📊 CSV</button><button type="button" class="btn-print-sm" onclick="printSharbatReport()">🖨️ گزارش شربت</button></div>
       <div class="records-table-scroll"><table><thead><tr><th>تاریخ</th><th>ساعت</th><th>محصول</th><th>رنگ</th><th>خاکستر (پوآن)</th><th>خاکستر (٪)</th><th>کدورت</th><th>SO₂</th><th>EC</th><th>pH</th><th>توضیحات</th><th></th></tr></thead><tbody id="shBody"></tbody></table></div>
@@ -721,7 +725,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
     </div>
   </div>
   <div class="collapsible-section">
-    <div class="collapsible-header" onclick="toggleCollapsible('effSection', event)"><span class="collapsible-title">📊 سوابق راندمان تولید <span class="badge badge-eff" id="effBadge">۰</span></span><button type="button" class="collapsible-toggle" id="toggleBtnEffSection" onclick="event.stopPropagation();toggleCollapsible('effSection')">+</button></div>
+    <div class="collapsible-header" onclick="toggleCollapsible('effSection', event)"><span class="collapsible-title">📊 سوابق راندمان تولید <span class="badge badge-eff" id="effBadge">۰</span><span class="collapsible-badge pending-badge" id="effPendingBadge" hidden title="رکورد ذخیره‌نشده"></span></span><button type="button" class="collapsible-toggle" id="toggleBtnEffSection" onclick="event.stopPropagation();toggleCollapsible('effSection')">+</button></div>
     <div class="collapsible-body collapsed" id="effSection">
       <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button type="button" class="btn-print-sm green" onclick="exportCSV('eff')">📊 CSV</button><button type="button" class="btn-print-sm purple" onclick="printEffReport()">🖨️ گزارش راندمان</button></div>
       <div class="records-table-scroll"><table><thead id="effThead"></thead><tbody id="effBody"></tbody></table></div>
@@ -729,7 +733,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
     </div>
   </div>
   <div class="collapsible-section">
-    <div class="collapsible-header" onclick="toggleCollapsible('maintSection', event)"><span class="collapsible-title">🔧 سوابق نگهداری <span class="badge badge-maint" id="maintBadge">۰</span></span><button type="button" class="collapsible-toggle" id="toggleBtnMaintSection" onclick="event.stopPropagation();toggleCollapsible('maintSection')">+</button></div>
+    <div class="collapsible-header" onclick="toggleCollapsible('maintSection', event)"><span class="collapsible-title">🔧 سوابق نگهداری <span class="badge badge-maint" id="maintBadge">۰</span><span class="collapsible-badge pending-badge" id="maintPendingBadge" hidden title="رکورد ذخیره‌نشده"></span></span><button type="button" class="collapsible-toggle" id="toggleBtnMaintSection" onclick="event.stopPropagation();toggleCollapsible('maintSection')">+</button></div>
     <div class="collapsible-body collapsed" id="maintSection">
       <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button type="button" class="btn-print-sm green" onclick="exportCSV('maint')">📊 CSV</button><button type="button" class="btn-print-sm purple" onclick="printMaintenanceReport()">🖨️ گزارش نگهداری</button></div>
       <div class="records-table-scroll"><table><thead><tr><th>تاریخ</th><th>ساعت</th><th>نوع</th><th>دستگاه</th><th>توضیحات</th><th></th></tr></thead><tbody id="maintBody"></tbody></table></div>
@@ -737,7 +741,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
     </div>
   </div>
   <div class="collapsible-section">
-    <div class="collapsible-header" onclick="toggleCollapsible('deletedSection', event)"><span class="collapsible-title">🗑️ رکوردهای حذف‌شده<span class="collapsible-badge" id="deletedCountBadge" hidden>۰</span></span><button type="button" class="collapsible-toggle" id="toggleBtnDeletedSection" onclick="event.stopPropagation();toggleCollapsible('deletedSection')">+</button></div>
+    <div class="collapsible-header" onclick="toggleCollapsible('deletedSection', event)"><span class="collapsible-title">🗑️ رکوردهای حذف‌شده<span class="collapsible-badge" id="deletedCountBadge" hidden>۰</span><span class="collapsible-badge pending-badge" id="deletedPendingBadge" hidden title="ذخیره‌نشده"></span></span><button type="button" class="collapsible-toggle" id="toggleBtnDeletedSection" onclick="event.stopPropagation();toggleCollapsible('deletedSection')">+</button></div>
     <div class="collapsible-body collapsed" id="deletedSection">
       <div id="deletedList"></div>
       <button type="button" class="btn-clear-all-deleted" id="btnClearAllDeleted" onclick="clearAllDeleted()">🗑️ پاک کردن همه حذف‌شده‌ها</button>
@@ -865,11 +869,11 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
 
 <script>
 /* ==================================================
-   سیستم مدیریت آزمایشگاه — نسخه ۴.۳.۳
+   سیستم مدیریت آزمایشگاه — نسخه ۴.۳.۴
    ─────────────────────────────────────────────────
-   • نمایش رکوردهای ذخیره‌نشده با هایلایت زرد
+   • هایلایت ملایم رکوردهای ذخیره‌نشده
+   • بج Pending روی سربرگ سکشن‌ها
    • بازیابی State محلی با merge امن
-   • سازگار با Multi-User / Epoch / Tombstone
 ================================================== */
 
 var DATA_FILE = 'data-LMS-v6.json';
@@ -896,7 +900,7 @@ var state = {
   ghFileSha: null,
   ghFileSize: 0,
   ghCanWrite: null,
-  pendingIds: {},   /* ⭐ رکوردهایی که ذخیره‌نشده هستند — { recordId: true } */
+  pendingIds: {},
   maintFields: [
     { key: 'regen', label: 'آخرین احیا', icon: '♻️', warn: 30, danger: 60 },
     { key: 'cip',   label: 'آخرین CIP',  icon: '💧', warn: 20, danger: 45 },
@@ -1211,7 +1215,7 @@ function pendingCount(){
 }
 
 /* ═══════════════════════════════════════════════════════
-   ذخیره/بازیابی State محلی — با احترام به Epoch و Tombstone
+   ذخیره/بازیابی State محلی
 ═══════════════════════════════════════════════════════ */
 function saveLocalState(){
   try {
@@ -1310,7 +1314,6 @@ function mergeLocalPendingIntoState(localPending){
   state.del  = unionArray(state.del, localPending.del);
   if((localPending.epoch || 1) > state.epoch) state.epoch = localPending.epoch;
 
-  /* ⭐ بازیابی پرچم‌های pending */
   if(Array.isArray(localPending._pendingIds)){
     localPending._pendingIds.forEach(function(id){
       if(id != null) state.pendingIds[String(id)] = true;
@@ -2153,7 +2156,7 @@ async function saveRecord(){
         savedId = generateId();
         state.records.unshift(Object.assign({ i: savedId }, rec, { m: Date.now(), x: 0, u: state.session.userId }));
       }
-      markPending(savedId);   /* ⭐ علامت‌گذاری به‌عنوان ذخیره‌نشده */
+      markPending(savedId);
       markDirty(); clearDraft(currentType); clearForm();
       return wasEditing ? 'edited' : 'created';
     };
@@ -2234,7 +2237,7 @@ async function delRecord(id){
   var idx = state.records.findIndex(function(x){ return x.i === id; });
   if(idx !== -1){
     state.records[idx] = Object.assign({}, state.records[idx], { x: 1, m: Date.now() });
-    markPending(id);   /* ⭐ حذف محلی هم pending می‌شود */
+    markPending(id);
     markDirty();
   }
   renderRecords(); renderDeletedList(); renderMaintenanceCard();
@@ -2245,7 +2248,7 @@ async function restoreRecord(id){
   var idx = state.records.findIndex(function(x){ return x.i === id; });
   if(idx !== -1){
     state.records[idx] = Object.assign({}, state.records[idx], { x: 0, m: Date.now() });
-    markPending(id);   /* ⭐ بازگردانی هم pending */
+    markPending(id);
     markDirty();
   }
   renderRecords(); renderDeletedList(); renderMaintenanceCard();
@@ -2255,7 +2258,7 @@ async function permanentlyDelete(id){
   if(!ok) return;
   state.records = state.records.filter(function(x){ return x.i !== id; });
   if(state.del.indexOf(id) === -1) state.del.push(id);
-  markPending(id);   /* ⭐ حتی اگه نمایش داده نشود، به‌عنوان pending علامت‌گذاری می‌شود */
+  markPending(id);
   markDirty(); renderRecords(); renderDeletedList(); renderMaintenanceCard();
 }
 async function clearAllDeleted(){
@@ -2280,9 +2283,12 @@ function renderDeletedList(){
   if(btnClear) btnClear.disabled = (list.length === 0);
   if(!list.length){
     el.innerHTML = '<div class="empty" style="padding:20px">هیچ رکورد حذف‌شده‌ای وجود ندارد</div>';
+    var delBadge = document.getElementById('deletedPendingBadge');
+    if(delBadge){ delBadge.hidden = true; delBadge.textContent = ''; }
     return;
   }
   var canEdit = state.session && state.session.role !== 'viewer';
+  var delPending = 0;
   el.innerHTML = list.map(function(r){
     var typeCls = '', typeIcon = '', title = '';
     if(r.t === 0){ typeCls = 'ab'; typeIcon = '💧'; title = 'آب — ' + (getProductName(r.p) || '—'); }
@@ -2290,7 +2296,9 @@ function renderDeletedList(){
     else if(r.t === 2){ typeCls = 'eff'; typeIcon = '📊'; title = 'راندمان' + (r.ep ? (' — ' + fmtPercent(r.ep)) : ''); }
     else if(r.t === 3){ typeCls = 'maint'; typeIcon = '🔧'; title = (r.mt === 'regen' ? 'احیا' : 'CIP') + ' — ' + (getProductName(r.p) || '—'); }
     var meta = toFa(r.d || '') + ' — ' + toFa(r.h || '');
-    var itemCls = 'deleted-item' + (isPending(r.i) ? ' pending-item' : '');
+    var isP = isPending(r.i);
+    if(isP) delPending++;
+    var itemCls = 'deleted-item' + (isP ? ' pending-item' : '');
     if(!canEdit){
       return '<div class="' + itemCls + '">' +
         '<div class="di-icon ' + typeCls + '">' + typeIcon + '</div>' +
@@ -2306,6 +2314,11 @@ function renderDeletedList(){
       '</div>' +
     '</div>';
   }).join('');
+  var delBadge2 = document.getElementById('deletedPendingBadge');
+  if(delBadge2){
+    if(delPending > 0){ delBadge2.hidden = false; delBadge2.textContent = '● ' + toFa(delPending); }
+    else { delBadge2.hidden = true; delBadge2.textContent = ''; }
+  }
 }
 
 function editRecord(id){
@@ -2459,12 +2472,38 @@ function updateAdvFilterChips(){
 function matchFilter(r){ var q = (document.getElementById('search').value || '').trim(); if(!matchBaseFilter(r)) return false; if(!matchAdvFilter(r)) return false; return smartMatch(r, q); }
 function sortFn(a, b){ return (normalizeDate(b.d) + ' ' + toLatinDigits(b.h || '')).localeCompare(normalizeDate(a.d) + ' ' + toLatinDigits(a.h || '')); }
 
+/* ⭐ به‌روزرسانی بج‌های Pending روی سربرگ سکشن‌ها */
+function updatePendingBadges(){
+  var counts = { ab:0, sh:0, eff:0, maint:0 };
+  state.records.forEach(function(r){
+    if(r.x) return;
+    if(!isPending(r.i)) return;
+    if(r.t === 0) counts.ab++;
+    else if(r.t === 1) counts.sh++;
+    else if(r.t === 2) counts.eff++;
+    else if(r.t === 3) counts.maint++;
+  });
+  var map = { ab:'abPendingBadge', sh:'shPendingBadge', eff:'effPendingBadge', maint:'maintPendingBadge' };
+  Object.keys(map).forEach(function(k){
+    var el = document.getElementById(map[k]);
+    if(!el) return;
+    if(counts[k] > 0){
+      el.hidden = false;
+      el.textContent = '● ' + toFa(counts[k]);
+    } else {
+      el.hidden = true;
+      el.textContent = '';
+    }
+  });
+}
+
 var _renderTimeout = null;
 function renderRecords(){ if(_renderTimeout) clearTimeout(_renderTimeout); _renderTimeout = setTimeout(_doRender, 50); }
 function _doRender(){
   _renderTimeout = null;
   var vis = state.records.filter(function(r){ return !r.x; });
   updateAdvFilterBadge();
+  updatePendingBadges();
   var dfK = getAllDateFieldKeys();
   renderAbThead(dfK); renderEffThead();
   var abL = [], shL = [], effL = [], mntL = [];
@@ -2481,7 +2520,6 @@ function _doRender(){
     if(canEdit){ btns += '<button class="btn btn-warning btn-sm" onclick="editRecord(' + r.i + ')">✏️</button><button class="btn btn-purple btn-sm" onclick="duplicateRecord(' + r.i + ')">📋</button><button class="btn btn-danger btn-sm" onclick="delRecord(' + r.i + ')">🗑️</button>'; }
     return btns;
   };
-  /* ⭐ ساخت کلاس row با در نظر گرفتن pending */
   var rowCls = function(r){
     var cls = '';
     if(editingId === r.i) cls += 'editing ';
@@ -2882,7 +2920,7 @@ window.addEventListener('DOMContentLoaded', function(){
   document.getElementById('setupToken').addEventListener('keydown', function(e){ if(e.key === 'Enter') saveSetup(); });
 });
 
-console.log('%c🧪 Lab Manager v4.3.3 — Pending Highlight', 'color:#2563eb;font-weight:bold;font-size:14px');
+console.log('%c🧪 Lab Manager v4.3.4 — Pending Badges', 'color:#2563eb;font-weight:bold;font-size:14px');
 </script>
 
 </body>
