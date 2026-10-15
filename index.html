@@ -159,6 +159,15 @@ th{background:var(--subtle-bg);color:var(--muted);font-weight:bold;font-size:12p
 tr:hover td{background:var(--subtle-bg)}
 tr.editing td{background:rgba(245,158,11,.15)!important}
 tr.editing td:first-child{border-right:3px solid var(--warning)}
+/* ⭐ رکوردهای ذخیره‌نشده (pending) */
+tr.pending-row td{background:rgba(250,204,21,.22)!important;box-shadow:inset 0 0 0 1px rgba(245,158,11,.25)}
+tr.pending-row td:first-child{border-right:3px solid var(--warning)}
+tr.pending-row:hover td{background:rgba(250,204,21,.32)!important}
+body.dark tr.pending-row td{background:rgba(245,158,11,.16)!important;box-shadow:inset 0 0 0 1px rgba(245,158,11,.3)}
+body.dark tr.pending-row:hover td{background:rgba(245,158,11,.24)!important}
+tr.pending-row td::after{content:''}
+/* اگه هم pending هم editing */
+tr.pending-row.editing td{background:rgba(250,204,21,.32)!important;box-shadow:inset 0 0 0 1.5px var(--warning)!important}
 .empty{text-align:center;color:var(--muted);padding:16px;font-size:12px}
 .records-table-scroll{max-height:clamp(320px,55vh,720px);overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:8px;position:relative}
 .records-table-scroll table{margin-top:0;border-collapse:separate;border-spacing:0}
@@ -299,7 +308,9 @@ body.dark .maint-box.danger .mb-date{color:#fca5a5}
 .adv-chip .chip-remove{background:transparent;border:none;color:var(--primary);font-size:14px;cursor:pointer;padding:0;font-weight:bold;font-family:inherit}
 
 .deleted-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.deleted-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(220,38,38,.05);border:1.5px solid rgba(220,38,38,.2);position:relative}
+.deleted-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(220,38,38,.05);border:1.5px solid rgba(220,38,38,.2);position:relative;transition:all .15s}
+.deleted-item.pending-item{background:rgba(250,204,21,.14);border-color:var(--warning);box-shadow:0 0 0 1px rgba(245,158,11,.25) inset}
+body.dark .deleted-item.pending-item{background:rgba(245,158,11,.12)}
 .deleted-item .di-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
 .deleted-item .di-icon.ab{background:linear-gradient(135deg,var(--ab-color),#0284c7)}
 .deleted-item .di-icon.sh{background:linear-gradient(135deg,var(--sh-color),#d97706)}
@@ -546,7 +557,7 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
   <div class="splash-subtitle">مدیریت هوشمند آزمون‌های آب، شربت، راندمان و نگهداری</div>
   <div class="splash-loader"><span></span><span></span><span></span></div>
   <div class="splash-designer"><span class="splash-designer-label">طراح و توسعه‌دهنده</span><span class="splash-designer-name">علی صنوبری</span></div>
-  <div class="splash-version">نسخه ۴.۳.۲</div>
+  <div class="splash-version">نسخه ۴.۳.۳</div>
 </div>
 
 <div class="fullscreen-screen" id="setupScreen" hidden>
@@ -854,11 +865,11 @@ tr.deleted-row td:last-child{text-decoration:none;opacity:1}
 
 <script>
 /* ==================================================
-   سیستم مدیریت آزمایشگاه — نسخه ۴.۳.۲
+   سیستم مدیریت آزمایشگاه — نسخه ۴.۳.۳
    ─────────────────────────────────────────────────
-   • بازیابی State محلی (Local Persistence) با merge امن
+   • نمایش رکوردهای ذخیره‌نشده با هایلایت زرد
+   • بازیابی State محلی با merge امن
    • سازگار با Multi-User / Epoch / Tombstone
-   • پاک‌سازی کامل بعد از Push موفق، Pull موفق و Logout
 ================================================== */
 
 var DATA_FILE = 'data-LMS-v6.json';
@@ -885,6 +896,7 @@ var state = {
   ghFileSha: null,
   ghFileSize: 0,
   ghCanWrite: null,
+  pendingIds: {},   /* ⭐ رکوردهایی که ذخیره‌نشده هستند — { recordId: true } */
   maintFields: [
     { key: 'regen', label: 'آخرین احیا', icon: '♻️', warn: 30, danger: 60 },
     { key: 'cip',   label: 'آخرین CIP',  icon: '💧', warn: 20, danger: 45 },
@@ -1177,12 +1189,29 @@ function buildPayload(){
 }
 
 /* ═══════════════════════════════════════════════════════
-   ذخیره/بازیابی State محلی — ایمن در برابر Multi-User
-   ─────────────────────────────────────────────────────
-   • فقط در حالت dirty ذخیره می‌شود
-   • هنگام بازیابی، MERGE می‌شود (نه replace)
-   • Epoch, Tombstone, del همه رعایت می‌شوند
-   • با Push موفق / Pull موفق / Logout پاک می‌شود
+   Pending Records — برای هایلایت زرد رکوردهای ذخیره‌نشده
+═══════════════════════════════════════════════════════ */
+function markPending(id){
+  if(id == null) return;
+  state.pendingIds[String(id)] = true;
+}
+function unmarkPending(id){
+  if(id == null) return;
+  delete state.pendingIds[String(id)];
+}
+function isPending(id){
+  if(id == null) return false;
+  return !!state.pendingIds[String(id)];
+}
+function clearAllPending(){
+  state.pendingIds = {};
+}
+function pendingCount(){
+  return Object.keys(state.pendingIds).length;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ذخیره/بازیابی State محلی — با احترام به Epoch و Tombstone
 ═══════════════════════════════════════════════════════ */
 function saveLocalState(){
   try {
@@ -1191,6 +1220,7 @@ function saveLocalState(){
     var payload = buildPayload();
     payload._savedAt = Date.now();
     payload._userId = state.session.userId;
+    payload._pendingIds = Object.keys(state.pendingIds);
     localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(payload));
   } catch(e){ console.error('saveLocalState:', e); }
 }
@@ -1209,6 +1239,7 @@ function loadLocalState(){
 }
 function clearLocalState(){
   try { localStorage.removeItem(LOCAL_STATE_KEY); } catch(e){}
+  clearAllPending();
 }
 function hasLocalPendingState(){
   try {
@@ -1235,7 +1266,6 @@ function mergeLocalPendingIntoState(localPending){
   if(!state.session) return false;
   if(localPending._userId !== state.session.userId) return false;
 
-  /* چک Epoch: اگر DB ریست شده، localPending بی‌اعتبار است */
   var remoteEpoch = state.epoch || 1;
   var localEpoch  = localPending.epoch || 1;
   if(localEpoch < remoteEpoch){
@@ -1243,21 +1273,16 @@ function mergeLocalPendingIntoState(localPending){
     return false;
   }
 
-  /* محصولات آب */
   state.products.ab = mergeAbProducts(
     normalizeAbProductList((localPending.products && localPending.products.ab) || []),
     state.products.ab,
     state.tomb
   );
-
-  /* محصولات شربت */
   state.products.sh = mergeWithTombstone(
     normalizeShProductList((localPending.products && localPending.products.sh) || []),
     state.products.sh,
     state.tomb.p_sh
   );
-
-  /* گروه‌ها و دستگاه‌های راندمان */
   state.effGroups = mergeWithTombstone(
     normalizeEffGroups(localPending.effGroups || []),
     state.effGroups,
@@ -1268,16 +1293,12 @@ function mergeLocalPendingIntoState(localPending){
     state.effDevices,
     state.tomb.ed
   );
-
-  /* رکوردها — LWW با m، tie به‌نفع localPending */
   state.records = mergeRecordsById(
     (localPending.records || []).map(normalizeRecord).filter(Boolean),
     state.records,
     state.del,
     state.tomb
   );
-
-  /* کاربران */
   if(Array.isArray(localPending.users)){
     state.users = mergeWithTombstone(
       localPending.users.map(normalizeUser),
@@ -1285,12 +1306,16 @@ function mergeLocalPendingIntoState(localPending){
       state.tomb.us
     );
   }
-
-  /* Tombstoneها: union */
   state.tomb = unionTombstones(state.tomb, localPending.tomb);
   state.del  = unionArray(state.del, localPending.del);
-
   if((localPending.epoch || 1) > state.epoch) state.epoch = localPending.epoch;
+
+  /* ⭐ بازیابی پرچم‌های pending */
+  if(Array.isArray(localPending._pendingIds)){
+    localPending._pendingIds.forEach(function(id){
+      if(id != null) state.pendingIds[String(id)] = true;
+    });
+  }
 
   state.dirty = true;
   return true;
@@ -1339,7 +1364,12 @@ function updateSyncBar(status, msg){
   if(status === 'error'){ s.className = 'sync-bar-status error'; s.textContent = '❌ ' + (msg || 'خطا'); pb.disabled = !hasT; ps.disabled = !hasT || ro || !canEdit; return; }
   if(!hasT){ s.className = 'sync-bar-status error'; s.textContent = '⚪ تنظیمات GitHub یافت نشد'; pb.disabled = true; ps.disabled = true; return; }
   if(ro){ s.className = 'sync-bar-status readonly'; s.textContent = '🔒 توکن فقط خواندنی'; pb.disabled = false; ps.disabled = true; return; }
-  if(state.dirty){ s.className = 'sync-bar-status dirty'; s.textContent = '🟠 تغییرات ذخیره‌نشده'; pb.disabled = !canEdit; ps.disabled = !canEdit; return; }
+  if(state.dirty){
+    var pc = pendingCount();
+    s.className = 'sync-bar-status dirty';
+    s.textContent = '🟠 تغییرات ذخیره‌نشده' + (pc > 0 ? (' — ' + toFa(pc) + ' رکورد') : '');
+    pb.disabled = !canEdit; ps.disabled = !canEdit; return;
+  }
   s.className = 'sync-bar-status synced';
   var t = state.lastSyncAt ? toFa(new Date(state.lastSyncAt).toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })) : '';
   s.textContent = '🟢 ذخیره شده' + (t ? (' — ' + t) : '');
@@ -1391,6 +1421,7 @@ async function syncPush(){
     state.dirty = false; state.lastSyncAt = Date.now(); state.ghCanWrite = true;
     clearLocalState();
     updateSyncBar();
+    renderRecords();
     showToast('✅ ذخیره شد', 'success');
   } catch(e){
     console.error('syncPush error:', e);
@@ -1464,13 +1495,12 @@ async function doLogout(){
     var ch = await customConfirm('تغییرات ذخیره‌نشده دارید. ذخیره شود؟', { okText:'ذخیره و خروج', cancelText:'خروج بدون ذخیره' });
     if(ch) await syncPush();
   }
-  /* ⭐ پاک کردن کامل داده‌های محلی هنگام خروج */
   clearLocalState();
   clearSession();
   state.session = null;
+  state.pendingIds = {};
   editingId = null; currentType = null;
   try {
-    /* پاک کردن draft ها */
     Object.keys(localStorage).forEach(function(k){
       if(k.indexOf(DRAFT_PREFIX) === 0 || k === 'lab_syrup_prefill'){
         localStorage.removeItem(k);
@@ -2112,14 +2142,18 @@ async function saveRecord(){
   try {
     var upsert = function(rec){
       var wasEditing = (editingId !== null);
+      var savedId;
       if(wasEditing){
         var idx = state.records.findIndex(function(r){ return r.i === editingId; });
         if(idx === -1){ showToast('یافت نشد', 'error'); editingId = null; applyTypeUI(); return false; }
+        savedId = editingId;
         state.records[idx] = Object.assign({}, state.records[idx], rec, { m: Date.now() });
         editingId = null;
       } else {
-        state.records.unshift(Object.assign({ i: generateId() }, rec, { m: Date.now(), x: 0, u: state.session.userId }));
+        savedId = generateId();
+        state.records.unshift(Object.assign({ i: savedId }, rec, { m: Date.now(), x: 0, u: state.session.userId }));
       }
+      markPending(savedId);   /* ⭐ علامت‌گذاری به‌عنوان ذخیره‌نشده */
       markDirty(); clearDraft(currentType); clearForm();
       return wasEditing ? 'edited' : 'created';
     };
@@ -2198,14 +2232,22 @@ async function delRecord(id){
   var ok = await customConfirm('این رکورد حذف شود؟', { okText: 'حذف', danger: true });
   if(!ok) return;
   var idx = state.records.findIndex(function(x){ return x.i === id; });
-  if(idx !== -1){ state.records[idx] = Object.assign({}, state.records[idx], { x: 1, m: Date.now() }); markDirty(); }
+  if(idx !== -1){
+    state.records[idx] = Object.assign({}, state.records[idx], { x: 1, m: Date.now() });
+    markPending(id);   /* ⭐ حذف محلی هم pending می‌شود */
+    markDirty();
+  }
   renderRecords(); renderDeletedList(); renderMaintenanceCard();
 }
 async function restoreRecord(id){
   var ok = await customConfirm('بازگردانی شود؟', { okText: 'بازگردانی' });
   if(!ok) return;
   var idx = state.records.findIndex(function(x){ return x.i === id; });
-  if(idx !== -1){ state.records[idx] = Object.assign({}, state.records[idx], { x: 0, m: Date.now() }); markDirty(); }
+  if(idx !== -1){
+    state.records[idx] = Object.assign({}, state.records[idx], { x: 0, m: Date.now() });
+    markPending(id);   /* ⭐ بازگردانی هم pending */
+    markDirty();
+  }
   renderRecords(); renderDeletedList(); renderMaintenanceCard();
 }
 async function permanentlyDelete(id){
@@ -2213,6 +2255,7 @@ async function permanentlyDelete(id){
   if(!ok) return;
   state.records = state.records.filter(function(x){ return x.i !== id; });
   if(state.del.indexOf(id) === -1) state.del.push(id);
+  markPending(id);   /* ⭐ حتی اگه نمایش داده نشود، به‌عنوان pending علامت‌گذاری می‌شود */
   markDirty(); renderRecords(); renderDeletedList(); renderMaintenanceCard();
 }
 async function clearAllDeleted(){
@@ -2221,7 +2264,7 @@ async function clearAllDeleted(){
   var ok = await customConfirm('⚠️ ' + toFa(c) + ' رکورد حذف‌شده برای همیشه پاک شوند؟', { okText: 'پاک کن', danger: true });
   if(!ok) return;
   var ids = state.records.filter(function(r){ return r.x; }).map(function(r){ return r.i; });
-  ids.forEach(function(id){ if(state.del.indexOf(id) === -1) state.del.push(id); });
+  ids.forEach(function(id){ if(state.del.indexOf(id) === -1) state.del.push(id); markPending(id); });
   state.records = state.records.filter(function(r){ return !r.x; });
   markDirty(); renderRecords(); renderDeletedList();
 }
@@ -2247,13 +2290,14 @@ function renderDeletedList(){
     else if(r.t === 2){ typeCls = 'eff'; typeIcon = '📊'; title = 'راندمان' + (r.ep ? (' — ' + fmtPercent(r.ep)) : ''); }
     else if(r.t === 3){ typeCls = 'maint'; typeIcon = '🔧'; title = (r.mt === 'regen' ? 'احیا' : 'CIP') + ' — ' + (getProductName(r.p) || '—'); }
     var meta = toFa(r.d || '') + ' — ' + toFa(r.h || '');
+    var itemCls = 'deleted-item' + (isPending(r.i) ? ' pending-item' : '');
     if(!canEdit){
-      return '<div class="deleted-item">' +
+      return '<div class="' + itemCls + '">' +
         '<div class="di-icon ' + typeCls + '">' + typeIcon + '</div>' +
         '<div class="di-body"><div class="di-title">' + esc(title) + '</div><div class="di-meta">' + esc(meta) + '</div></div>' +
       '</div>';
     }
-    return '<div class="deleted-item">' +
+    return '<div class="' + itemCls + '">' +
       '<div class="di-icon ' + typeCls + '">' + typeIcon + '</div>' +
       '<div class="di-body"><div class="di-title">' + esc(title) + '</div><div class="di-meta">' + esc(meta) + '</div></div>' +
       '<div class="di-actions">' +
@@ -2437,13 +2481,19 @@ function _doRender(){
     if(canEdit){ btns += '<button class="btn btn-warning btn-sm" onclick="editRecord(' + r.i + ')">✏️</button><button class="btn btn-purple btn-sm" onclick="duplicateRecord(' + r.i + ')">📋</button><button class="btn btn-danger btn-sm" onclick="delRecord(' + r.i + ')">🗑️</button>'; }
     return btns;
   };
+  /* ⭐ ساخت کلاس row با در نظر گرفتن pending */
+  var rowCls = function(r){
+    var cls = '';
+    if(editingId === r.i) cls += 'editing ';
+    if(isPending(r.i)) cls += 'pending-row ';
+    return cls;
+  };
   var abB = document.getElementById('abBody');
   document.getElementById('abBadge').textContent = toFa(abL.length);
   if(abL.length){
     abB.innerHTML = abL.map(function(r){
-      var cls = (editingId === r.i ? 'editing ' : '');
       var dfc = dfK.map(function(k){ var v = r.dv ? r.dv[k] : ''; return '<td class="dv-cell">' + (v ? esc(toFa(v)) : '-') + '</td>'; }).join('');
-      return '<tr class="' + cls + '"><td>' + esc(toFa(r.d)) + '</td><td>' + esc(toFa(r.h)) + '</td><td><b>' + esc(getProductName(r.p) || '-') + '</b></td><td>' + esc(fmtNum(r.hd)) + '</td><td>' + esc(fmtNum(r.ec)) + '</td><td>' + esc(fmtNum(r.td)) + '</td><td>' + esc(fmtNum(r.ph)) + '</td><td>' + esc(r.sg || '') + '</td>' + dfc + '<td>' + esc(r.n || '') + '</td><td><div class="row-btns">' + buildBtns(r) + '</div></td></tr>';
+      return '<tr class="' + rowCls(r) + '"><td>' + esc(toFa(r.d)) + '</td><td>' + esc(toFa(r.h)) + '</td><td><b>' + esc(getProductName(r.p) || '-') + '</b></td><td>' + esc(fmtNum(r.hd)) + '</td><td>' + esc(fmtNum(r.ec)) + '</td><td>' + esc(fmtNum(r.td)) + '</td><td>' + esc(fmtNum(r.ph)) + '</td><td>' + esc(r.sg || '') + '</td>' + dfc + '<td>' + esc(r.n || '') + '</td><td><div class="row-btns">' + buildBtns(r) + '</div></td></tr>';
     }).join('');
     document.getElementById('abEmpty').style.display = 'none';
   } else { abB.innerHTML = ''; document.getElementById('abEmpty').textContent = hasF ? 'موردی نیست' : 'هنوز سابقه‌ای ثبت نشده'; document.getElementById('abEmpty').style.display = 'block'; }
@@ -2451,8 +2501,7 @@ function _doRender(){
   document.getElementById('shBadge').textContent = toFa(shL.length);
   if(shL.length){
     shB.innerHTML = shL.map(function(r){
-      var cls = (editingId === r.i ? 'editing ' : '');
-      return '<tr class="' + cls + '"><td>' + esc(toFa(r.d)) + '</td><td>' + esc(toFa(r.h)) + '</td><td><b>' + esc(getShProductName(r.p) || '-') + '</b></td><td>' + esc(fmtNum(r.cl)) + '</td><td>' + esc(fmtNum(r.as)) + '</td><td>' + esc(fmtNum(r.aspct)) + '</td><td>' + esc(fmtNum(r.tb)) + '</td><td>' + esc(fmtNum(r.so)) + '</td><td>' + esc(fmtNum(r.ec2)) + '</td><td>' + esc(fmtNum(r.ph2)) + '</td><td>' + esc(r.n || '') + '</td><td><div class="row-btns">' + buildBtns(r) + '</div></td></tr>';
+      return '<tr class="' + rowCls(r) + '"><td>' + esc(toFa(r.d)) + '</td><td>' + esc(toFa(r.h)) + '</td><td><b>' + esc(getShProductName(r.p) || '-') + '</b></td><td>' + esc(fmtNum(r.cl)) + '</td><td>' + esc(fmtNum(r.as)) + '</td><td>' + esc(fmtNum(r.aspct)) + '</td><td>' + esc(fmtNum(r.tb)) + '</td><td>' + esc(fmtNum(r.so)) + '</td><td>' + esc(fmtNum(r.ec2)) + '</td><td>' + esc(fmtNum(r.ph2)) + '</td><td>' + esc(r.n || '') + '</td><td><div class="row-btns">' + buildBtns(r) + '</div></td></tr>';
     }).join('');
     document.getElementById('shEmpty').style.display = 'none';
   } else { shB.innerHTML = ''; document.getElementById('shEmpty').textContent = hasF ? 'موردی نیست' : 'هنوز سابقه‌ای ثبت نشده'; document.getElementById('shEmpty').style.display = 'block'; }
@@ -2460,13 +2509,12 @@ function _doRender(){
   document.getElementById('effBadge').textContent = toFa(effL.length);
   if(effL.length){
     efB.innerHTML = effL.map(function(r){
-      var cls = (editingId === r.i ? 'editing ' : '');
       var eff = parseFloat(toLatinDigits(String(r.ep || '')));
       var eC = (isNaN(eff) ? '' : (eff >= 70 ? 'eff-badge-good' : (eff >= 50 ? 'eff-badge-mid' : 'eff-badge-bad')));
       var eS = r.ep ? fmtPercent(r.ep) : '—';
       var wS = r.wp ? fmtPercent(r.wp) : '—';
       var devCols = state.effDevices.map(function(d){ var v = getDeviceWasteValue(r, d.i); if(v === null || v === undefined) return '<td class="eff-dev-cell zero">-</td>'; return '<td class="eff-dev-cell">' + esc(fmtPercent(v)) + '</td>'; }).join('');
-      return '<tr class="' + cls + '"><td>' + esc(toFa(r.d)) + '</td><td>' + esc(toFa(r.h)) + '</td>' + devCols + '<td><span class="eff-badge ' + eC + '">' + esc(eS) + '</span></td><td>' + esc(wS) + '</td><td>' + esc(r.n || '') + '</td><td><div class="row-btns">' + buildBtns(r) + '</div></td></tr>';
+      return '<tr class="' + rowCls(r) + '"><td>' + esc(toFa(r.d)) + '</td><td>' + esc(toFa(r.h)) + '</td>' + devCols + '<td><span class="eff-badge ' + eC + '">' + esc(eS) + '</span></td><td>' + esc(wS) + '</td><td>' + esc(r.n || '') + '</td><td><div class="row-btns">' + buildBtns(r) + '</div></td></tr>';
     }).join('');
     document.getElementById('effEmpty').style.display = 'none';
   } else { efB.innerHTML = ''; document.getElementById('effEmpty').textContent = hasF ? 'موردی نیست' : 'هنوز سابقه‌ای ثبت نشده'; document.getElementById('effEmpty').style.display = 'block'; }
@@ -2474,10 +2522,9 @@ function _doRender(){
   document.getElementById('maintBadge').textContent = toFa(mntL.length);
   if(mntL.length){
     mnB.innerHTML = mntL.map(function(r){
-      var cls = (editingId === r.i ? 'editing ' : '');
       var tl = r.mt === 'regen' ? '♻️ احیا' : (r.mt === 'cip' ? 'CIP' : r.mt);
       var tc = r.mt === 'regen' ? 'maint-type-regen' : 'maint-type-cip';
-      return '<tr class="' + cls + '"><td>' + esc(toFa(r.d)) + '</td><td>' + esc(toFa(r.h)) + '</td><td><span class="maint-type-badge ' + tc + '">' + esc(tl) + '</span></td><td><b>' + esc(getProductName(r.p) || '-') + '</b></td><td>' + esc(r.n || '') + '</td><td><div class="row-btns">' + buildBtns(r) + '</div></td></tr>';
+      return '<tr class="' + rowCls(r) + '"><td>' + esc(toFa(r.d)) + '</td><td>' + esc(toFa(r.h)) + '</td><td><span class="maint-type-badge ' + tc + '">' + esc(tl) + '</span></td><td><b>' + esc(getProductName(r.p) || '-') + '</b></td><td>' + esc(r.n || '') + '</td><td><div class="row-btns">' + buildBtns(r) + '</div></td></tr>';
     }).join('');
     document.getElementById('maintEmpty').style.display = 'none';
   } else { mnB.innerHTML = ''; document.getElementById('maintEmpty').textContent = hasF ? 'موردی نیست' : 'هنوز سابقه‌ای ثبت نشده'; document.getElementById('maintEmpty').style.display = 'block'; }
@@ -2793,11 +2840,9 @@ window.addEventListener('DOMContentLoaded', function(){
     state.session = sess;
     (async function(){
       try {
-        /* ۱. اول از GitHub تازه بگیر */
         var data = await ghGet();
         if(data){ applyRemoteData(data); state.lastSyncAt = Date.now(); }
 
-        /* ۲. سپس State محلی رو MERGE کن (نه جایگزین) */
         var pendingRestored = false;
         if(hasLocalPendingState()){
           var localPending = loadLocalState();
@@ -2806,20 +2851,18 @@ window.addEventListener('DOMContentLoaded', function(){
           }
         }
 
-        /* ۳. مجوزها و session */
         var perm = await checkTokenPermissions();
         state.ghCanWrite = perm ? perm.canWrite : null;
         var u = state.users.filter(function(x){ return x.i === sess.userId && x.a; })[0];
         if(!u){ clearSession(); state.session = null; clearLocalState(); showLoginScreen(); return; }
         state.session.role = u.r;
 
-        /* ۴. ورود به برنامه */
         enterApp();
 
-        /* ۵. اگه state محلی بازیابی شد، به کاربر خبر بده */
         if(pendingRestored){
           setTimeout(function(){
-            showToast('📝 رکوردهای ذخیره‌نشده بازیابی شد — برای امنیت روی «ذخیره» بزن', 'warning', 6000);
+            var pc = pendingCount();
+            showToast('📝 ' + toFa(pc) + ' رکورد ذخیره‌نشده بازیابی شد — برای امنیت روی «ذخیره» بزن', 'warning', 6000);
             updateSyncBar();
           }, 800);
         }
@@ -2839,7 +2882,7 @@ window.addEventListener('DOMContentLoaded', function(){
   document.getElementById('setupToken').addEventListener('keydown', function(e){ if(e.key === 'Enter') saveSetup(); });
 });
 
-console.log('%c🧪 Lab Manager v4.3.2 — Local Persistence', 'color:#2563eb;font-weight:bold;font-size:14px');
+console.log('%c🧪 Lab Manager v4.3.3 — Pending Highlight', 'color:#2563eb;font-weight:bold;font-size:14px');
 </script>
 
 </body>
