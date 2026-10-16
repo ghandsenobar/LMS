@@ -1,7 +1,7 @@
 {
   "v": 7,
   "epoch": 1,
-  "ts": "2026-10-16T22:38:22.077Z",
+  "ts": "2026-10-16T22:39:22.867Z",
   "by": 1,
   "users": [
     {
@@ -111,10 +111,21 @@
   "labEquipment": [
     {
       "i": 501001,
-      "n": "Ph متر"
+      "n": "pH متر"
     }
   ],
-  "maintCards": [],
+  "maintCards": [
+    {
+      "i": 1792190334512903,
+      "eid": 501001,
+      "etype": "lab",
+      "action": "calibration",
+      "title": "",
+      "icon": "🔬",
+      "warn": 5,
+      "danger": 7
+    }
+  ],
   "records": [
     {
       "i": 1791970497246,
