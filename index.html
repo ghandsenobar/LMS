@@ -2174,96 +2174,299 @@ function setPrintPageRule(r){ var old=document.getElementById('__dyn_page_style_
 function buildPdfFileName(ctx){
   var today = todayJalali().replace(/\//g, '-');
   var name = '';
-  if(!ctx){ name = 'گزارش'; }
-  else if(ctx.reportType === 'single' && ctx.recordType !== undefined){
-    var rt = ctx.recordType;
-    if(rt === 0 || rt === 1){ name = ctx.productName || 'گزارش'; }
-    else if(rt === 2){ name = 'گزارش-راندمان'; }
-    else if(rt === 3){ name = ctx.productName || 'گزارش-نگهداری'; }
-    else { name = 'گزارش'; }
+  
+  if(!ctx){
+    return 'گزارش-' + today + '.pdf';
+  }
+  
+  if(ctx.reportType === 'single' && ctx.record){
+    var r = ctx.record;
+    if(r.t === 0 || r.t === 1){
+      name = (r.t === 0 ? getProductName(r.p) : getShProductName(r.p)) || 'گزارش';
+    } else if(r.t === 2){
+      name = 'گزارش-راندمان';
+    } else if(r.t === 3){
+      name = getEquipmentName(r.p, r.et) || 'گزارش-نگهداری';
+    } else {
+      name = 'گزارش';
+    }
   } else {
     var typeNames = { 'water':'آب', 'sharbat':'شربت', 'eff':'راندمان', 'maint':'نگهداری' };
     name = 'گزارش-' + (typeNames[ctx.reportType] || 'گزارش');
   }
+  
   name = String(name)
     .replace(/[\\\/:*?"<>|]/g, '')
     .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
     .trim();
+  
   if(name.length > 40) name = name.substring(0, 40);
   return name + '-' + today + '.pdf';
 }
 
+
+
+
+
+//--------------------------
+function buildReportHtmlForPdf(ctx){
+  if(!ctx) return null;
+  var type = ctx.reportType;
+  var today = todayJalali();
+  
+  var wrapStyle = 'direction:rtl;text-align:right;font-family:Tahoma,sans-serif;color:#000;background:#fff;padding:8mm 5mm;width:100%;box-sizing:border-box;';
+  var headStyle = 'text-align:center;margin-bottom:6px;';
+  var companyStyle = 'font-size:15px;font-weight:900;margin-bottom:2px;';
+  var factoryStyle = 'font-size:12px;font-weight:bold;';
+  var titleStyle = 'font-size:13px;font-weight:900;text-align:center;margin:6px 0 4px;';
+  var metaStyle = 'text-align:center;font-size:9px;color:#333;margin-bottom:8px;border-bottom:1px solid #999;padding-bottom:3px;';
+  var tblStyle = 'width:100%;border-collapse:collapse;table-layout:fixed;direction:rtl;font-size:8px;';
+  var thStyle = 'border:1px solid #888;padding:3px 2px;background:#eee;text-align:center;font-weight:900;font-size:7.5px;word-wrap:break-word;';
+  var tdStyle = 'border:1px solid #888;padding:2px 1px;text-align:center;font-size:7.5px;word-wrap:break-word;';
+  var tdRight = 'border:1px solid #888;padding:2px 1px;text-align:right;font-size:7.5px;word-wrap:break-word;';
+  
+  var header = '<div style="'+headStyle+'"><div style="'+companyStyle+'">'+esc(companyName)+'</div><div style="'+factoryStyle+'">'+esc(factoryName)+'</div></div>';
+  var meta = '<div style="'+metaStyle+'">تاریخ چاپ: '+today+'</div>';
+  var sigBox = '<div style="display:flex;justify-content:space-between;margin-top:10mm;"><div style="width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:9px;font-weight:bold;"><div style="height:8mm;"></div>نام و امضاء مسئول آزمایشگاه</div><div style="width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:9px;font-weight:bold;"><div style="height:8mm;"></div>روز / ماه / سال</div></div>';
+  var footer = '<div style="text-align:center;font-size:7px;margin-top:4mm;border-top:1px dashed #999;padding-top:2mm;">تاریخ چاپ: '+today+' — نسخه ۵.۳.۳</div>';
+  
+  // ═══ تک‌رکورد ═══
+  if(type === 'single'){
+    var r = ctx.record;
+    if(!r) return null;
+    
+    var titleText = '', productName = '';
+    if(r.t === 0){ productName = getProductName(r.p); titleText = 'آنالیز RO' + (productName ? ' — ' + productName : ''); }
+    else if(r.t === 1){ productName = getShProductName(r.p); titleText = 'آنالیز قند' + (productName ? ' — ' + productName : ''); }
+    else if(r.t === 2){ titleText = 'راندمان تولید'; }
+    else if(r.t === 3){ productName = getEquipmentName(r.p, r.et); titleText = 'گزارش نگهداری' + (productName ? ' — ' + productName : ''); }
+    
+    var h = '<div style="'+wrapStyle+'">' + header + '<div style="'+titleStyle+'">'+esc(titleText)+'</div>';
+    var metaLine = '📅 ' + esc(toFa(r.d)) + ' &nbsp;&nbsp; 🕐 ' + esc(toFa(r.h));
+    if(productName) metaLine += ' &nbsp;&nbsp; 📦 ' + esc(productName);
+    h += '<div style="text-align:center;font-size:9px;margin-bottom:8px;border-bottom:1px solid #999;padding-bottom:3px;">'+metaLine+'</div>';
+    
+    if(r.t === 0 || r.t === 1){
+      var paramDefs = [];
+      if(r.t === 0){
+        paramDefs = [
+          {val:r.hd, label:'سختی', unit:'mg/L'}, {val:r.ec, label:'EC', unit:'μS/cm'},
+          {val:r.td, label:'TDS', unit:'ppm'}, {val:r.ph, label:'pH', unit:''}
+        ];
+        if(r.sg) paramDefs.push({val:r.sg, label:'املاح قندی', unit:''});
+        var prod = state.products.ab.filter(function(p){ return p.i===r.p; })[0];
+        if(prod && prod.df) prod.df.forEach(function(f){
+          var v = r.dv ? r.dv[f.k] : '';
+          if(v) paramDefs.push({ val:v, label:f.l, unit:'', isDate:true });
+        });
+      } else {
+        paramDefs = [
+          {val:r.br, label:'بریکس', unit:'٪'}, {val:r.ec2, label:'EC', unit:'μS/cm'},
+          {val:r.cl, label:'رنگ', unit:'پوآن'}, {val:r.as, label:'خاکستر (پوآن)', unit:'پوآن'},
+          {val:r.aspct, label:'خاکستر (وزنی)', unit:'٪'}, {val:r.tb, label:'کدورت', unit:'IU'},
+          {val:r.so, label:'SO₂', unit:'ppm'}, {val:r.ph2, label:'pH', unit:''}
+        ];
+      }
+      h += '<table style="'+tblStyle+'"><colgroup><col style="width:40%"><col style="width:60%"></colgroup><thead><tr><th style="'+thStyle+'">پارامتر</th><th style="'+thStyle+'">مقدار</th></tr></thead><tbody>';
+      paramDefs.forEach(function(p){
+        if(p.val === undefined || p.val === '' || p.val === null) return;
+        var dv = p.isDate ? esc(toFa(p.val)) : esc(fmtNum(p.val));
+        h += '<tr><td style="'+tdRight+';font-weight:bold;">'+esc(p.label)+'</td><td style="'+tdStyle+'">'+dv+' '+(p.unit ? '<span style="font-size:7px;">'+esc(p.unit)+'</span>' : '')+'</td></tr>';
+      });
+      h += '</tbody></table>';
+    } else if(r.t === 2){
+      h += '<table style="'+tblStyle+'"><colgroup><col style="width:60%"><col style="width:40%"></colgroup><thead><tr><th style="'+thStyle+'">دستگاه / مرحله</th><th style="'+thStyle+'">درصد ضایعات</th></tr></thead><tbody>';
+      state.effDevices.forEach(function(d){ var v = getDeviceWasteValue(r, d.i); if(v!==null) h += '<tr><td style="'+tdRight+';font-weight:bold;">'+esc(getFullDeviceName(d.i))+'</td><td style="'+tdStyle+'">'+fmtPercent(v)+'</td></tr>'; });
+      h += '<tr><td style="'+tdRight+';font-weight:900;">ضایعات کل</td><td style="'+tdStyle+';font-weight:900;">'+fmtPercent(r.wp)+'</td></tr></tbody></table>';
+    } else if(r.t === 3){
+      var ai = MAINT_ACTIONS[r.mt] || { label: r.mt };
+      h += '<table style="'+tblStyle+'"><colgroup><col style="width:40%"><col style="width:60%"></colgroup><thead><tr><th style="'+thStyle+'">شرح</th><th style="'+thStyle+'">مقدار</th></tr></thead><tbody>';
+      h += '<tr><td style="'+tdRight+';font-weight:bold;">نوع اقدام</td><td style="'+tdStyle+'">'+esc(ai.label)+'</td></tr>';
+      if(r.st) h += '<tr><td style="'+tdRight+';font-weight:bold;">وضعیت</td><td style="'+tdStyle+'">'+(r.st==='success'?'موفق':'ناموفق')+'</td></tr>';
+      h += '</tbody></table>';
+    }
+    
+    if(r.n) h += '<div style="margin-top:5px;padding:4px;border-top:1px dashed #999;font-size:9px;"><b>توضیحات:</b> '+esc(r.n)+'</div>';
+    h += sigBox + footer + '</div>';
+    return h;
+  }
+  
+  // ═══ گزارش گروهی ═══
+  var list = ctx.list || [];
+  if(!list.length) return null;
+  
+  if(type === 'water'){
+    var dfK = getAllDateFieldKeys();
+    var cols = '<col style="width:4%"><col style="width:9%"><col style="width:7%"><col style="width:12%">'
+             + '<col style="width:7%"><col style="width:8%"><col style="width:7%"><col style="width:6%">'
+             + '<col style="width:8%">';
+    dfK.forEach(function(){ cols += '<col style="width:8%">'; });
+    cols += '<col style="width:auto">';
+    var heads = ['#','تاریخ','ساعت','محصول','سختی','EC','TDS','pH','املاح'];
+    dfK.forEach(function(k){ heads.push(k.label); });
+    heads.push('توضیحات');
+    
+    var rows = list.map(function(r, i){
+      var row = '<tr><td style="'+tdStyle+'">'+toFa(i+1)+'</td><td style="'+tdStyle+'">'+toFa(r.d)+'</td><td style="'+tdStyle+'">'+toFa(r.h)+'</td><td style="'+tdRight+'">'+(getProductName(r.p)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.hd)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.ec)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.td)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.ph)||'-')+'</td><td style="'+tdStyle+'">'+(r.sg||'-')+'</td>';
+      dfK.forEach(function(k){ var v = r.dv ? r.dv[k] : ''; row += '<td style="'+tdStyle+'">'+(v?esc(toFa(v)):'-')+'</td>'; });
+      row += '<td style="'+tdRight+'">'+(r.n||'-')+'</td></tr>';
+      return row;
+    }).join('');
+    
+    return '<div style="'+wrapStyle+'">'+header+'<div style="'+titleStyle+'">گزارش سوابق آب</div>'+meta
+      +'<table style="'+tblStyle+'"><colgroup>'+cols+'</colgroup><thead><tr>'
+      +heads.map(function(x){ return '<th style="'+thStyle+'">'+esc(x)+'</th>'; }).join('')
+      +'</tr></thead><tbody>'+rows+'</tbody></table>'+sigBox+footer+'</div>';
+  }
+  
+  if(type === 'sharbat'){
+    var cols2 = '<col style="width:4%"><col style="width:9%"><col style="width:7%"><col style="width:13%">'
+              + '<col style="width:6%"><col style="width:7%"><col style="width:6%"><col style="width:8%">'
+              + '<col style="width:8%"><col style="width:7%"><col style="width:7%"><col style="width:5%"><col style="width:auto">';
+    var heads2 = ['#','تاریخ','ساعت','محصول','بریکس','EC','رنگ','خاکستر','خاکستر٪','کدورت','SO₂','pH','توضیحات'];
+    var rows2 = list.map(function(r, i){
+      return '<tr><td style="'+tdStyle+'">'+toFa(i+1)+'</td><td style="'+tdStyle+'">'+toFa(r.d)+'</td><td style="'+tdStyle+'">'+toFa(r.h)+'</td><td style="'+tdRight+'">'+(getShProductName(r.p)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.br)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.ec2)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.cl)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.as)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.aspct)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.tb)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.so)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.ph2)||'-')+'</td><td style="'+tdRight+'">'+(r.n||'-')+'</td></tr>';
+    }).join('');
+    return '<div style="'+wrapStyle+'">'+header+'<div style="'+titleStyle+'">گزارش سوابق شربت</div>'+meta
+      +'<table style="'+tblStyle+'"><colgroup>'+cols2+'</colgroup><thead><tr>'
+      +heads2.map(function(x){ return '<th style="'+thStyle+'">'+esc(x)+'</th>'; }).join('')
+      +'</tr></thead><tbody>'+rows2+'</tbody></table>'+sigBox+footer+'</div>';
+  }
+  
+  if(type === 'eff'){
+    var devs = state.effDevices;
+    var devCount = devs.length;
+    var devWidth = devCount > 0 ? Math.floor(70 / devCount) : 0;
+    var cols3 = '<col style="width:4%"><col style="width:9%"><col style="width:7%">';
+    devs.forEach(function(){ cols3 += '<col style="width:'+devWidth+'%">'; });
+    cols3 += '<col style="width:10%"><col style="width:auto">';
+    var rows3 = list.map(function(r, i){
+      var row = '<tr><td style="'+tdStyle+'">'+toFa(i+1)+'</td><td style="'+tdStyle+'">'+toFa(r.d)+'</td><td style="'+tdStyle+'">'+toFa(r.h)+'</td>';
+      devs.forEach(function(d){ var v = getDeviceWasteValue(r, d.i); row += '<td style="'+tdStyle+'">'+(v===null?'-':fmtPercent(v))+'</td>'; });
+      row += '<td style="'+tdStyle+';font-weight:900;">'+fmtPercent(r.wp)+'</td><td style="'+tdRight+'">'+(r.n||'-')+'</td></tr>';
+      return row;
+    }).join('');
+    var heads3 = ['#','تاریخ','ساعت'].concat(devs.map(function(d){ return getFullDeviceName(d.i); })).concat(['ضایعات کل','توضیحات']);
+    return '<div style="'+wrapStyle+'">'+header+'<div style="'+titleStyle+'">گزارش راندمان تولید</div>'+meta
+      +'<table style="'+tblStyle+'"><colgroup>'+cols3+'</colgroup><thead><tr>'
+      +heads3.map(function(x){ return '<th style="'+thStyle+'">'+esc(x)+'</th>'; }).join('')
+      +'</tr></thead><tbody>'+rows3+'</tbody></table>'+sigBox+footer+'</div>';
+  }
+  
+  if(type === 'maint'){
+    var cols4 = '<col style="width:4%"><col style="width:9%"><col style="width:7%"><col style="width:13%"><col style="width:20%"><col style="width:10%"><col style="width:auto">';
+    var heads4 = ['#','تاریخ','ساعت','نوع','دستگاه','وضعیت','توضیحات'];
+    var rows4 = list.map(function(r, i){
+      var ai = MAINT_ACTIONS[r.mt] || { label: r.mt };
+      var st = r.st === 'success' ? 'موفق' : (r.st === 'fail' ? 'ناموفق' : '-');
+      return '<tr><td style="'+tdStyle+'">'+toFa(i+1)+'</td><td style="'+tdStyle+'">'+toFa(r.d)+'</td><td style="'+tdStyle+'">'+toFa(r.h)+'</td><td style="'+tdStyle+'">'+esc(ai.label)+'</td><td style="'+tdRight+'">'+(getEquipmentName(r.p, r.et)||'-')+'</td><td style="'+tdStyle+'">'+esc(st)+'</td><td style="'+tdRight+'">'+(r.n||'-')+'</td></tr>';
+    }).join('');
+    return '<div style="'+wrapStyle+'">'+header+'<div style="'+titleStyle+'">گزارش نگهداری</div>'+meta
+      +'<table style="'+tblStyle+'"><colgroup>'+cols4+'</colgroup><thead><tr>'
+      +heads4.map(function(x){ return '<th style="'+thStyle+'">'+esc(x)+'</th>'; }).join('')
+      +'</tr></thead><tbody>'+rows4+'</tbody></table>'+sigBox+footer+'</div>';
+  }
+  
+  return null;
+}
+//--------------------------
+function buildSingleRecordHtmlInline(r){
+  if(!r) return null;
+  
+  var wrapStyle = 'direction:rtl;text-align:right;font-family:Tahoma,sans-serif;color:#000;background:#fff;padding:8mm 5mm;width:100%;box-sizing:border-box;';
+  var tblStyle = 'width:100%;border-collapse:collapse;table-layout:fixed;direction:rtl;font-size:9px;';
+  var thStyle = 'border:1px solid #888;padding:3px;background:#eee;text-align:center;font-weight:900;font-size:8px;';
+  var tdStyle = 'border:1px solid #888;padding:3px;text-align:center;font-size:9px;';
+  var tdRight = 'border:1px solid #888;padding:3px;text-align:right;font-size:9px;font-weight:bold;';
+  
+  var titleText = '', productName = '';
+  if(r.t === 0){ productName = getProductName(r.p); titleText = 'آنالیز RO' + (productName ? ' — ' + productName : ''); }
+  else if(r.t === 1){ productName = getShProductName(r.p); titleText = 'آنالیز قند' + (productName ? ' — ' + productName : ''); }
+  else if(r.t === 2){ titleText = 'راندمان تولید'; }
+  else if(r.t === 3){ productName = getEquipmentName(r.p, r.et); titleText = 'گزارش نگهداری' + (productName ? ' — ' + productName : ''); }
+  
+  var h = '<div style="' + wrapStyle + '">';
+  h += '<div style="text-align:center;margin-bottom:6px;">';
+  h += '<div style="font-size:15px;font-weight:900;">' + esc(companyName) + '</div>';
+  h += '<div style="font-size:12px;font-weight:bold;">' + esc(factoryName) + '</div>';
+  h += '</div>';
+  h += '<div style="font-size:13px;font-weight:900;text-align:center;margin:6px 0 4px;">' + esc(titleText) + '</div>';
+  
+  var metaLine = '📅 ' + esc(toFa(r.d)) + ' &nbsp;&nbsp; 🕐 ' + esc(toFa(r.h));
+  if(productName) metaLine += ' &nbsp;&nbsp; 📦 ' + esc(productName);
+  h += '<div style="text-align:center;font-size:9px;margin-bottom:8px;border-bottom:1px solid #999;padding-bottom:3px;">' + metaLine + '</div>';
+  
+  if(r.t === 0 || r.t === 1){
+    var paramDefs = [];
+    if(r.t === 0){
+      paramDefs = [
+        {val:r.hd, label:'سختی', unit:'mg/L'},
+        {val:r.ec, label:'EC', unit:'μS/cm'},
+        {val:r.td, label:'TDS', unit:'ppm'},
+        {val:r.ph, label:'pH', unit:''}
+      ];
+      if(r.sg) paramDefs.push({val:r.sg, label:'املاح قندی', unit:''});
+    } else {
+      paramDefs = [
+        {val:r.br, label:'بریکس', unit:'٪'},
+        {val:r.ec2, label:'EC', unit:'μS/cm'},
+        {val:r.cl, label:'رنگ', unit:'پوآن'},
+        {val:r.as, label:'خاکستر (پوآن)', unit:'پوآن'},
+        {val:r.aspct, label:'خاکستر (وزنی)', unit:'٪'},
+        {val:r.tb, label:'کدورت', unit:'IU'},
+        {val:r.so, label:'SO₂', unit:'ppm'},
+        {val:r.ph2, label:'pH', unit:''}
+      ];
+    }
+    h += '<table style="' + tblStyle + '"><colgroup><col style="width:40%"><col style="width:60%"></colgroup>';
+    h += '<thead><tr><th style="' + thStyle + '">پارامتر</th><th style="' + thStyle + '">مقدار</th></tr></thead><tbody>';
+    paramDefs.forEach(function(p){
+      if(p.val === undefined || p.val === '' || p.val === null) return;
+      h += '<tr><td style="' + tdRight + '">' + esc(p.label) + '</td>';
+      h += '<td style="' + tdStyle + '">' + esc(fmtNum(p.val)) + (p.unit ? ' ' + esc(p.unit) : '') + '</td></tr>';
+    });
+    h += '</tbody></table>';
+  } else if(r.t === 2){
+    h += '<table style="' + tblStyle + '"><colgroup><col style="width:60%"><col style="width:40%"></colgroup>';
+    h += '<thead><tr><th style="' + thStyle + '">دستگاه</th><th style="' + thStyle + '">درصد ضایعات</th></tr></thead><tbody>';
+    state.effDevices.forEach(function(d){
+      var v = getDeviceWasteValue(r, d.i);
+      if(v !== null) h += '<tr><td style="' + tdRight + '">' + esc(getFullDeviceName(d.i)) + '</td><td style="' + tdStyle + '">' + fmtPercent(v) + '</td></tr>';
+    });
+    h += '<tr><td style="' + tdRight + '">ضایعات کل</td><td style="' + tdStyle + '"><b>' + fmtPercent(r.wp) + '</b></td></tr>';
+    h += '</tbody></table>';
+  } else if(r.t === 3){
+    var ai = MAINT_ACTIONS[r.mt] || { label: r.mt };
+    h += '<table style="' + tblStyle + '"><colgroup><col style="width:40%"><col style="width:60%"></colgroup>';
+    h += '<thead><tr><th style="' + thStyle + '">شرح</th><th style="' + thStyle + '">مقدار</th></tr></thead><tbody>';
+    h += '<tr><td style="' + tdRight + '">نوع اقدام</td><td style="' + tdStyle + '">' + esc(ai.label) + '</td></tr>';
+    if(r.st) h += '<tr><td style="' + tdRight + '">وضعیت</td><td style="' + tdStyle + '">' + (r.st === 'success' ? 'موفق' : 'ناموفق') + '</td></tr>';
+    h += '</tbody></table>';
+  }
+  
+  if(r.n) h += '<div style="margin-top:5px;padding:4px;border-top:1px dashed #999;font-size:9px;"><b>توضیحات:</b> ' + esc(r.n) + '</div>';
+  
+  h += '<div style="display:flex;justify-content:space-between;margin-top:10mm;">';
+  h += '<div style="width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:9px;font-weight:bold;"><div style="height:8mm;"></div>نام و امضاء مسئول آزمایشگاه</div>';
+  h += '<div style="width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:9px;font-weight:bold;"><div style="height:8mm;"></div>روز / ماه / سال</div>';
+  h += '</div>';
+  
+  h += '<div style="text-align:center;font-size:7px;margin-top:4mm;border-top:1px dashed #999;padding-top:2mm;">تاریخ چاپ: ' + todayJalali() + ' — نسخه ۵.۳.۳</div>';
+  h += '</div>';
+  
+  return h;
+}
+
+
 async function runPrint(html, outputMode, pdfContext){
   outputMode = outputMode || 'print';
-  var pa = document.getElementById('printArea'); 
+  var pa = document.getElementById('printArea');
   if(!pa) return;
-  pa.innerHTML = html;
-// تزریق استایل‌های گزارش که فقط در @media print تعریف شده‌اند
-/*var styleId = '__pdf_capture_styles__';
-if(!document.getElementById(styleId)){
-  var styleEl = document.createElement('style');
-  styleEl.id = styleId;
-  styleEl.textContent = `
-    #printArea .p-header-title { text-align: center; margin-bottom: 4mm; }
-    #printArea .p-company { font-size: 16px; font-weight: 900; margin-bottom: 2px; }
-    #printArea .p-factory { font-size: 13px; font-weight: bold; }
-    #printArea .p-report-name { text-align: center; font-size: 14px; font-weight: 900; margin: 4mm 0 2mm; }
-    #printArea .p-meta-line { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3mm; border-bottom: 1px solid #999; padding-bottom: 1mm; }
-    #printArea .p-simple-table { width: 100%; border-collapse: collapse; margin-bottom: 4mm; font-size: 10px; }
-    #printArea .p-simple-table th { text-align: center; font-size: 10px; font-weight: 900; padding: 2mm 1mm; border-bottom: 2px solid #333; border-top: 2px solid #333; background: #eee; }
-    #printArea .p-simple-table td { text-align: center; font-size: 10px; padding: 1.5mm 1mm; border-bottom: 1px solid #ccc; }
-    #printArea .p-simple-table tbody tr:nth-child(even) td { background: #f9f9f9; }
-    #printArea .p-simple-table td.notes-cell { text-align: right; font-size: 9px; max-width: 40mm; white-space: normal; }
-    #printArea .p-simple-table td.val { font-weight: 900; }
-    #printArea .p-simple-table td.lbl { text-align: right; font-weight: bold; }
-    #printArea .p-summary-block { border: 1px solid #000; padding: 2mm; margin-bottom: 4mm; background: #f9f9f9; }
-    #printArea .p-summary-title { font-size: 11px; font-weight: 900; margin-bottom: 1mm; border-bottom: 1px dashed #999; padding-bottom: 1mm; }
-    #printArea .p-summary-list { margin: 0; padding-right: 15px; font-size: 10px; line-height: 1.6; }
-    #printArea .p-signatures { display: flex; justify-content: space-between; margin-top: 10mm; }
-    #printArea .p-sig-box { width: 45%; text-align: center; border-top: 1px solid #000; padding-top: 2mm; font-size: 10px; font-weight: bold; }
-    #printArea .p-sig-space { height: 10mm; }
-    #printArea .p-footer { text-align: center; font-size: 8px; margin-top: 5mm; border-top: 1px dashed #999; padding-top: 2mm; }
-  `;
-  document.head.appendChild(styleEl);
-  */
-// اعمال استایل‌ها به‌صورت inline تا در html2canvas clone حفظ شوند
-pa.querySelectorAll('.p-company').forEach(function(el){ el.style.cssText = 'font-size:16px;font-weight:900;margin-bottom:2px;text-align:center;'; });
-pa.querySelectorAll('.p-factory').forEach(function(el){ el.style.cssText = 'font-size:13px;font-weight:bold;text-align:center;'; });
-pa.querySelectorAll('.p-report-name').forEach(function(el){ el.style.cssText = 'text-align:center;font-size:14px;font-weight:900;margin:4mm 0 2mm;'; });
-pa.querySelectorAll('.p-header-title').forEach(function(el){ el.style.cssText = 'text-align:center;margin-bottom:4mm;'; });
-pa.querySelectorAll('.p-meta-line').forEach(function(el){ el.style.cssText = 'display:flex;justify-content:space-between;font-size:10px;margin-bottom:3mm;border-bottom:1px solid #999;padding-bottom:1mm;'; });
-
-pa.querySelectorAll('table').forEach(function(tbl){
-  tbl.style.cssText = 'width:100%;border-collapse:collapse;margin-bottom:4mm;font-size:10px;';
-  tbl.querySelectorAll('thead th').forEach(function(th){
-    th.style.cssText = 'text-align:center;font-size:9px;font-weight:900;padding:3px 2px;border:1px solid #333;background:#eee;';
-  });
-  tbl.querySelectorAll('tbody td').forEach(function(td){
-    td.style.cssText = 'text-align:center;font-size:9px;padding:2px;border:1px solid #ccc;overflow:hidden;word-wrap:break-word;';
-  });
-  tbl.querySelectorAll('tbody td.notes-cell').forEach(function(td){
-    td.style.textAlign = 'right';
-    td.style.fontSize = '8px';
-  });
-  tbl.querySelectorAll('tbody td.val').forEach(function(td){
-    td.style.fontWeight = '900';
-  });
-  tbl.querySelectorAll('tbody tr:nth-child(even) td').forEach(function(td){
-    td.style.background = '#f9f9f9';
-  });
-});
-
-pa.querySelectorAll('.p-signatures').forEach(function(el){ el.style.cssText = 'display:flex;justify-content:space-between;margin-top:10mm;'; });
-pa.querySelectorAll('.p-sig-box').forEach(function(el){ el.style.cssText = 'width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:10px;font-weight:bold;'; });
-pa.querySelectorAll('.p-sig-space').forEach(function(el){ el.style.cssText = 'height:10mm;'; });
-pa.querySelectorAll('.p-footer').forEach(function(el){ el.style.cssText = 'text-align:center;font-size:8px;margin-top:5mm;border-top:1px dashed #999;padding-top:2mm;'; });
-
-pa.querySelectorAll('.p-summary-block').forEach(function(el){ el.style.cssText = 'border:1px solid #000;padding:2mm;margin-bottom:4mm;background:#f9f9f9;'; });
-pa.querySelectorAll('.p-summary-title').forEach(function(el){ el.style.cssText = 'font-size:11px;font-weight:900;margin-bottom:1mm;border-bottom:1px dashed #999;padding-bottom:1mm;'; });
-pa.querySelectorAll('.p-summary-list').forEach(function(el){ el.style.cssText = 'margin:0;padding-right:15px;font-size:10px;line-height:1.6;'; });
-//}
-  // حالت چاپ: همان رفتار قبلی
+  
+  // ═══ حالت چاپ: از HTML اصلی استفاده کن ═══
   if(outputMode === 'print'){
+    pa.innerHTML = html;
     setTimeout(function(){
       var cl = function(){ pa.innerHTML = ''; window.removeEventListener('afterprint', cl); };
       window.addEventListener('afterprint', cl, {once:true});
@@ -2272,33 +2475,45 @@ pa.querySelectorAll('.p-summary-list').forEach(function(el){ el.style.cssText = 
     return;
   }
   
-  // حالت‌های PDF و اشتراک
+  // ═══ حالت PDF/اشتراک: از HTML inline استفاده کن ═══
   if(typeof html2pdf === 'undefined'){
     showToast('کتابخانه PDF بارگذاری نشد — اینترنت را بررسی کنید', 'error', 4000);
-    pa.innerHTML = '';
+    return;
+  }
+  
+  var pdfHtml;
+if(pdfContext && pdfContext.reportType === 'single' && pdfContext.record){
+  pdfHtml = buildSingleRecordHtmlInline(pdfContext.record);
+} else {
+  pdfHtml = buildReportHtmlForPdf(pdfContext);
+}
+if(!pdfHtml){
+    showToast('خطا در ساخت گزارش', 'error', 3000);
     return;
   }
   
   var fileName = buildPdfFileName(pdfContext);
+  pa.innerHTML = pdfHtml;
+  pa.style.cssText = 'display:block;position:fixed;top:0;left:0;width:190mm;background:#fff;z-index:99998;overflow:visible;';
   
-  // آماده‌سازی عنصر برای رندر (خارج از صفحه، با عرض A4)
-  pa.style.cssText = 'display:block;position:absolute;top:0;left:0;width:190mm;background:#fff;z-index:-9999;';
+  var overlay = document.createElement('div');
+  overlay.id = '__pdf_capture_overlay__';
+  overlay.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:99999;';
+  document.body.appendChild(overlay);
   
   showToast('⏳ در حال تولید PDF...', 'info', 3000);
   
-  try{
+  try {
     var pdfBlob = await html2pdf()
       .set({
-        margin: 10,
+        margin: [8, 8, 8, 8],
         filename: fileName,
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: {
           scale: 2,
           useCORS: true,
           logging: false,
-          backgroundColor: '#ffffff',
-          scrollY: 0,
-          scrollX: 0,
+          backgroundColor: '#ffffff'
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['css', 'legacy'], avoid: ['tr'] }
@@ -2306,33 +2521,29 @@ pa.querySelectorAll('.p-summary-list').forEach(function(el){ el.style.cssText = 
       .from(pa)
       .outputPdf('blob');
     
-    // بازگرداندن printArea به حالت اولیه
     pa.innerHTML = '';
     pa.style.cssText = '';
+    var ov = document.getElementById('__pdf_capture_overlay__');
+    if(ov) ov.remove();
     
-    // حالت PDF: دانلود فایل
     if(outputMode === 'pdf'){
       var url = URL.createObjectURL(pdfBlob);
       var a = document.createElement('a');
       a.href = url; a.download = fileName;
       document.body.appendChild(a); a.click();
-      setTimeout(function(){
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 500);
+      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
       showToast('📥 فایل PDF دانلود شد: ' + fileName, 'success', 4000);
       return;
     }
     
-    // حالت اشتراک: تلاش یک‌مرحله‌ای
     if(outputMode === 'share'){
       if(!navigator.canShare || !navigator.share){
         showToast('مرورگر از اشتراک‌گذاری پشتیبانی نمی‌کند — دانلود می‌شود', 'warning', 5000);
-        var urlD = URL.createObjectURL(pdfBlob);
-        var aD = document.createElement('a');
-        aD.href = urlD; aD.download = fileName;
-        document.body.appendChild(aD); aD.click();
-        setTimeout(function(){ document.body.removeChild(aD); URL.revokeObjectURL(urlD); }, 500);
+        var url2 = URL.createObjectURL(pdfBlob);
+        var a2 = document.createElement('a');
+        a2.href = url2; a2.download = fileName;
+        document.body.appendChild(a2); a2.click();
+        setTimeout(function(){ document.body.removeChild(a2); URL.revokeObjectURL(url2); }, 500);
         return;
       }
       
@@ -2340,63 +2551,47 @@ pa.querySelectorAll('.p-summary-list').forEach(function(el){ el.style.cssText = 
       
       if(!navigator.canShare({ files: [pdfFile] })){
         showToast('این مرورگر از اشتراک‌گذاری PDF پشتیبانی نمی‌کند — دانلود می‌شود', 'warning', 5000);
-        var urlD2 = URL.createObjectURL(pdfBlob);
-        var aD2 = document.createElement('a');
-        aD2.href = urlD2; aD2.download = fileName;
-        document.body.appendChild(aD2); aD2.click();
-        setTimeout(function(){ document.body.removeChild(aD2); URL.revokeObjectURL(urlD2); }, 500);
+        var url3 = URL.createObjectURL(pdfBlob);
+        var a3 = document.createElement('a');
+        a3.href = url3; a3.download = fileName;
+        document.body.appendChild(a3); a3.click();
+        setTimeout(function(){ document.body.removeChild(a3); URL.revokeObjectURL(url3); }, 500);
         return;
       }
       
       try{
-        await navigator.share({
-          files: [pdfFile],
-          title: 'گزارش آزمایشگاه',
-          text: 'گزارش تولید شده از سیستم مدیریت آزمایشگاه'
-        });
+        await navigator.share({ files: [pdfFile], title: 'گزارش آزمایشگاه', text: 'گزارش تولید شده از سیستم مدیریت آزمایشگاه' });
         showToast('✅ گزارش PDF به اشتراک گذاشته شد', 'success', 3000);
       } catch(shareErr){
-        if(shareErr.name === 'AbortError'){
-          // کاربر لغو کرد — ساکت
-          return;
-        }
-        if(shareErr.name === 'NotAllowedError'){
-          // فعال‌سازی گذرا از بین رفت — پیشنهاد کلیک دوم
-          var ok = await customConfirm(
-            '📄 فایل PDF آماده است اما مرورگر به‌دلیل گذشت زمان اجازه‌ی ارسال مستقیم نداد.\n\n' +
-            'برای ارسال، روی دکمه زیر بزنید:',
-            { okText: '📤 اشتراک‌گذاری', cancelText: 'انصراف' }
-          );
-          if(ok){
-            try{
-              await navigator.share({ files: [pdfFile], title: 'گزارش آزمایشگاه', text: 'گزارش' });
-              showToast('✅ گزارش به اشتراک گذاشته شد', 'success', 3000);
-            } catch(e2){
-              if(e2.name === 'AbortError'){ return; }
-              console.error('second share failed:', e2);
-              // اگر باز هم شکست خورد → دانلود
-              var urlD3 = URL.createObjectURL(pdfBlob);
-              var aD3 = document.createElement('a');
-              aD3.href = urlD3; aD3.download = fileName;
-              document.body.appendChild(aD3); aD3.click();
-              setTimeout(function(){ document.body.removeChild(aD3); URL.revokeObjectURL(urlD3); }, 500);
+        if(shareErr.name === 'AbortError') return;
+        // NotAllowedError → مودال تأیید دوم
+        var ok = await customConfirm('📄 فایل PDF آماده است اما مرورگر اجازه ارسال مستقیم نداد.\n\nبرای ارسال روی دکمه زیر بزنید:', { okText: '📤 اشتراک‌گذاری', cancelText: 'انصراف' });
+        if(ok){
+          try{
+            await navigator.share({ files: [pdfFile], title: 'گزارش آزمایشگاه', text: 'گزارش' });
+            showToast('✅ گزارش به اشتراک گذاشته شد', 'success', 3000);
+          } catch(e2){
+            if(e2.name !== 'AbortError'){
+              var url4 = URL.createObjectURL(pdfBlob);
+              var a4 = document.createElement('a');
+              a4.href = url4; a4.download = fileName;
+              document.body.appendChild(a4); a4.click();
+              setTimeout(function(){ document.body.removeChild(a4); URL.revokeObjectURL(url4); }, 500);
               showToast('📥 فایل دانلود شد', 'info', 3000);
             }
           }
-          return;
         }
-        console.error('share failed:', shareErr);
-        showToast('❌ خطا در اشتراک‌گذاری: ' + shareErr.message, 'error', 5000);
       }
     }
   } catch(pdfErr){
-    console.error('PDF generation failed:', pdfErr);
+    console.error('PDF error:', pdfErr);
     pa.innerHTML = '';
     pa.style.cssText = '';
+    var ov2 = document.getElementById('__pdf_capture_overlay__');
+    if(ov2) ov2.remove();
     showToast('❌ خطا در تولید PDF: ' + pdfErr.message, 'error', 6000);
   }
 }
-
 
 function buildPrintHeader(title,showLetterhead){
   var lh='';
@@ -2450,7 +2645,7 @@ async function printWaterReport(returnHtmlOnly){
   
   if(returnHtmlOnly) return { html: html, settings: settings };
 
-runPrint(html, settings.outputMode, { reportType: 'water' });
+runPrint(html, settings.outputMode, { reportType: 'water', list: list });
 }
 
 async function printSharbatReport(returnHtmlOnly){
@@ -2479,7 +2674,7 @@ async function printSharbatReport(returnHtmlOnly){
       html += '</div></div>';
   }
   if(returnHtmlOnly) return { html: html, settings: settings };
-  runPrint(html, settings.outputMode, { reportType: 'sharbat' });
+  runPrint(html, settings.outputMode, { reportType: 'sharbat', list: list });
 }
 
 async function printEffReport(returnHtmlOnly){
@@ -2513,7 +2708,7 @@ async function printEffReport(returnHtmlOnly){
       html += '</div></div>';
   }
   if(returnHtmlOnly) return { html: html, settings: settings };
-  runPrint(html, settings.outputMode, { reportType: 'eff' });
+  runPrint(html, settings.outputMode, { reportType: 'eff', list: list });
 }
 
 async function printMaintenanceReport(returnHtmlOnly){
@@ -2538,7 +2733,7 @@ async function printMaintenanceReport(returnHtmlOnly){
   if(settings.showLetterhead) html += buildSignature();
   html += '<div class="p-footer">تاریخ چاپ: ' + todayJalali() + ' — نسخه ۵.۳.۳</div>';
   if(returnHtmlOnly) return { html: html, settings: settings };
-  runPrint(html, settings.outputMode, { reportType: 'maint' });
+  runPrint(html, settings.outputMode, { reportType: 'maint', list: list });
 }
 async function viewRecord(id, returnHtmlOnly){
 
@@ -2664,7 +2859,7 @@ async function viewRecord(id, returnHtmlOnly){
    // if(returnHtmlOnly) return { html: html, settings: settings };
   if(returnHtmlOnly) return { html: html, settings: settings, type: 'single', recordType: r.t, productName: productName };
   
-  runPrint(html, settings.outputMode, { reportType: 'single', recordType: r.t, productName: productName });
+  runPrint(html, settings.outputMode, { reportType: 'single', record: r });
 }
 
 function printTrainingGuide(){
