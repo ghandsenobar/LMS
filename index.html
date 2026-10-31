@@ -8,7 +8,14 @@
 <meta name="theme-color" content="#166534">
 <link rel="icon" href="./icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<!-- موتور تولید PDF متنی و فونت فارسی -->
+<!-- موتور PDF فارسی (Vazir) -->
+<!-- موتور PDF فارسی (Vazir) -->
+<!-- موتور PDF فارسی -->
+<!-- موتور PDF و فونت استاندارد -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfmake-rtl@0.1.56/build/vfs_fonts.js"></script>
+
 <style>
 :root{--primary:#2563eb;--primary-dark:#1d4ed8;--danger:#dc2626;--success:#16a34a;--warning:#f59e0b;--eff-color:#8b5cf6;--maint-color:#8b5cf6;--ab-color:#0ea5e9;--sh-color:#f59e0b;--std-color:#6366f1;--cip-color:#0ea5e9;--regen-color:#16a34a;--lab-color:#0891b2;--teal:#0d9488;--bg:#f1f5f9;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;--input-bg:#fff;--subtle-bg:#f8fafc;--overlay:rgba(15,23,42,.55);--print-zoom:1}
 body.dark{--primary:#3b82f6;--primary-dark:#60a5fa;--danger:#ef4444;--success:#22c55e;--warning:#f59e0b;--eff-color:#a78bfa;--maint-color:#a78bfa;--ab-color:#38bdf8;--sh-color:#fbbf24;--std-color:#818cf8;--cip-color:#38bdf8;--regen-color:#22c55e;--lab-color:#22d3ee;--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--input-bg:#0f172a;--subtle-bg:#0f172a;--overlay:rgba(0,0,0,.75);--teal:#14b8a6}
@@ -624,6 +631,7 @@ tr.pending-row.editing td{background:rgba(250,204,21,.16)!important;box-shadow:i
       <div class="collapsible-body collapsed" id="abSection">
         <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:8px;flex-wrap:wrap">
             <button type="button" class="btn-print-sm green" onclick="exportExcel('ab')">📊 Excel</button>
+<button type="button" class="btn-print-sm purple" onclick="printWaterAnalysisReport()">گزارش آنالیز آب مصرفی</button>
             <button type="button" class="btn-print-sm" onclick="printWaterReport()">🖨️ گزارش آب</button>
         </div>
         <div class="records-table-scroll"><table><thead id="abThead"></thead><tbody id="abBody"></tbody></table></div>
@@ -733,14 +741,6 @@ tr.pending-row.editing td{background:rgba(250,204,21,.16)!important;box-shadow:i
         <div class="field" style="margin-bottom:12px;"><label>🏢 نام شرکت</label><input type="text" id="companyNameInput" oninput="updateLetterhead()"></div>
         <div class="field" style="margin-bottom:12px;"><label>🏭 نام کارخانه</label><input type="text" id="factoryNameInput" oninput="updateLetterhead()"></div>
         <div class="toggle-row"><span class="toggle-row-label">🌙 حالت شب</span><label class="switch"><input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this.checked)"><span class="slider"></span></label></div>
-        <div class="field" style="margin-top:12px;"><label for="printZoomSelect">🖨️ اندازه فونت چاپ</label><select id="printZoomSelect" onchange="changePrintFontSize(this.value)"><option value="0.75">۷۵٪</option><option value="1" selected>۱۰۰٪</option><option value="1.25">۱۲۵٪</option><option value="1.5">۱۵۰٪</option><option value="2">۲۰۰٪</option></select></div>
-      </div>
-    </div>
-    <div class="drawer-section">
-      <div class="drawer-section-title" onclick="toggleSection('printDefaultsSection', event)"><span class="title-text">🖨️ تنظیمات پیش‌فرض چاپ</span><button type="button" class="toggle-btn" id="toggleBtnPrintDefaultsSection" onclick="event.stopPropagation();toggleSection('printDefaultsSection')">+</button></div>
-      <div class="drawer-section-body collapsed" id="printDefaultsSection">
-        <div class="backup-desc" style="text-align:right;margin-bottom:10px;">این تنظیمات در همه گزارش‌ها به عنوان پیش‌فرض استفاده می‌شود.</div>
-        <div class="toggle-row" style="margin-bottom:10px;"><span class="toggle-row-label">🏢 نمایش سربرگ</span><label class="switch"><input type="checkbox" id="pdShowLetterhead" onchange="savePrintDefaults()"><span class="slider"></span></label></div>
         
       </div>
     </div>
@@ -860,37 +860,63 @@ tr.pending-row.editing td{background:rgba(250,204,21,.16)!important;box-shadow:i
 </div>
 
 <div class="modal-overlay" id="printSettingsModalOverlay">
-  <div class="modal-box" style="max-width:480px;">
-    <h3 style="margin:0 0 14px;text-align:center;">🖨️ تنظیمات چاپ</h3>
-    <div class="backup-desc" style="text-align:center;margin-bottom:12px;" id="psInfoBox"></div>
-    
-    <div class="field" style="margin-bottom:12px;"><label>🏢 سربرگ</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button type="button" class="btn btn-primary" id="psLetterheadYes" onclick="setPsLetterhead(true)">✅ با سربرگ</button><button type="button" class="btn btn-secondary" id="psLetterheadNo" onclick="setPsLetterhead(false)">❌ بدون</button></div></div>
-    <div class="field"><label>📐 جهت صفحه</label><select id="psOrientation"><option value="portrait">Portrait (عمودی)</option><option value="landscape">Landscape (افقی)</option></select></div>
+  <div class="modal-box" style="max-width:520px;">
+    <h3 style="margin:0 0 12px;text-align:center;">🖨️ تنظیمات چاپ</h3>
+    <div class="backup-desc" style="text-align:center;margin-bottom:10px;" id="psInfoBox"></div>
+
+    <div class="field" style="margin-bottom:10px;"><label>🏢 سربرگ</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button type="button" class="btn btn-primary" id="psLetterheadYes" onclick="setPsLetterhead(true)">✅ با سربرگ</button>
+        <button type="button" class="btn btn-secondary" id="psLetterheadNo" onclick="setPsLetterhead(false)">❌ بدون</button>
+      </div>
+    </div>
+
+    <div class="field"><label>📐 جهت صفحه</label>
+      <select id="psOrientation"><option value="portrait">Portrait (عمودی)</option><option value="landscape">Landscape (افقی)</option></select>
+    </div>
+
+    <div style="margin-top:12px;padding:10px;background:var(--subtle-bg);border:1px solid var(--border);border-radius:8px;">
+      <div style="font-size:11px;font-weight:900;color:var(--muted);margin-bottom:8px;">⚙️ تنظیمات ظاهری جدول <span style="font-weight:normal;font-size:10px;">(خالی بگذارید = پیش‌فرض سیستم)</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+        <div class="field" style="margin:0;">
+          <label style="font-size:10px;text-align:center;display:block;">اندازه فونت</label>
+          <input type="text" id="psFontSize" inputmode="decimal" style="padding:7px;font-size:12px;text-align:center;" placeholder="—">
+        </div>
+        <div class="field" style="margin:0;">
+          <label style="font-size:10px;text-align:center;display:block;">ارتفاع سطر</label>
+          <input type="text" id="psRowHeight" inputmode="decimal" style="padding:7px;font-size:12px;text-align:center;" placeholder="—">
+        </div>
+        <div class="field" style="margin:0;">
+          <label style="font-size:10px;text-align:center;display:block;">عرض ستون‌ها</label>
+          <input type="text" id="psColWidth" inputmode="decimal" style="padding:7px;font-size:12px;text-align:center;" placeholder="—">
+        </div>
+      </div>
+    </div>
+
     <div class="field" id="psTrendField" style="margin-top:12px;"><label style="display:flex;align-items:center;gap:8px;background:rgba(139,92,246,.08);padding:10px 12px;border-radius:8px;border:1.5px dashed var(--eff-color);cursor:pointer;"><input type="checkbox" id="psIncludeTrend" style="width:18px;height:18px;margin:0;flex-shrink:0;" onchange="toggleChartOptions()"><span style="font-size:12.5px;font-weight:900;color:var(--eff-color);">📈 افزودن صفحه روند (نمودار)</span></label></div>
     <div id="chartOptionsPanel" style="display:none; margin-top:10px; padding:10px; border:1px solid var(--border); border-radius:8px;">
-        <h4 style="margin:0 0 8px; font-size:12px;">انتخاب پارامترهای نمودار:</h4>
-        <div id="chartParamsContainer" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
-        <div class="field" style="margin-top:10px;">
-            <label>تعداد نقاط آخر (بازه زمانی):</label>
-            <select id="chartPointsCount">
-                <option value="10">۱۰ رکورد آخر</option>
-                <option value="20" selected>۲۰ رکورد آخر</option>
-                <option value="30">۳۰ رکورد آخر</option>
-                <option value="50">۵۰ رکورد آخر</option>
-            </select>
-        </div>
+      <h4 style="margin:0 0 8px; font-size:12px;">انتخاب پارامترهای نمودار:</h4>
+      <div id="chartParamsContainer" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+      <div class="field" style="margin-top:10px;">
+        <label>تعداد نقاط آخر (بازه زمانی):</label>
+        <select id="chartPointsCount">
+          <option value="10">۱۰ رکورد آخر</option>
+          <option value="20" selected>۲۰ رکورد آخر</option>
+          <option value="30">۳۰ رکورد آخر</option>
+          <option value="50">۵۰ رکورد آخر</option>
+        </select>
+      </div>
     </div>
-    
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:20px;">
-  <button type="button" class="modal-btn modal-cancel" onclick="closePrintSettingsModal()">✕ لغو</button>
-  <button type="button" class="modal-btn" style="background:var(--primary);color:#fff;" onclick="confirmPrintSettings('print')">🖨️ چاپ</button>
-  <button type="button" class="modal-btn" style="background:var(--danger);color:#fff;" onclick="confirmPrintSettings('pdf')">📄 PDF</button>
-  <button type="button" class="modal-btn" style="background:var(--success);color:#fff;font-size:18px;" onclick="confirmPrintSettings('share')" title="اشتراک‌گذاری">📤</button>
-</div>
-    
-    
+
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:16px;padding-top:12px;border-top:1px dashed var(--border);">
+      <button type="button" class="modal-btn modal-cancel" style="min-width:0;padding:9px 2px;font-size:11.5px;" onclick="closePrintSettingsModal()">✕ لغو</button>
+      <button type="button" class="modal-btn" style="min-width:0;padding:9px 2px;font-size:11.5px;background:var(--primary);color:#fff;" onclick="confirmPrintSettings('print')">🖨️ چاپ</button>
+      <button type="button" class="modal-btn" style="min-width:0;padding:9px 2px;font-size:11.5px;background:var(--danger);color:#fff;" onclick="confirmPrintSettings('pdf')">📄 PDF</button>
+      <button type="button" class="modal-btn" style="min-width:0;padding:9px 2px;font-size:14px;background:var(--success);color:#fff;" onclick="confirmPrintSettings('share')">📤</button>
+    </div>
   </div>
 </div>
+
 
 <div class="modal-overlay" id="globalSearchOverlay" onclick="if(event.target===this)closeGlobalSearch()">
   <div class="modal-box" style="max-width:600px;max-height:80vh;display:flex;flex-direction:column;padding:0;">
@@ -931,7 +957,7 @@ var CACHE_KEY = 'lab_github_cache_v1';
 var PREFILL_KEY = 'lab_syrup_prefill';
 var CACHE_TTL = 7*24*60*60*1000;
 var FETCH_TIMEOUT = 5000;
-var PRINT_DEFAULTS_KEY = 'lab_print_defaults_v1';
+
 var RANGES_KEY = 'lab_ranges_v1';
 var LAST_BACKUP_KEY = 'lab_last_backup_ts';
 var FORM_DRAFT_KEY = 'lab_form_draft_v533';
@@ -1246,8 +1272,7 @@ var printZoom = parseFloat(localStorage.getItem('lab_print_zoom')||'1')||1;
 var urlPrefill = /[?&]prefill=syrup/.test(location.search);
 var userCode = parseInt(localStorage.getItem('wh_user_code')||'0',10);
 if(isNaN(userCode)||userCode<USER_CODE_MIN||userCode>USER_CODE_MAX) userCode = USER_CODE_MIN;
-var printDefaults = (function(){ try{ return JSON.parse(localStorage.getItem(PRINT_DEFAULTS_KEY)||'{}'); }catch(e){ return {}; } })();
-if(typeof printDefaults.showLetterhead !== 'boolean') printDefaults.showLetterhead = true;
+
 var currentPrintContext = null;
 var _formDraftTimer = null;
 var currentStdImagesBase64 = []; 
@@ -1946,23 +1971,23 @@ function applyGuestModeUI(){
   var clSec=document.getElementById('cleanupSection'); if(clSec) clSec.hidden=true;
 }
 
-function loadPrintDefaultsIntoUI(){ 
-  var el=document.getElementById('pdShowLetterhead'); 
-  if(el) el.checked=printDefaults.showLetterhead!==false; 
-}
-function savePrintDefaults(){ 
-  var el=document.getElementById('pdShowLetterhead'); 
-  if(el) printDefaults.showLetterhead=el.checked; 
-  try{ localStorage.setItem(PRINT_DEFAULTS_KEY,JSON.stringify(printDefaults)); }catch(e){} 
-  showToast('✅ ذخیره شد','success',1500); 
+
+function computeAutoVisuals(reportType){
+  switch(reportType){
+    case 'water_analysis': return { fontSize: 7, rowHeight: 22, colWidth: 0 };
+    case 'single':         return { fontSize: 11, rowHeight: 30, colWidth: 50 };
+    case 'std':            return { fontSize: 8.5, rowHeight: 24, colWidth: 12 };
+    case 'eff':            return { fontSize: 8, rowHeight: 24, colWidth: 8 };
+    default:               return { fontSize: 9, rowHeight: 24, colWidth: 8 };
+  }
 }
 
-function askForPrintSettings(reportType,showLetterheadDefault){
+function askForPrintSettings(reportType, showLetterheadDefault, defaultOrientation){
   return new Promise(function(resolve){
-    currentPrintContext={resolve:resolve,reportType:reportType};
-    var psInfo=document.getElementById('psInfoBox');
+    currentPrintContext = { resolve: resolve, reportType: reportType };
+    var psInfo = document.getElementById('psInfoBox');
     var isSingle = reportType === 'single';
-    var trendOk = !isSingle && reportType !== 'std' && reportType !== 'full';
+    var trendOk = !isSingle && reportType !== 'std' && reportType !== 'full' && reportType !== 'water_analysis';
     var trendField = document.getElementById('psTrendField');
     if(trendField) trendField.style.display = trendOk ? 'block' : 'none';
     var trendChk = document.getElementById('psIncludeTrend');
@@ -1970,11 +1995,30 @@ function askForPrintSettings(reportType,showLetterheadDefault){
     document.getElementById('chartOptionsPanel').style.display = 'none';
     if(psInfo) psInfo.innerHTML = '📋 این گزارش: <b>' + esc(reportType) + '</b>';
 
-    setPsLetterhead(showLetterheadDefault!==false);
-    document.getElementById('psOrientation').value='portrait';
+    // ── مقدار خودکار برای نمایش در placeholder (کم‌رنگ) ──
+    var auto = computeAutoVisuals(reportType);
+    // برای گزارش آنالیز آب، عرض ستون بر اساس تعداد محصولات محاسبه می‌شود
+    if(reportType === 'water_analysis'){
+      var pc = (state.products.ab || []).length || 1;
+      var totalCols = 1 + (pc * 4);
+      auto.colWidth = Math.max(2, Math.floor(90 / totalCols));
+      auto.fontSize = totalCols > 15 ? 6.5 : (totalCols > 9 ? 7 : 8);
+    }
+    var f = document.getElementById('psFontSize');
+    var r = document.getElementById('psRowHeight');
+    var c = document.getElementById('psColWidth');
+    if(f){ f.value = ''; f.placeholder = toFa(auto.fontSize) + 'px'; }
+    if(r){ r.value = ''; r.placeholder = toFa(auto.rowHeight) + 'px'; }
+    if(c){ c.value = ''; c.placeholder = toFa(auto.colWidth) + '%'; }
+    currentPrintContext.auto = auto;
+
+    setPsLetterhead(showLetterheadDefault !== false);
+    document.getElementById('psOrientation').value = defaultOrientation || 'portrait';
     document.getElementById('printSettingsModalOverlay').classList.add('show');
   });
 }
+
+
 function toggleChartOptions() {
     var chk = document.getElementById('psIncludeTrend');
     var panel = document.getElementById('chartOptionsPanel');
@@ -2012,28 +2056,57 @@ function populateChartParams() {
 function setPsLetterhead(v){ document.getElementById('psLetterheadYes').classList.toggle('btn-primary',v); document.getElementById('psLetterheadYes').classList.toggle('btn-secondary',!v); document.getElementById('psLetterheadNo').classList.toggle('btn-primary',!v); document.getElementById('psLetterheadNo').classList.toggle('btn-secondary',v); document.getElementById('printSettingsModalOverlay').dataset.psletterhead=v?'1':'0'; }
 function closePrintSettingsModal(){ var ctx=currentPrintContext; document.getElementById('printSettingsModalOverlay').classList.remove('show'); currentPrintContext=null; if(ctx&&ctx.resolve) ctx.resolve(null); }
 
-
 function confirmPrintSettings(outputMode){
   outputMode = outputMode || 'print';
-  var ctx=currentPrintContext; if(!ctx) return;
-  var showLetterhead=document.getElementById('printSettingsModalOverlay').dataset.psletterhead!=='0';
-  var orientation=document.getElementById('psOrientation').value||'portrait';
-  
-  var includeTrend=false;
-  var chartParams=[];
-  var chartPoints=20;
-  var trendChk=document.getElementById('psIncludeTrend');
-  if(trendChk && trendChk.checked) {
-      includeTrend = true;
-      document.querySelectorAll('#chartParamsContainer input[data-chartparam]').forEach(function(inp){
-          if(inp.checked) chartParams.push(inp.dataset.chartparam);
-      });
-      chartPoints = parseInt(document.getElementById('chartPointsCount').value, 10) || 20;
+  var ctx = currentPrintContext; if(!ctx) return;
+  var showLetterhead = document.getElementById('printSettingsModalOverlay').dataset.psletterhead !== '0';
+  var orientation = document.getElementById('psOrientation').value || 'portrait';
+
+  var includeTrend = false, chartParams = [], chartPoints = 20;
+  var trendChk = document.getElementById('psIncludeTrend');
+  if(trendChk && trendChk.checked){
+    includeTrend = true;
+    document.querySelectorAll('#chartParamsContainer input[data-chartparam]').forEach(function(inp){ if(inp.checked) chartParams.push(inp.dataset.chartparam); });
+    chartPoints = parseInt(document.getElementById('chartPointsCount').value, 10) || 20;
   }
-  
+
+  // خواندن مقادیر ظاهری (اگر خالی بود → از مقدار خودکار placeholder استفاده می‌شود)
+  var auto = ctx.auto || computeAutoVisuals(ctx.reportType);
+  function readVal(id, autoVal){
+    var el = document.getElementById(id);
+    if(!el) return autoVal;
+    var raw = toLatinDigits((el.value || '').trim()).replace(/px|%|٪/g, '').trim();
+    if(raw === '') return autoVal;
+    var n = parseFloat(raw);
+    return isNaN(n) ? autoVal : n;
+  }
+  var fontSize  = readVal('psFontSize',  auto.fontSize);
+  var rowHeight = readVal('psRowHeight', auto.rowHeight);
+  var colWidth  = readVal('psColWidth',  auto.colWidth);
+
   document.getElementById('printSettingsModalOverlay').classList.remove('show');
-  currentPrintContext=null;
-  ctx.resolve({ showLetterhead:showLetterhead, outputMode:outputMode, orientation:orientation, includeTrend:includeTrend, chartParams:chartParams, chartPoints:chartPoints });
+  currentPrintContext = null;
+  ctx.resolve({
+    showLetterhead: showLetterhead,
+    outputMode: outputMode,
+    orientation: orientation,
+    includeTrend: includeTrend,
+    chartParams: chartParams,
+    chartPoints: chartPoints,
+    fontSize: fontSize,
+    rowHeight: rowHeight,
+    colWidth: colWidth
+  });
+}
+
+function applyVisualStylesToHtml(html, settings){
+  if(!settings) return html;
+  var fs = parseFloat(settings.fontSize) || 9;
+  var rh = parseFloat(settings.rowHeight) || 24;
+  var lh = Math.max(10, rh - 8);
+  var css = 'table.p-simple-table{font-size:' + fs + 'px !important;}'
+          + 'table.p-simple-table th,table.p-simple-table td{height:' + rh + 'px !important;padding:2px 3px !important;line-height:' + lh + 'px !important;}';
+  return '<style id="__print_visuals__">' + css + '</style>' + html;
 }
 function buildTrendSVG(labels, series, options, isWater) {
   options = options || {};
@@ -2171,6 +2244,7 @@ function buildEffTrend(list, params, points) {
 
 function setPrintPageRule(r){ var old=document.getElementById('__dyn_page_style__'); if(old) old.remove(); var s=document.createElement('style'); s.id='__dyn_page_style__'; s.textContent=r?('@media print{'+r+'}'):''; document.head.appendChild(s); }
 
+//??????
 function buildPdfFileName(ctx){
   var today = todayJalali().replace(/\//g, '-');
   var name = '';
@@ -2205,267 +2279,95 @@ function buildPdfFileName(ctx){
   return name + '-' + today + '.pdf';
 }
 
+// تابع کمکی برای ساخت جدول داده‌ها در PDF
+function buildPdfMakeContent(pdfContext) {
+    var type = pdfContext.reportType;
+    var list = pdfContext.list || [];
+    var body = [];
+    var widths = [];
 
+    function safeText(val) {
+        if (val === undefined || val === null || val === '') return '-';
+        return String(val);
+    }
 
-
-
-//--------------------------
-function buildReportHtmlForPdf(ctx){
-  if(!ctx) return null;
-  var type = ctx.reportType;
-  var today = todayJalali();
-  
-  var wrapStyle = 'direction:rtl;text-align:right;font-family:Tahoma,sans-serif;color:#000;background:#fff;padding:8mm 5mm;width:100%;box-sizing:border-box;';
-  var headStyle = 'text-align:center;margin-bottom:6px;';
-  var companyStyle = 'font-size:15px;font-weight:900;margin-bottom:2px;';
-  var factoryStyle = 'font-size:12px;font-weight:bold;';
-  var titleStyle = 'font-size:13px;font-weight:900;text-align:center;margin:6px 0 4px;';
-  var metaStyle = 'text-align:center;font-size:9px;color:#333;margin-bottom:8px;border-bottom:1px solid #999;padding-bottom:3px;';
-  var tblStyle = 'width:100%;border-collapse:collapse;table-layout:fixed;direction:rtl;font-size:8px;';
-  var thStyle = 'border:1px solid #888;padding:3px 2px;background:#eee;text-align:center;font-weight:900;font-size:7.5px;word-wrap:break-word;';
-  var tdStyle = 'border:1px solid #888;padding:2px 1px;text-align:center;font-size:7.5px;word-wrap:break-word;';
-  var tdRight = 'border:1px solid #888;padding:2px 1px;text-align:right;font-size:7.5px;word-wrap:break-word;';
-  
-  var header = '<div style="'+headStyle+'"><div style="'+companyStyle+'">'+esc(companyName)+'</div><div style="'+factoryStyle+'">'+esc(factoryName)+'</div></div>';
-  var meta = '<div style="'+metaStyle+'">تاریخ چاپ: '+today+'</div>';
-  var sigBox = '<div style="display:flex;justify-content:space-between;margin-top:10mm;"><div style="width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:9px;font-weight:bold;"><div style="height:8mm;"></div>نام و امضاء مسئول آزمایشگاه</div><div style="width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:9px;font-weight:bold;"><div style="height:8mm;"></div>روز / ماه / سال</div></div>';
-  var footer = '<div style="text-align:center;font-size:7px;margin-top:4mm;border-top:1px dashed #999;padding-top:2mm;">تاریخ چاپ: '+today+' — نسخه ۵.۳.۳</div>';
-  
-  // ═══ تک‌رکورد ═══
-  if(type === 'single'){
-    var r = ctx.record;
-    if(!r) return null;
-    
-    var titleText = '', productName = '';
-    if(r.t === 0){ productName = getProductName(r.p); titleText = 'آنالیز RO' + (productName ? ' — ' + productName : ''); }
-    else if(r.t === 1){ productName = getShProductName(r.p); titleText = 'آنالیز قند' + (productName ? ' — ' + productName : ''); }
-    else if(r.t === 2){ titleText = 'راندمان تولید'; }
-    else if(r.t === 3){ productName = getEquipmentName(r.p, r.et); titleText = 'گزارش نگهداری' + (productName ? ' — ' + productName : ''); }
-    
-    var h = '<div style="'+wrapStyle+'">' + header + '<div style="'+titleStyle+'">'+esc(titleText)+'</div>';
-    var metaLine = '📅 ' + esc(toFa(r.d)) + ' &nbsp;&nbsp; 🕐 ' + esc(toFa(r.h));
-    if(productName) metaLine += ' &nbsp;&nbsp; 📦 ' + esc(productName);
-    h += '<div style="text-align:center;font-size:9px;margin-bottom:8px;border-bottom:1px solid #999;padding-bottom:3px;">'+metaLine+'</div>';
-    
-    if(r.t === 0 || r.t === 1){
-      var paramDefs = [];
-      if(r.t === 0){
-        paramDefs = [
-          {val:r.hd, label:'سختی', unit:'mg/L'}, {val:r.ec, label:'EC', unit:'μS/cm'},
-          {val:r.td, label:'TDS', unit:'ppm'}, {val:r.ph, label:'pH', unit:''}
-        ];
-        if(r.sg) paramDefs.push({val:r.sg, label:'املاح قندی', unit:''});
-        var prod = state.products.ab.filter(function(p){ return p.i===r.p; })[0];
-        if(prod && prod.df) prod.df.forEach(function(f){
-          var v = r.dv ? r.dv[f.k] : '';
-          if(v) paramDefs.push({ val:v, label:f.l, unit:'', isDate:true });
+    if (type === 'water') {
+        body.push(['#', 'تاریخ', 'ساعت', 'محصول', 'سختی', 'EC', 'TDS', 'pH', 'املاح', 'توضیحات']);
+        list.forEach(function(r, i) {
+            body.push([safeText(toFa(i+1)), safeText(toFa(r.d)), safeText(toFa(r.h)), safeText(getProductName(r.p)), safeText(fmtNum(r.hd)), safeText(fmtNum(r.ec)), safeText(fmtNum(r.td)), safeText(fmtNum(r.ph)), safeText(r.sg), safeText(r.n)]);
         });
-      } else {
-        paramDefs = [
-          {val:r.br, label:'بریکس', unit:'٪'}, {val:r.ec2, label:'EC', unit:'μS/cm'},
-          {val:r.cl, label:'رنگ', unit:'پوآن'}, {val:r.as, label:'خاکستر (پوآن)', unit:'پوآن'},
-          {val:r.aspct, label:'خاکستر (وزنی)', unit:'٪'}, {val:r.tb, label:'کدورت', unit:'IU'},
-          {val:r.so, label:'SO₂', unit:'ppm'}, {val:r.ph2, label:'pH', unit:''}
-        ];
-      }
-      h += '<table style="'+tblStyle+'"><colgroup><col style="width:40%"><col style="width:60%"></colgroup><thead><tr><th style="'+thStyle+'">پارامتر</th><th style="'+thStyle+'">مقدار</th></tr></thead><tbody>';
-      paramDefs.forEach(function(p){
-        if(p.val === undefined || p.val === '' || p.val === null) return;
-        var dv = p.isDate ? esc(toFa(p.val)) : esc(fmtNum(p.val));
-        h += '<tr><td style="'+tdRight+';font-weight:bold;">'+esc(p.label)+'</td><td style="'+tdStyle+'">'+dv+' '+(p.unit ? '<span style="font-size:7px;">'+esc(p.unit)+'</span>' : '')+'</td></tr>';
-      });
-      h += '</tbody></table>';
-    } else if(r.t === 2){
-      h += '<table style="'+tblStyle+'"><colgroup><col style="width:60%"><col style="width:40%"></colgroup><thead><tr><th style="'+thStyle+'">دستگاه / مرحله</th><th style="'+thStyle+'">درصد ضایعات</th></tr></thead><tbody>';
-      state.effDevices.forEach(function(d){ var v = getDeviceWasteValue(r, d.i); if(v!==null) h += '<tr><td style="'+tdRight+';font-weight:bold;">'+esc(getFullDeviceName(d.i))+'</td><td style="'+tdStyle+'">'+fmtPercent(v)+'</td></tr>'; });
-      h += '<tr><td style="'+tdRight+';font-weight:900;">ضایعات کل</td><td style="'+tdStyle+';font-weight:900;">'+fmtPercent(r.wp)+'</td></tr></tbody></table>';
-    } else if(r.t === 3){
-      var ai = MAINT_ACTIONS[r.mt] || { label: r.mt };
-      h += '<table style="'+tblStyle+'"><colgroup><col style="width:40%"><col style="width:60%"></colgroup><thead><tr><th style="'+thStyle+'">شرح</th><th style="'+thStyle+'">مقدار</th></tr></thead><tbody>';
-      h += '<tr><td style="'+tdRight+';font-weight:bold;">نوع اقدام</td><td style="'+tdStyle+'">'+esc(ai.label)+'</td></tr>';
-      if(r.st) h += '<tr><td style="'+tdRight+';font-weight:bold;">وضعیت</td><td style="'+tdStyle+'">'+(r.st==='success'?'موفق':'ناموفق')+'</td></tr>';
-      h += '</tbody></table>';
+        widths = ['5%', '12%', '8%', '15%', '10%', '10%', '10%', '8%', '10%', '12%'];
+    } else if (type === 'sharbat') {
+        body.push(['#', 'تاریخ', 'ساعت', 'محصول', 'بریکس', 'EC', 'رنگ', 'خاکستر', 'کدورت', 'SO₂', 'pH', 'توضیحات']);
+        list.forEach(function(r, i) {
+            body.push([safeText(toFa(i+1)), safeText(toFa(r.d)), safeText(toFa(r.h)), safeText(getShProductName(r.p)), safeText(fmtNum(r.br)), safeText(fmtNum(r.ec2)), safeText(fmtNum(r.cl)), safeText(fmtNum(r.as)), safeText(fmtNum(r.tb)), safeText(fmtNum(r.so)), safeText(fmtNum(r.ph2)), safeText(r.n)]);
+        });
+        widths = ['4%', '10%', '7%', '12%', '7%', '7%', '7%', '8%', '7%', '7%', '6%', '18%'];
+    } else if (type === 'eff') {
+        var header = ['#', 'تاریخ', 'ساعت'];
+        widths = ['5%', '15%', '10%'];
+        var remainingWidth = 70;
+        var devWidth = state.effDevices.length > 0 ? Math.floor(remainingWidth / state.effDevices.length) + '%' : '0%';
+        state.effDevices.forEach(function(d){ header.push(safeText(getFullDeviceName(d.i))); widths.push(devWidth); });
+        header.push('ضایعات کل');
+        widths.push('15%');
+        body.push(header);
+        list.forEach(function(r, i) {
+            var row = [safeText(toFa(i+1)), safeText(toFa(r.d)), safeText(toFa(r.h))];
+            state.effDevices.forEach(function(d){ var v = getDeviceWasteValue(r, d.i); row.push(v !== null ? fmtPercent(v) : '-'); });
+            row.push(safeText(fmtPercent(r.wp)));
+            body.push(row);
+        });
+    } else if (type === 'maint') {
+        body.push(['#', 'تاریخ', 'ساعت', 'نوع', 'دستگاه', 'وضعیت', 'توضیحات']);
+        list.forEach(function(r, i) {
+            var ai = MAINT_ACTIONS[r.mt] || { label: r.mt };
+            var st = r.st === 'success' ? 'موفق' : (r.st === 'fail' ? 'ناموفق' : '-');
+            body.push([safeText(toFa(i+1)), safeText(toFa(r.d)), safeText(toFa(r.h)), safeText(ai.label), safeText(getEquipmentName(r.p, r.et)), safeText(st), safeText(r.n)]);
+        });
+        widths = ['5%', '15%', '10%', '15%', '20%', '15%', '20%'];
+    } else if (type === 'single') {
+        var r = pdfContext.record || {};
+        body.push(['پارامتر', 'مقدار']);
+        if (r.t === 0) {
+            if (r.hd) body.push(['سختی', safeText(fmtNum(r.hd)) + ' mg/L']);
+            if (r.ec) body.push(['EC', safeText(fmtNum(r.ec)) + ' μS/cm']);
+            if (r.td) body.push(['TDS', safeText(fmtNum(r.td)) + ' ppm']);
+            if (r.ph) body.push(['pH', safeText(fmtNum(r.ph))]);
+            if (r.sg) body.push(['املاح قندی', safeText(r.sg)]);
+            var prod = state.products.ab.filter(function(p){ return p.i===r.p; })[0];
+            if(prod && prod.df) {
+                prod.df.forEach(function(f){
+                    var v = r.dv ? r.dv[f.k] : '';
+                    if(v) body.push([safeText(f.l), safeText(toFa(v))]);
+                });
+            }
+        } else if (r.t === 1) {
+            if (r.br) body.push(['بریکس', safeText(fmtNum(r.br)) + ' ٪']);
+            if (r.ec2) body.push(['EC', safeText(fmtNum(r.ec2)) + ' μS/cm']);
+            if (r.cl) body.push(['رنگ', safeText(fmtNum(r.cl)) + ' پوآن']);
+            if (r.as) body.push(['خاکستر', safeText(fmtNum(r.as)) + ' پوآن']);
+            if (r.tb) body.push(['کدورت', safeText(fmtNum(r.tb)) + ' IU']);
+            if (r.so) body.push(['SO₂', safeText(fmtNum(r.so)) + ' ppm']);
+            if (r.ph2) body.push(['pH', safeText(fmtNum(r.ph2))]);
+        } else if (r.t === 2) {
+            body.push(['ضایعات کل', safeText(fmtPercent(r.wp))]);
+        } else if (r.t === 3) {
+            var ai = MAINT_ACTIONS[r.mt] || { label: r.mt };
+            body.push(['نوع اقدام', safeText(ai.label)]);
+            if (r.st) body.push(['وضعیت', safeText(r.st === 'success' ? 'موفق' : 'ناموفق')]);
+        }
+        widths = ['50%', '50%'];
     }
-    
-    if(r.n) h += '<div style="margin-top:5px;padding:4px;border-top:1px dashed #999;font-size:9px;"><b>توضیحات:</b> '+esc(r.n)+'</div>';
-    h += sigBox + footer + '</div>';
-    return h;
-  }
-  
-  // ═══ گزارش گروهی ═══
-  var list = ctx.list || [];
-  if(!list.length) return null;
-  
-  if(type === 'water'){
-    var dfK = getAllDateFieldKeys();
-    var cols = '<col style="width:4%"><col style="width:9%"><col style="width:7%"><col style="width:12%">'
-             + '<col style="width:7%"><col style="width:8%"><col style="width:7%"><col style="width:6%">'
-             + '<col style="width:8%">';
-    dfK.forEach(function(){ cols += '<col style="width:8%">'; });
-    cols += '<col style="width:auto">';
-    var heads = ['#','تاریخ','ساعت','محصول','سختی','EC','TDS','pH','املاح'];
-    dfK.forEach(function(k){ heads.push(k.label); });
-    heads.push('توضیحات');
-    
-    var rows = list.map(function(r, i){
-      var row = '<tr><td style="'+tdStyle+'">'+toFa(i+1)+'</td><td style="'+tdStyle+'">'+toFa(r.d)+'</td><td style="'+tdStyle+'">'+toFa(r.h)+'</td><td style="'+tdRight+'">'+(getProductName(r.p)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.hd)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.ec)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.td)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.ph)||'-')+'</td><td style="'+tdStyle+'">'+(r.sg||'-')+'</td>';
-      dfK.forEach(function(k){ var v = r.dv ? r.dv[k] : ''; row += '<td style="'+tdStyle+'">'+(v?esc(toFa(v)):'-')+'</td>'; });
-      row += '<td style="'+tdRight+'">'+(r.n||'-')+'</td></tr>';
-      return row;
-    }).join('');
-    
-    return '<div style="'+wrapStyle+'">'+header+'<div style="'+titleStyle+'">گزارش سوابق آب</div>'+meta
-      +'<table style="'+tblStyle+'"><colgroup>'+cols+'</colgroup><thead><tr>'
-      +heads.map(function(x){ return '<th style="'+thStyle+'">'+esc(x)+'</th>'; }).join('')
-      +'</tr></thead><tbody>'+rows+'</tbody></table>'+sigBox+footer+'</div>';
-  }
-  
-  if(type === 'sharbat'){
-    var cols2 = '<col style="width:4%"><col style="width:9%"><col style="width:7%"><col style="width:13%">'
-              + '<col style="width:6%"><col style="width:7%"><col style="width:6%"><col style="width:8%">'
-              + '<col style="width:8%"><col style="width:7%"><col style="width:7%"><col style="width:5%"><col style="width:auto">';
-    var heads2 = ['#','تاریخ','ساعت','محصول','بریکس','EC','رنگ','خاکستر','خاکستر٪','کدورت','SO₂','pH','توضیحات'];
-    var rows2 = list.map(function(r, i){
-      return '<tr><td style="'+tdStyle+'">'+toFa(i+1)+'</td><td style="'+tdStyle+'">'+toFa(r.d)+'</td><td style="'+tdStyle+'">'+toFa(r.h)+'</td><td style="'+tdRight+'">'+(getShProductName(r.p)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.br)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.ec2)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.cl)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.as)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.aspct)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.tb)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.so)||'-')+'</td><td style="'+tdStyle+'">'+(fmtNum(r.ph2)||'-')+'</td><td style="'+tdRight+'">'+(r.n||'-')+'</td></tr>';
-    }).join('');
-    return '<div style="'+wrapStyle+'">'+header+'<div style="'+titleStyle+'">گزارش سوابق شربت</div>'+meta
-      +'<table style="'+tblStyle+'"><colgroup>'+cols2+'</colgroup><thead><tr>'
-      +heads2.map(function(x){ return '<th style="'+thStyle+'">'+esc(x)+'</th>'; }).join('')
-      +'</tr></thead><tbody>'+rows2+'</tbody></table>'+sigBox+footer+'</div>';
-  }
-  
-  if(type === 'eff'){
-    var devs = state.effDevices;
-    var devCount = devs.length;
-    var devWidth = devCount > 0 ? Math.floor(70 / devCount) : 0;
-    var cols3 = '<col style="width:4%"><col style="width:9%"><col style="width:7%">';
-    devs.forEach(function(){ cols3 += '<col style="width:'+devWidth+'%">'; });
-    cols3 += '<col style="width:10%"><col style="width:auto">';
-    var rows3 = list.map(function(r, i){
-      var row = '<tr><td style="'+tdStyle+'">'+toFa(i+1)+'</td><td style="'+tdStyle+'">'+toFa(r.d)+'</td><td style="'+tdStyle+'">'+toFa(r.h)+'</td>';
-      devs.forEach(function(d){ var v = getDeviceWasteValue(r, d.i); row += '<td style="'+tdStyle+'">'+(v===null?'-':fmtPercent(v))+'</td>'; });
-      row += '<td style="'+tdStyle+';font-weight:900;">'+fmtPercent(r.wp)+'</td><td style="'+tdRight+'">'+(r.n||'-')+'</td></tr>';
-      return row;
-    }).join('');
-    var heads3 = ['#','تاریخ','ساعت'].concat(devs.map(function(d){ return getFullDeviceName(d.i); })).concat(['ضایعات کل','توضیحات']);
-    return '<div style="'+wrapStyle+'">'+header+'<div style="'+titleStyle+'">گزارش راندمان تولید</div>'+meta
-      +'<table style="'+tblStyle+'"><colgroup>'+cols3+'</colgroup><thead><tr>'
-      +heads3.map(function(x){ return '<th style="'+thStyle+'">'+esc(x)+'</th>'; }).join('')
-      +'</tr></thead><tbody>'+rows3+'</tbody></table>'+sigBox+footer+'</div>';
-  }
-  
-  if(type === 'maint'){
-    var cols4 = '<col style="width:4%"><col style="width:9%"><col style="width:7%"><col style="width:13%"><col style="width:20%"><col style="width:10%"><col style="width:auto">';
-    var heads4 = ['#','تاریخ','ساعت','نوع','دستگاه','وضعیت','توضیحات'];
-    var rows4 = list.map(function(r, i){
-      var ai = MAINT_ACTIONS[r.mt] || { label: r.mt };
-      var st = r.st === 'success' ? 'موفق' : (r.st === 'fail' ? 'ناموفق' : '-');
-      return '<tr><td style="'+tdStyle+'">'+toFa(i+1)+'</td><td style="'+tdStyle+'">'+toFa(r.d)+'</td><td style="'+tdStyle+'">'+toFa(r.h)+'</td><td style="'+tdStyle+'">'+esc(ai.label)+'</td><td style="'+tdRight+'">'+(getEquipmentName(r.p, r.et)||'-')+'</td><td style="'+tdStyle+'">'+esc(st)+'</td><td style="'+tdRight+'">'+(r.n||'-')+'</td></tr>';
-    }).join('');
-    return '<div style="'+wrapStyle+'">'+header+'<div style="'+titleStyle+'">گزارش نگهداری</div>'+meta
-      +'<table style="'+tblStyle+'"><colgroup>'+cols4+'</colgroup><thead><tr>'
-      +heads4.map(function(x){ return '<th style="'+thStyle+'">'+esc(x)+'</th>'; }).join('')
-      +'</tr></thead><tbody>'+rows4+'</tbody></table>'+sigBox+footer+'</div>';
-  }
-  
-  return null;
+    return { table: { headerRows: 1, widths: widths, body: body }, layout: 'lightHorizontalLines' };
 }
-//--------------------------
-function buildSingleRecordHtmlInline(r){
-  if(!r) return null;
-  
-  var wrapStyle = 'direction:rtl;text-align:right;font-family:Tahoma,sans-serif;color:#000;background:#fff;padding:8mm 5mm;width:100%;box-sizing:border-box;';
-  var tblStyle = 'width:100%;border-collapse:collapse;table-layout:fixed;direction:rtl;font-size:9px;';
-  var thStyle = 'border:1px solid #888;padding:3px;background:#eee;text-align:center;font-weight:900;font-size:8px;';
-  var tdStyle = 'border:1px solid #888;padding:3px;text-align:center;font-size:9px;';
-  var tdRight = 'border:1px solid #888;padding:3px;text-align:right;font-size:9px;font-weight:bold;';
-  
-  var titleText = '', productName = '';
-  if(r.t === 0){ productName = getProductName(r.p); titleText = 'آنالیز RO' + (productName ? ' — ' + productName : ''); }
-  else if(r.t === 1){ productName = getShProductName(r.p); titleText = 'آنالیز قند' + (productName ? ' — ' + productName : ''); }
-  else if(r.t === 2){ titleText = 'راندمان تولید'; }
-  else if(r.t === 3){ productName = getEquipmentName(r.p, r.et); titleText = 'گزارش نگهداری' + (productName ? ' — ' + productName : ''); }
-  
-  var h = '<div style="' + wrapStyle + '">';
-  h += '<div style="text-align:center;margin-bottom:6px;">';
-  h += '<div style="font-size:15px;font-weight:900;">' + esc(companyName) + '</div>';
-  h += '<div style="font-size:12px;font-weight:bold;">' + esc(factoryName) + '</div>';
-  h += '</div>';
-  h += '<div style="font-size:13px;font-weight:900;text-align:center;margin:6px 0 4px;">' + esc(titleText) + '</div>';
-  
-  var metaLine = '📅 ' + esc(toFa(r.d)) + ' &nbsp;&nbsp; 🕐 ' + esc(toFa(r.h));
-  if(productName) metaLine += ' &nbsp;&nbsp; 📦 ' + esc(productName);
-  h += '<div style="text-align:center;font-size:9px;margin-bottom:8px;border-bottom:1px solid #999;padding-bottom:3px;">' + metaLine + '</div>';
-  
-  if(r.t === 0 || r.t === 1){
-    var paramDefs = [];
-    if(r.t === 0){
-      paramDefs = [
-        {val:r.hd, label:'سختی', unit:'mg/L'},
-        {val:r.ec, label:'EC', unit:'μS/cm'},
-        {val:r.td, label:'TDS', unit:'ppm'},
-        {val:r.ph, label:'pH', unit:''}
-      ];
-      if(r.sg) paramDefs.push({val:r.sg, label:'املاح قندی', unit:''});
-    } else {
-      paramDefs = [
-        {val:r.br, label:'بریکس', unit:'٪'},
-        {val:r.ec2, label:'EC', unit:'μS/cm'},
-        {val:r.cl, label:'رنگ', unit:'پوآن'},
-        {val:r.as, label:'خاکستر (پوآن)', unit:'پوآن'},
-        {val:r.aspct, label:'خاکستر (وزنی)', unit:'٪'},
-        {val:r.tb, label:'کدورت', unit:'IU'},
-        {val:r.so, label:'SO₂', unit:'ppm'},
-        {val:r.ph2, label:'pH', unit:''}
-      ];
-    }
-    h += '<table style="' + tblStyle + '"><colgroup><col style="width:40%"><col style="width:60%"></colgroup>';
-    h += '<thead><tr><th style="' + thStyle + '">پارامتر</th><th style="' + thStyle + '">مقدار</th></tr></thead><tbody>';
-    paramDefs.forEach(function(p){
-      if(p.val === undefined || p.val === '' || p.val === null) return;
-      h += '<tr><td style="' + tdRight + '">' + esc(p.label) + '</td>';
-      h += '<td style="' + tdStyle + '">' + esc(fmtNum(p.val)) + (p.unit ? ' ' + esc(p.unit) : '') + '</td></tr>';
-    });
-    h += '</tbody></table>';
-  } else if(r.t === 2){
-    h += '<table style="' + tblStyle + '"><colgroup><col style="width:60%"><col style="width:40%"></colgroup>';
-    h += '<thead><tr><th style="' + thStyle + '">دستگاه</th><th style="' + thStyle + '">درصد ضایعات</th></tr></thead><tbody>';
-    state.effDevices.forEach(function(d){
-      var v = getDeviceWasteValue(r, d.i);
-      if(v !== null) h += '<tr><td style="' + tdRight + '">' + esc(getFullDeviceName(d.i)) + '</td><td style="' + tdStyle + '">' + fmtPercent(v) + '</td></tr>';
-    });
-    h += '<tr><td style="' + tdRight + '">ضایعات کل</td><td style="' + tdStyle + '"><b>' + fmtPercent(r.wp) + '</b></td></tr>';
-    h += '</tbody></table>';
-  } else if(r.t === 3){
-    var ai = MAINT_ACTIONS[r.mt] || { label: r.mt };
-    h += '<table style="' + tblStyle + '"><colgroup><col style="width:40%"><col style="width:60%"></colgroup>';
-    h += '<thead><tr><th style="' + thStyle + '">شرح</th><th style="' + thStyle + '">مقدار</th></tr></thead><tbody>';
-    h += '<tr><td style="' + tdRight + '">نوع اقدام</td><td style="' + tdStyle + '">' + esc(ai.label) + '</td></tr>';
-    if(r.st) h += '<tr><td style="' + tdRight + '">وضعیت</td><td style="' + tdStyle + '">' + (r.st === 'success' ? 'موفق' : 'ناموفق') + '</td></tr>';
-    h += '</tbody></table>';
-  }
-  
-  if(r.n) h += '<div style="margin-top:5px;padding:4px;border-top:1px dashed #999;font-size:9px;"><b>توضیحات:</b> ' + esc(r.n) + '</div>';
-  
-  h += '<div style="display:flex;justify-content:space-between;margin-top:10mm;">';
-  h += '<div style="width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:9px;font-weight:bold;"><div style="height:8mm;"></div>نام و امضاء مسئول آزمایشگاه</div>';
-  h += '<div style="width:45%;text-align:center;border-top:1px solid #000;padding-top:2mm;font-size:9px;font-weight:bold;"><div style="height:8mm;"></div>روز / ماه / سال</div>';
-  h += '</div>';
-  
-  h += '<div style="text-align:center;font-size:7px;margin-top:4mm;border-top:1px dashed #999;padding-top:2mm;">تاریخ چاپ: ' + todayJalali() + ' — نسخه ۵.۳.۳</div>';
-  h += '</div>';
-  
-  return h;
-}
-
-
+// تابع اصلی چاپ و تولید PDF
 async function runPrint(html, outputMode, pdfContext){
   outputMode = outputMode || 'print';
-  var pa = document.getElementById('printArea');
-  if(!pa) return;
   
-  // ═══ حالت چاپ: از HTML اصلی استفاده کن ═══
   if(outputMode === 'print'){
+    var pa = document.getElementById('printArea');
+    if(!pa) return;
     pa.innerHTML = html;
     setTimeout(function(){
       var cl = function(){ pa.innerHTML = ''; window.removeEventListener('afterprint', cl); };
@@ -2474,123 +2376,96 @@ async function runPrint(html, outputMode, pdfContext){
     }, 200);
     return;
   }
-  
-  // ═══ حالت PDF/اشتراک: از HTML inline استفاده کن ═══
-  if(typeof html2pdf === 'undefined'){
-    showToast('کتابخانه PDF بارگذاری نشد — اینترنت را بررسی کنید', 'error', 4000);
+
+  if(typeof pdfMake === 'undefined'){
+    customAlert('❌ کتابخانه PDF بارگذاری نشد.\nلطفاً اینترنت خود را بررسی کنید و صفحه را رفرش کنید.', {okText: 'باشه'});
     return;
   }
-  
-  var pdfHtml;
-if(pdfContext && pdfContext.reportType === 'single' && pdfContext.record){
-  pdfHtml = buildSingleRecordHtmlInline(pdfContext.record);
-} else {
-  pdfHtml = buildReportHtmlForPdf(pdfContext);
-}
-if(!pdfHtml){
-    showToast('خطا در ساخت گزارش', 'error', 3000);
-    return;
-  }
-  
+
+  pdfMake.fonts = {
+      Vazir: {
+          normal: 'Vazir.ttf',
+          bold: 'Vazir-Bold.ttf',
+          italics: 'Vazir.ttf',
+          bolditalics: 'Vazir-Bold.ttf'
+      }
+  };
+
   var fileName = buildPdfFileName(pdfContext);
-  pa.innerHTML = pdfHtml;
-  pa.style.cssText = 'display:block;position:fixed;top:0;left:0;width:190mm;background:#fff;z-index:99998;overflow:visible;';
+  var isLandscape = pdfContext && pdfContext.orientation === 'landscape';
+  var typeTitle = 'گزارش سوابق ' + (pdfContext.reportType === 'water' ? 'آب' : pdfContext.reportType === 'sharbat' ? 'شربت' : pdfContext.reportType === 'eff' ? 'راندمان' : 'نگهداری');
   
-  var overlay = document.createElement('div');
-  overlay.id = '__pdf_capture_overlay__';
-  overlay.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:99999;';
-  document.body.appendChild(overlay);
-  
-  showToast('⏳ در حال تولید PDF...', 'info', 3000);
-  
-  try {
-    var pdfBlob = await html2pdf()
-      .set({
-        margin: [8, 8, 8, 8],
-        filename: fileName,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff'
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr'] }
-      })
-      .from(pa)
-      .outputPdf('blob');
-    
-    pa.innerHTML = '';
-    pa.style.cssText = '';
-    var ov = document.getElementById('__pdf_capture_overlay__');
-    if(ov) ov.remove();
-    
-    if(outputMode === 'pdf'){
-      var url = URL.createObjectURL(pdfBlob);
-      var a = document.createElement('a');
-      a.href = url; a.download = fileName;
-      document.body.appendChild(a); a.click();
-      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
-      showToast('📥 فایل PDF دانلود شد: ' + fileName, 'success', 4000);
-      return;
-    }
-    
-    if(outputMode === 'share'){
-      if(!navigator.canShare || !navigator.share){
-        showToast('مرورگر از اشتراک‌گذاری پشتیبانی نمی‌کند — دانلود می‌شود', 'warning', 5000);
-        var url2 = URL.createObjectURL(pdfBlob);
-        var a2 = document.createElement('a');
-        a2.href = url2; a2.download = fileName;
-        document.body.appendChild(a2); a2.click();
-        setTimeout(function(){ document.body.removeChild(a2); URL.revokeObjectURL(url2); }, 500);
-        return;
-      }
-      
-      var pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
-      
-      if(!navigator.canShare({ files: [pdfFile] })){
-        showToast('این مرورگر از اشتراک‌گذاری PDF پشتیبانی نمی‌کند — دانلود می‌شود', 'warning', 5000);
-        var url3 = URL.createObjectURL(pdfBlob);
-        var a3 = document.createElement('a');
-        a3.href = url3; a3.download = fileName;
-        document.body.appendChild(a3); a3.click();
-        setTimeout(function(){ document.body.removeChild(a3); URL.revokeObjectURL(url3); }, 500);
-        return;
-      }
-      
-      try{
-        await navigator.share({ files: [pdfFile], title: 'گزارش آزمایشگاه', text: 'گزارش تولید شده از سیستم مدیریت آزمایشگاه' });
-        showToast('✅ گزارش PDF به اشتراک گذاشته شد', 'success', 3000);
-      } catch(shareErr){
-        if(shareErr.name === 'AbortError') return;
-        // NotAllowedError → مودال تأیید دوم
-        var ok = await customConfirm('📄 فایل PDF آماده است اما مرورگر اجازه ارسال مستقیم نداد.\n\nبرای ارسال روی دکمه زیر بزنید:', { okText: '📤 اشتراک‌گذاری', cancelText: 'انصراف' });
-        if(ok){
-          try{
-            await navigator.share({ files: [pdfFile], title: 'گزارش آزمایشگاه', text: 'گزارش' });
-            showToast('✅ گزارش به اشتراک گذاشته شد', 'success', 3000);
-          } catch(e2){
-            if(e2.name !== 'AbortError'){
-              var url4 = URL.createObjectURL(pdfBlob);
-              var a4 = document.createElement('a');
-              a4.href = url4; a4.download = fileName;
-              document.body.appendChild(a4); a4.click();
-              setTimeout(function(){ document.body.removeChild(a4); URL.revokeObjectURL(url4); }, 500);
-              showToast('📥 فایل دانلود شد', 'info', 3000);
-            }
-          }
-        }
-      }
-    }
-  } catch(pdfErr){
-    console.error('PDF error:', pdfErr);
-    pa.innerHTML = '';
-    pa.style.cssText = '';
-    var ov2 = document.getElementById('__pdf_capture_overlay__');
-    if(ov2) ov2.remove();
-    showToast('❌ خطا در تولید PDF: ' + pdfErr.message, 'error', 6000);
+  if(pdfContext.reportType === 'single'){
+      var r = pdfContext.record;
+      var productName = r.t === 0 ? getProductName(r.p) : (r.t === 1 ? getShProductName(r.p) : (r.t === 3 ? getEquipmentName(r.p, r.et) : ''));
+      typeTitle = (r.t === 0 || r.t === 1) ? ('آنالیز ' + (productName || '')) : (r.t === 2 ? 'راندمان تولید' : 'گزارش نگهداری' + (productName ? ' — ' + productName : ''));
   }
+
+  var docDefinition = {
+      pageSize: 'A4',
+      pageOrientation: isLandscape ? 'landscape' : 'portrait',
+      pageMargins: [15, 20, 15, 20], 
+      content: [
+          { text: companyName || '', style: 'company' },
+          { text: factoryName || '', style: 'factory' },
+          { text: typeTitle, style: 'title' },
+          { text: 'تاریخ چاپ: ' + todayJalali(), style: 'meta' },
+          buildPdfMakeContent(pdfContext),
+          { text: 'نام و امضاء مسئول آزمایشگاه', style: 'signature' }
+      ],
+      styles: {
+          company: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 0, 0, 2] },
+          factory: { fontSize: 13, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
+          title: { fontSize: 15, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
+          meta: { fontSize: 10, alignment: 'left', margin: [0, 0, 0, 10] },
+          signature: { fontSize: 11, bold: true, alignment: 'center', margin: [0, 30, 0, 0] }
+      },
+      defaultStyle: { font: 'Vazir', fontSize: 9, alignment: 'center' }
+  };
+
+  showToast('⏳ در حال تولید PDF...', 'info', 5000);
+
+  // پردازش در یک تیک جداگانه تا رابط کاربری قفل نشود
+  setTimeout(function() {
+      try {
+          pdfMake.createPdf(docDefinition).getBlob(
+              function(pdfBlob) {
+                  customAlert('✅ عملیات تولید PDF به پایان رسید.\n\nحجم فایل: ' + formatBytes(pdfBlob.size), {okText: 'فهمیدم'});
+                  
+                  if(outputMode === 'pdf'){
+                      var url = URL.createObjectURL(pdfBlob);
+                      var a = document.createElement('a');
+                      a.href = url; a.download = fileName;
+                      document.body.appendChild(a); a.click();
+                      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+                      showToast('📥 فایل ذخیره شد', 'success', 4000);
+                      return;
+                  }
+
+                  if(outputMode === 'share'){
+                      var pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                      if(!navigator.canShare || !navigator.share || !navigator.canShare({ files: [pdfFile] })){
+                          var url2 = URL.createObjectURL(pdfBlob);
+                          var a2 = document.createElement('a');
+                          a2.href = url2; a2.download = fileName;
+                          document.body.appendChild(a2); a2.click();
+                          setTimeout(function(){ document.body.removeChild(a2); URL.revokeObjectURL(url2); }, 500);
+                          showToast('📥 اشتراک پشتیبانی نمی‌شود — فایل ذخیره شد', 'info', 4000);
+                          return;
+                      }
+                      navigator.share({ files: [pdfFile], title: 'گزارش', text: 'گزارش سیستم' }).then(function(){
+                          showToast('✅ گزارش PDF به اشتراک گذاشته شد', 'success', 3000);
+                      }).catch(function(e){
+                          if(e.name !== 'AbortError') showToast('❌ خطا در اشتراک‌گذاری: ' + e.message, 'error', 4000);
+                      });
+                  }
+              }
+          );
+      } catch(err) {
+          console.error('PDF Error:', err);
+          customAlert('❌ خطای تولید PDF:\n' + (err.message || 'مشکل در داده‌ها یا فونت'), {okText: 'باشه'});
+      }
+  }, 100);
 }
 
 function buildPrintHeader(title,showLetterhead){
@@ -2600,6 +2475,7 @@ function buildPrintHeader(title,showLetterhead){
   } else if(title){ lh='<div class="p-report-name">'+esc(title)+'</div>'; }
   return lh;
 }
+
 function buildSignature(){ return '<div class="p-signatures"><div class="p-sig-box"><div class="p-sig-space"></div>نام و امضاء مسئول آزمایشگاه</div><div class="p-sig-box"><div class="p-sig-space"></div>روز / ماه / سال</div></div>'; }
 function getActiveRecords(){ return state.records.filter(function(r){ return !r.x; }); }
 
@@ -2613,10 +2489,96 @@ function getUserIdName(id){
   return 'کاربر قدیمی #'+toFa(id);
 }
 
+async function printWaterAnalysisReport(returnHtmlOnly) {
+    var list = getActiveRecords().filter(function(r){ return r.t === 0; }).filter(matchFilter).sort(sortFn);
+    if(!list.length){ showToast('رکوردی نیست', 'info'); return; }
+    
+    // گروه‌بندی بر اساس تاریخ
+    var dates = [];
+    var dateMap = {};
+    list.forEach(function(r){
+        var d = normalizeDate(r.d);
+        if(!dateMap[d]) { dateMap[d] = []; dates.push(d); }
+        dateMap[d].push(r);
+    });
+    
+    // استخراج محصولاتی که در بازه انتخابی رکورد دارند
+    var productIds = new Set(list.map(function(r){ return r.p; }));
+    var products = state.products.ab.filter(function(p){ return productIds.has(p.i); });
+    products.sort(function(a,b){ return a.n.localeCompare(b.n, 'fa'); });
+    
+    var settings = await askForPrintSettings('water_analysis', true, 'landscape');
+    if(!settings) return;
+    
+    setPrintPageRule('@page{size:A4 landscape;margin:10mm}');
+    
+    var html = buildPrintHeader('گزارش آنالیز آب مصرفی', settings.showLetterhead);
+    html += '<div class="p-meta-line"><span>تاریخ چاپ: '+todayJalali()+'</span><span>کاربر: کد '+toFa(userCode)+'</span></div>';
+    
+    // فقط یک ستون برای تاریخ
+    var cols = '<col style="width:10%">';
+    products.forEach(function(){ cols += '<col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%">'; });
+    
+    html += '<div class="p-table-wrap" style="overflow-x:auto;"><table class="p-simple-table" style="table-layout:fixed; width:100%; min-width:100%;"><colgroup>' + cols + '</colgroup><thead>';
+    
+    // هدر ردیف اول (نام محصولات)
+    html += '<tr><th rowspan="2">تاریخ</th>';
+    products.forEach(function(p){ 
+        html += '<th colspan="4" style="border-right:1px solid #999;">'+esc(p.n)+'</th>'; 
+    });
+    html += '</tr>';
+    
+    // هدر ردیف دوم (پارامترها)
+    html += '<tr>';
+    products.forEach(function(){ 
+        html += '<th style="border-right:1px solid #999;">TDS</th><th>EC</th><th>TH</th><th>pH</th>'; 
+    });
+    html += '</tr></thead><tbody>';
+    
+    // تولید ردیف‌های داده بر اساس تاریخ
+    dates.forEach(function(d){
+        var dayRecords = dateMap[d];
+        var prodRecords = {};
+        
+        products.forEach(function(p){
+            var rs = dayRecords.filter(function(r){ return r.p === p.i; });
+            if(rs.length > 0) {
+                rs.sort(function(a,b){ return toLatinDigits(b.h||'').localeCompare(toLatinDigits(a.h||'')); });
+                prodRecords[p.i] = rs[0];
+            }
+        });
+        
+        // فقط تاریخ در ستون اول
+        html += '<tr><td>'+esc(toFa(d))+'</td>';
+        products.forEach(function(p){
+            var r = prodRecords[p.i];
+            var firstStyle = ' style="border-right:1px solid #999;"';
+            if(r) {
+                // سلول خالی = رشته خالی (نه خط تیره)
+                html += '<td'+firstStyle+'>'+(r.td ? esc(fmtNum(r.td)) : '')+'</td>';
+                html += '<td>'+(r.ec ? esc(fmtNum(r.ec)) : '')+'</td>';
+                html += '<td>'+(r.hd ? esc(fmtNum(r.hd)) : '')+'</td>';
+                html += '<td>'+(r.ph ? esc(fmtNum(r.ph)) : '')+'</td>';
+            } else {
+                html += '<td'+firstStyle+'></td><td></td><td></td><td></td>';
+            }
+        });
+        html += '</tr>';
+    });
+    
+    html += '</tbody></table></div>';
+    if(settings.showLetterhead) html += buildSignature();
+    html += '<div class="p-footer">تاریخ چاپ: '+todayJalali()+' — نسخه ۵.۳.۳</div>';
+    
+html = applyVisualStylesToHtml(html, settings);
+    
+    if(returnHtmlOnly) return { html: html, settings: settings };
+    runPrint(html, settings.outputMode, { reportType: 'water_analysis', list: list, products: products, dates: dates, dateMap: dateMap });
+}
 async function printWaterReport(returnHtmlOnly){
   var list=getActiveRecords().filter(function(r){ return r.t===0; }).filter(matchFilter).sort(sortFn);
   if(!list.length){ showToast('رکوردی نیست','info'); return; }
-  var settings=await askForPrintSettings('water',printDefaults.showLetterhead);
+  var settings=await askForPrintSettings('water',true);
   if(!settings) return;
   
   setPrintPageRule('@page{size:A4 '+(settings.orientation||'portrait')+';margin:10mm}');
@@ -2642,6 +2604,7 @@ async function printWaterReport(returnHtmlOnly){
       html += buildWaterTrend(list, settings.chartParams, settings.chartPoints);
       html += '</div></div>';
   }
+html = applyVisualStylesToHtml(html, settings);
   
   if(returnHtmlOnly) return { html: html, settings: settings };
 
@@ -2651,7 +2614,7 @@ runPrint(html, settings.outputMode, { reportType: 'water', list: list });
 async function printSharbatReport(returnHtmlOnly){
   var list=getActiveRecords().filter(function(r){ return r.t===1; }).filter(matchFilter).sort(sortFn);
   if(!list.length){ showToast('رکوردی نیست','info'); return; }
-  var settings=await askForPrintSettings('sharbat',printDefaults.showLetterhead);
+  var settings=await askForPrintSettings('sharbat',true);
   if(!settings) return;
   
   setPrintPageRule('@page{size:A4 '+(settings.orientation||'portrait')+';margin:10mm}');
@@ -2673,6 +2636,8 @@ async function printSharbatReport(returnHtmlOnly){
       html += buildSharbatTrend(list, settings.chartParams, settings.chartPoints);
       html += '</div></div>';
   }
+  
+html = applyVisualStylesToHtml(html, settings);
   if(returnHtmlOnly) return { html: html, settings: settings };
   runPrint(html, settings.outputMode, { reportType: 'sharbat', list: list });
 }
@@ -2680,7 +2645,7 @@ async function printSharbatReport(returnHtmlOnly){
 async function printEffReport(returnHtmlOnly){
   var list=getActiveRecords().filter(function(r){ return r.t===2; }).filter(matchFilter).sort(sortFn);
   if(!list.length){ showToast('رکوردی نیست','info'); return; }
-  var settings=await askForPrintSettings('eff',printDefaults.showLetterhead);
+  var settings=await askForPrintSettings('eff',true);
   if(!settings) return;
   
   setPrintPageRule('@page{size:A4 '+(settings.orientation||'portrait')+';margin:10mm}');
@@ -2707,6 +2672,8 @@ async function printEffReport(returnHtmlOnly){
       html += buildEffTrend(list, settings.chartParams, settings.chartPoints);
       html += '</div></div>';
   }
+  
+html = applyVisualStylesToHtml(html, settings);
   if(returnHtmlOnly) return { html: html, settings: settings };
   runPrint(html, settings.outputMode, { reportType: 'eff', list: list });
 }
@@ -2714,7 +2681,7 @@ async function printEffReport(returnHtmlOnly){
 async function printMaintenanceReport(returnHtmlOnly){
   var list=getActiveRecords().filter(function(r){ return r.t===3; }).filter(matchFilter).sort(sortFn);
   if(!list.length){ showToast('رکوردی نیست','info'); return; }
-  var settings=await askForPrintSettings('maint',printDefaults.showLetterhead);
+  var settings=await askForPrintSettings('maint',true);
   if(!settings) return;
   
   setPrintPageRule('@page{size:A4 '+(settings.orientation||'portrait')+';margin:10mm}');
@@ -2731,15 +2698,16 @@ async function printMaintenanceReport(returnHtmlOnly){
   html += '</tbody></table></div>';
   
   if(settings.showLetterhead) html += buildSignature();
-  html += '<div class="p-footer">تاریخ چاپ: ' + todayJalali() + ' — نسخه ۵.۳.۳</div>';
+  html += '<div class="p-footer">تاریخ چاپ: ' + todayJalali() + ' — نسخه ۵.۳.۳</div>'
+  ;
+html = applyVisualStylesToHtml(html, settings);
   if(returnHtmlOnly) return { html: html, settings: settings };
   runPrint(html, settings.outputMode, { reportType: 'maint', list: list });
 }
 async function viewRecord(id, returnHtmlOnly){
-
   var r=state.records.filter(function(x){ return x.i===id; })[0];
   if(!r){ showToast('یافت نشد','error'); return; }
-  var settings=await askForPrintSettings('single',printDefaults.showLetterhead);
+  var settings=await askForPrintSettings('single',true);
   if(!settings) return;
   
   setPrintPageRule('@page{size:A4 portrait;margin:10mm}');
@@ -2752,10 +2720,10 @@ async function viewRecord(id, returnHtmlOnly){
   
   if(r.t === 0) {
       productName = getProductName(r.p);
-      titleText = 'آنالیز RO' + (productName ? ' — ' + productName : '');
+      titleText = 'آنالیز ' + (productName || '');
   } else if(r.t === 1) {
       productName = getShProductName(r.p);
-      titleText = 'آنالیز قند' + (productName ? ' — ' + productName : '');
+      titleText = 'آنالیز ' + (productName || '');
   } else if(r.t === 2) {
       titleText = 'راندمان تولید';
   } else if(r.t === 3) {
@@ -2810,16 +2778,17 @@ async function viewRecord(id, returnHtmlOnly){
       ];
     }
     
+    // ⬇️ این بخش اصلاح شد (استفاده از html به جای h)
     paramDefs.forEach(function(p){
       if(p.val === undefined || p.val === '' || p.val === null) return;
-      
       var displayVal = p.isDate ? esc(toFa(p.val)) : esc(fmtNum(p.val));
-      
       html += '<tr>';
-      html += '<td style="text-align:right; font-weight:bold;">' + esc(p.label) + '</td>';
+      html += '<td style="text-align:right; font-weight:bold; padding-right:10mm !important;">' + esc(p.label) + '</td>';
       html += '<td class="val">' + displayVal + ' <span style="font-size:10px;font-weight:normal;">' + esc(p.unit) + '</span></td>';
       html += '</tr>';
     });
+    // ⬆️ پایان بخش اصلاح شده
+    
     html += '</tbody></table>';
   } else if (r.t === 2) {
     html += '<table class="p-simple-table">';
@@ -2856,7 +2825,7 @@ async function viewRecord(id, returnHtmlOnly){
   html += '<div class="p-footer">این گزارش بر اساس استاندارد ISIRI 3680 — نسخه ' + toFa('5.3.3') + ' — تاریخ چاپ: ' + todayJalali() + '</div>';
   html += '</div>';
   
-   // if(returnHtmlOnly) return { html: html, settings: settings };
+  html = applyVisualStylesToHtml(html, settings);
   if(returnHtmlOnly) return { html: html, settings: settings, type: 'single', recordType: r.t, productName: productName };
   
   runPrint(html, settings.outputMode, { reportType: 'single', record: r });
@@ -2909,7 +2878,7 @@ function openDrawer(){
   var genBtn=document.getElementById('generateLicenseBtn'); if(genBtn) genBtn.hidden=!isAdminDevice();
   var adminHint=document.getElementById('licenseAdminHint'); if(adminHint) adminHint.hidden=isAdminDevice();
   renderLicenseStatus();
-  loadPrintDefaultsIntoUI();
+  
   updateGhUI();
   renderManageLists(); renderMaintCardsEditor(); renderLabEquipmentList();
   renderStdListsSettings();
